@@ -1,6 +1,7 @@
 import type {ExtractStoreData, SAFE_ANY} from '@helpers/type';
 
 import {getBetaVersion} from '@helpers/beta';
+import {getCanaryVersion} from '@helpers/canary';
 import {type Components, getLatestVersion} from 'src/scripts/helpers';
 
 import {HEROUI_CLI, HERO_UI} from './required';
@@ -10,9 +11,12 @@ export type HeroUIComponentsMap = Record<string, Components[0]>;
 export type Store = {
   debug: boolean;
   beta: boolean;
+  canary: boolean;
+
   cliLatestVersion: string;
   latestVersion: string;
   betaVersion: string;
+  canaryVersion: string;
 
   // HeroUI
   heroUIComponents: Components;
@@ -24,23 +28,34 @@ export type Store = {
 
   // Beta HeroUI
   betaHeroUIComponents: Components;
-  betaHeroUIIComponentsKeys: string[];
+  betaHeroUIComponentsKeys: string[];
   betaHeroUIcomponentsPackages: string[];
   betaHeroUIComponentsKeysSet: Set<string>;
   betaHeroUIComponentsMap: HeroUIComponentsMap;
   betaHeroUIComponentsPackageMap: HeroUIComponentsMap;
+
+  // Canary HeroUI
+  canaryHeroUIComponents: Components;
+  canaryHeroUIComponentsKeys: string[];
+  canaryHeroUIcomponentsPackages: string[];
+  canaryHeroUIComponentsKeysSet: Set<string>;
+  canaryHeroUIComponentsMap: HeroUIComponentsMap;
+  canaryHeroUIComponentsPackageMap: HeroUIComponentsMap;
 };
 
 /* eslint-disable sort-keys-fix/sort-keys-fix, sort-keys */
 export const store = {
   debug: false,
   beta: false,
+  canary: false,
+
   cliLatestVersion: '',
   latestVersion: '',
   betaVersion: '',
+  canaryVersion: '',
 
   betaHeroUIComponents: [],
-  betaHeroUIIComponentsKeys: [],
+  betaHeroUIComponentsKeys: [],
   betaHeroUIComponentsKeysSet: new Set(),
   betaHeroUIComponentsMap: {},
   betaHeroUIComponentsPackageMap: {},
@@ -51,7 +66,14 @@ export const store = {
   heroUIComponentsKeysSet: new Set(),
   heroUIComponentsMap: {},
   heroUIComponentsPackageMap: {},
-  heroUIcomponentsPackages: []
+  heroUIcomponentsPackages: [],
+
+  canaryHeroUIComponents: [],
+  canaryHeroUIComponentsKeys: [],
+  canaryHeroUIcomponentsPackages: [],
+  canaryHeroUIComponentsKeysSet: new Set(),
+  canaryHeroUIComponentsMap: {},
+  canaryHeroUIComponentsPackageMap: {}
 } as Store;
 /* eslint-enable sort-keys-fix/sort-keys-fix, sort-keys */
 
@@ -73,6 +95,10 @@ export async function getStore<T extends StoreKeys = StoreKeys>(
       store[key] = data;
     } else if (key === 'betaVersion') {
       data = (await getBetaVersion(HERO_UI)) as SAFE_ANY;
+
+      store[key] = data;
+    } else if (key === 'canaryVersion') {
+      data = (await getCanaryVersion(HERO_UI)) as SAFE_ANY;
 
       store[key] = data;
     }

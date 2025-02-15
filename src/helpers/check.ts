@@ -22,7 +22,7 @@ import {
 import {store} from 'src/constants/store';
 import {compareVersions} from 'src/scripts/helpers';
 
-import {getBetaVersionData} from './beta';
+import {getPackageVersionData} from './beta';
 import {Logger} from './logger';
 import {getMatchArray, getMatchImport} from './match';
 import {findMostMatchText} from './math-diff';
@@ -107,6 +107,19 @@ interface CheckPeerDependenciesConfig {
   allDependencies?: Record<string, SAFE_ANY>;
   packageNames?: string[];
   beta?: boolean;
+  canary?: boolean;
+}
+
+export function getConditionData(beta: boolean, canary: boolean) {
+  return beta
+    ? {tag: 'beta', version: store.betaVersion}
+    : canary
+      ? {tag: 'canary', version: store.canaryVersion}
+      : null;
+}
+
+export function getConditionLatestVersion(beta: boolean, canary: boolean) {
+  return beta ? store.betaVersion : canary ? store.canaryVersion : store.latestVersion;
 }
 
 /**
@@ -124,14 +137,15 @@ export async function checkRequiredContentInstalled<
   dependenciesKeys: Set<string>,
   checkPeerDependenciesConfig?: T extends {peerDependencies: infer P}
     ? P extends true
-      ? PartialKey<Required<CheckPeerDependenciesConfig>, 'beta'>
+      ? PartialKey<Required<CheckPeerDependenciesConfig>, 'beta' | 'canary'>
       : T
     : T
 ): Promise<CheckResult> {
   const result = [] as unknown as CheckResult;
-  const {allDependencies, beta, packageNames, peerDependencies} = (checkPeerDependenciesConfig ??
-    {}) as Required<CheckPeerDependenciesConfig>;
+  const {allDependencies, beta, canary, packageNames, peerDependencies} =
+    (checkPeerDependenciesConfig ?? {}) as Required<CheckPeerDependenciesConfig>;
   const peerDependenciesList: string[] = [];
+  const conditionData = getConditionData(beta, canary);
 
   if (peerDependencies) {
     const peerDepList = await checkPeerDependencies({allDependencies, packageNames});
@@ -147,7 +161,8 @@ export async function checkRequiredContentInstalled<
     if (hasAllComponents && hasFramerMotion && !peerDependenciesList.length) {
       return [true];
     }
-    !hasAllComponents && result.push(beta ? `${HERO_UI}@${store.betaVersion}` : HERO_UI);
+    !hasAllComponents &&
+      result.push(conditionData ? `${HERO_UI}@${conditionData.version}` : HERO_UI);
     !hasFramerMotion && result.push(FRAMER_MOTION);
     !hasTailwind && result.push(TAILWINDCSS);
   } else if (type === 'partial') {
@@ -160,11 +175,15 @@ export async function checkRequiredContentInstalled<
       return [true];
     }
     !hasFramerMotion && result.push(FRAMER_MOTION);
-    const betaSystemUI = await getBetaVersionData(SYSTEM_UI);
-    const betaThemeUI = await getBetaVersionData(THEME_UI);
+    const conditionSystemUI = JSON.parse(await getPackageVersionData(SYSTEM_UI));
+    const conditionThemeUI = JSON.parse(await getPackageVersionData(THEME_UI));
 
-    !hasSystemUI && result.push(beta ? `${SYSTEM_UI}@${betaSystemUI}` : SYSTEM_UI);
-    !hasThemeUI && result.push(beta ? `${THEME_UI}@${betaThemeUI}` : THEME_UI);
+    !hasSystemUI &&
+      result.push(
+        conditionData ? `${SYSTEM_UI}@${conditionSystemUI[conditionData.tag]}` : SYSTEM_UI
+      );
+    !hasThemeUI &&
+      result.push(conditionData ? `${THEME_UI}@${conditionThemeUI[conditionData.tag]}` : THEME_UI);
     !hasTailwind && result.push(TAILWINDCSS);
   }
 

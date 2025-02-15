@@ -3,10 +3,13 @@ import type {RequiredKey, SAFE_ANY} from './type';
 import chalk from 'chalk';
 
 import {HERO_UI, THEME_UI} from 'src/constants/required';
-import {store} from 'src/constants/store';
+import {getStoreSync, store} from 'src/constants/store';
 import {getCacheExecData} from 'src/scripts/cache/cache';
 import {type Dependencies, compareVersions, getLatestVersion} from 'src/scripts/helpers';
 
+import {getBetaVersion} from './beta';
+import {getCanaryVersion} from './canary';
+import {getConditionLatestVersion} from './check';
 import {Logger} from './logger';
 import {colorMatchRegex, outputBox} from './output-info';
 import {
@@ -195,13 +198,19 @@ export async function getPackagePeerDep(
     }
 
     const currentVersion = allDependencies[peerPackage];
-    let formatPeerVersion = transformPeerVersion(peerVersion);
+    let formatPeerVersion = getStoreSync('beta')
+      ? await getBetaVersion(peerPackage)
+      : getStoreSync('canary')
+        ? await getCanaryVersion(peerPackage)
+        : transformPeerVersion(peerVersion);
 
     if (!currentVersion) {
+      // If the peer package is not installed, then add minimum version to the missingDepList
       missingDepList.add({name: peerPackage, version: formatPeerVersion});
       continue;
     }
     const {versionMode} = getVersionAndMode(allDependencies, peerPackage);
+
     const isLatest = compareVersions(currentVersion, formatPeerVersion) >= 0;
 
     if (isLatest) {
@@ -270,7 +279,7 @@ export async function getAllOutputData(
     };
   }
 
-  const latestVersion = store.latestVersion;
+  const latestVersion = getConditionLatestVersion(store.beta, store.canary);
 
   const {currentVersion, versionMode} = getVersionAndMode(allDependencies, HERO_UI);
   const colorVersion = getColorVersion(currentVersion, latestVersion);

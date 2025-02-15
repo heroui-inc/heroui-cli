@@ -29,10 +29,12 @@ export function getHerouiComponentsData(heroUIComponents: Components) {
 }
 
 export function initStoreComponentsData({
-  beta,
+  beta = false,
+  canary = false,
   heroUIComponents
 }: {
-  beta: boolean;
+  beta?: boolean;
+  canary?: boolean;
   heroUIComponents: Components;
 }) {
   const {
@@ -45,11 +47,18 @@ export function initStoreComponentsData({
 
   if (beta) {
     store.betaHeroUIComponents = heroUIComponents;
-    store.betaHeroUIIComponentsKeys = heroUIComponentsKeys;
+    store.betaHeroUIComponentsKeys = heroUIComponentsKeys;
     store.betaHeroUIComponentsKeysSet = heroUIComponentsKeysSet;
     store.betaHeroUIComponentsMap = heroUIComponentsMap;
     store.betaHeroUIComponentsPackageMap = heroUIComponentsPackageMap;
     store.betaHeroUIcomponentsPackages = heroUIcomponentsPackages;
+  } else if (canary) {
+    store.canaryHeroUIComponents = heroUIComponents;
+    store.canaryHeroUIComponentsKeys = heroUIComponentsKeys;
+    store.canaryHeroUIComponentsKeysSet = heroUIComponentsKeysSet;
+    store.canaryHeroUIComponentsMap = heroUIComponentsMap;
+    store.canaryHeroUIComponentsPackageMap = heroUIComponentsPackageMap;
+    store.canaryHeroUIcomponentsPackages = heroUIcomponentsPackages;
   } else {
     store.heroUIComponents = heroUIComponents;
     store.heroUIComponentsKeys = heroUIComponentsKeys;

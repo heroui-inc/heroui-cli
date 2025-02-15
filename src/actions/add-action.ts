@@ -6,6 +6,7 @@ import {existsSync, writeFileSync} from 'node:fs';
 import chalk from 'chalk';
 
 import {getBetaComponents} from '@helpers/beta';
+import {getCanaryComponents} from '@helpers/canary';
 import {
   checkApp,
   checkIllegalComponents,
@@ -38,6 +39,7 @@ interface AddActionOptions {
   appPath?: string;
   addApp?: boolean;
   beta?: boolean;
+  canary?: boolean;
 }
 
 export async function addAction(components: string[], options: AddActionOptions) {
@@ -46,6 +48,7 @@ export async function addAction(components: string[], options: AddActionOptions)
     all = false,
     appPath,
     beta = false,
+    canary = false,
     packagePath = resolver('package.json'),
     tailwindPath = findFiles('**/tailwind.config.(j|t)s')[0]
   } = options;
@@ -122,7 +125,7 @@ export async function addAction(components: string[], options: AddActionOptions)
     let [, ...missingDependencies] = await checkRequiredContentInstalled(
       'all',
       allDependenciesKeys,
-      {allDependencies, beta, packageNames: [HERO_UI], peerDependencies: true}
+      {allDependencies, beta, canary, packageNames: [HERO_UI], peerDependencies: true}
     );
 
     missingDependencies = missingDependencies.map((c) => strip(c));
@@ -142,17 +145,21 @@ export async function addAction(components: string[], options: AddActionOptions)
   } else {
     const mergedComponents = beta
       ? await getBetaComponents(components)
-      : components.map((c) => store.heroUIComponentsMap[c]!.package);
+      : canary
+        ? await getCanaryComponents(components)
+        : components.map((c) => store.heroUIComponentsMap[c]!.package);
     const [, ..._missingDependencies] = await checkRequiredContentInstalled(
       'partial',
       allDependenciesKeys,
       {
         allDependencies,
         beta,
+        canary,
         packageNames: mergedComponents,
         peerDependencies: true
       }
     );
+
     const missingDependencies = [..._missingDependencies, ...mergedComponents].map((c) => strip(c));
 
     Logger.info(

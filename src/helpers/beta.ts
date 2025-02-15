@@ -3,7 +3,7 @@ import {getCacheExecData} from 'src/scripts/cache/cache';
 
 import {Logger} from './logger';
 
-export async function getBetaVersionData(component: string) {
+export async function getPackageVersionData(component: string) {
   const data = await getCacheExecData<string>(
     `npm view ${component} dist-tags --json`,
     `Fetching ${component} tags`
@@ -21,7 +21,7 @@ export async function getBetaVersion(componentName: string) {
     return store.betaHeroUIComponentsPackageMap[componentName]!.version;
   }
 
-  const data = await getBetaVersionData(componentName);
+  const data = await getPackageVersionData(componentName);
 
   try {
     return JSON.parse(data).beta;

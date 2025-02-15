@@ -10,7 +10,7 @@ import ora, {oraPromise} from 'ora';
 
 import {Logger} from '@helpers/logger';
 import {COMPONENTS_PATH} from 'src/constants/path';
-import {getStore, getStoreSync, store} from 'src/constants/store';
+import {getStore, store} from 'src/constants/store';
 
 import {getPackageVersion} from './cache/cache';
 
@@ -29,10 +29,18 @@ export type Components = {
 
 export type ComponentsJson = {
   version: string;
+  betaVersion: string;
+  canaryVersion: string;
   components: Components;
   betaComponents: Components;
-  betaVersion: string;
+  canaryComponents: Components;
 };
+
+interface UpdateComponentsOptions {
+  beta?: boolean;
+  canary?: boolean;
+  fetchBasic?: boolean;
+}
 
 /**
  * Compare two versions
@@ -51,10 +59,12 @@ export function compareVersions(version1 = '', version2 = '') {
   }
 }
 
-export async function updateComponents() {
+export async function updateComponents(options?: UpdateComponentsOptions) {
+  const {beta = store.beta, canary = store.canary, fetchBasic = false} = options ?? {};
+
   if (!existsSync(COMPONENTS_PATH)) {
     // First time download the latest date from net
-    await autoUpdateComponents();
+    await autoUpdateComponents({beta, canary, fetchBasic});
 
     return;
   }
@@ -62,22 +72,34 @@ export async function updateComponents() {
   const components = JSON.parse(readFileSync(COMPONENTS_PATH, 'utf-8')) as ComponentsJson;
   const currentVersion = components.version;
   const betaVersion = components.betaVersion;
-  const latestVersion = await getStore('latestVersion');
-  const latestBetaVersion = await getStore('betaVersion');
+  const canaryVersion = components.canaryVersion;
+  const [latestVersion, latestBetaVersion, latestCanaryVersion] = await Promise.all([
+    getStore('latestVersion'),
+    getStore('betaVersion'),
+    getStore('canaryVersion')
+  ]);
 
   if (
     compareVersions(currentVersion, latestVersion) === -1 ||
-    compareVersions(betaVersion, latestBetaVersion) === -1
+    (beta && (compareVersions(betaVersion, latestBetaVersion) === -1 || !betaVersion)) ||
+    (canary && (compareVersions(canaryVersion, latestCanaryVersion) === -1 || !canaryVersion))
   ) {
     // After the first time, check the version and update
-    await autoUpdateComponents(latestVersion, latestBetaVersion);
+    await autoUpdateComponents({
+      beta,
+      betaVersion: latestBetaVersion,
+      canary,
+      canaryVersion: latestCanaryVersion,
+      fetchBasic,
+      latestVersion
+    });
   }
 }
 
-export async function getComponents() {
+export async function getComponents(options?: UpdateComponentsOptions) {
   let components: ComponentsJson = {} as ComponentsJson;
 
-  await updateComponents();
+  await updateComponents(options);
 
   try {
     components = JSON.parse(readFileSync(COMPONENTS_PATH, 'utf-8')) as ComponentsJson;
@@ -141,31 +163,61 @@ export async function getLatestVersion(packageName: string): Promise<string> {
 const getUnpkgUrl = (version: string) =>
   `https://unpkg.com/@heroui/react@${version}/dist/components.json`;
 
-export async function autoUpdateComponents(latestVersion?: string, betaVersion?: string) {
-  [latestVersion, betaVersion] = await Promise.all([
-    latestVersion || getStore('latestVersion'),
-    betaVersion || getStore('betaVersion')
+export async function autoUpdateComponents(
+  options: {
+    latestVersion?: string;
+    betaVersion?: string;
+    canaryVersion?: string;
+  } & UpdateComponentsOptions
+) {
+  let {betaVersion, canaryVersion, latestVersion} = options;
+  const {beta, canary, fetchBasic} = options;
+  const existComponentsPath = existsSync(COMPONENTS_PATH);
+
+  [latestVersion, betaVersion, canaryVersion] = await Promise.all([
+    // If the components.json is not exist, then we need to download the latest version
+    ((!beta && !canary) || !existComponentsPath || fetchBasic) &&
+      (latestVersion || getStore('latestVersion')),
+    beta && (betaVersion || getStore('betaVersion')),
+    canary && (canaryVersion || getStore('canaryVersion'))
+  ] as string[]);
+
+  const originalComponentsJson = (
+    existComponentsPath ? JSON.parse(readFileSync(COMPONENTS_PATH, 'utf-8')) : {components: []}
+  ) as ComponentsJson;
+
+  const [components, betaComponents, canaryComponents] = await Promise.all([
+    latestVersion
+      ? downloadFile({url: getUnpkgUrl(latestVersion)})
+      : Promise.resolve(originalComponentsJson.components),
+    betaVersion
+      ? downloadFile({
+          successText: 'Beta components updated successfully!',
+          url: getUnpkgUrl(betaVersion)
+        })
+      : Promise.resolve([]),
+    canaryVersion
+      ? downloadFile({
+          successText: 'Canary components updated successfully!',
+          url: getUnpkgUrl(canaryVersion)
+        })
+      : Promise.resolve([])
   ]);
 
-  const url = getUnpkgUrl(latestVersion);
-
-  const [components, betaComponents] = await Promise.all([
-    downloadFile(url),
-    getStoreSync('beta') ? downloadFile(getUnpkgUrl(betaVersion), false) : Promise.resolve([])
-  ]);
-
-  const filterMissingComponents = betaComponents.filter(
-    (component) => !components.find((c) => c.name === component.name)
+  const conditionalComponents = beta ? betaComponents : canary ? canaryComponents : [];
+  const filterMissingComponents = conditionalComponents.filter(
+    (component) => !components?.find((c) => c.name === component.name)
   );
 
-  // Add missing beta components to components
-  components.push(...filterMissingComponents);
+  // Add missing beta/canary components to components
+  components.concat(filterMissingComponents ?? []);
 
   const componentsJson: ComponentsJson = {
-    betaComponents,
-    betaVersion,
-    components,
-    version: latestVersion
+    ...originalComponentsJson,
+    ...(beta ? {betaComponents, betaVersion} : {}),
+    ...(canary ? {canaryComponents, canaryVersion} : {}),
+    ...(latestVersion ? {version: latestVersion} : {}),
+    components
   };
 
   writeFileSync(COMPONENTS_PATH, JSON.stringify(componentsJson, null, 2), 'utf-8');
@@ -173,7 +225,15 @@ export async function autoUpdateComponents(latestVersion?: string, betaVersion?:
   return componentsJson;
 }
 
-export async function downloadFile(url: string, log = true): Promise<Components> {
+export async function downloadFile({
+  log = true,
+  successText,
+  url
+}: {
+  url: string;
+  log?: boolean;
+  successText?: string;
+}): Promise<Components> {
   let data;
 
   await oraPromise(
@@ -205,7 +265,9 @@ export async function downloadFile(url: string, log = true): Promise<Components>
         log && Logger.prefix('error', `Update components data error: ${error}`);
         process.exit(1);
       },
-      ...(log ? {successText: chalk.greenBright('Components data updated successfully!\n')} : {}),
+      ...(log
+        ? {successText: chalk.greenBright(successText ?? 'Components data updated successfully!\n')}
+        : {}),
       text: 'Fetching components data...'
     }
   );

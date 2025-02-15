@@ -1,4 +1,4 @@
-import {getBetaVersionData} from '@helpers/beta';
+import {getPackageVersionData} from '@helpers/beta';
 
 import {getSelect} from './index';
 
@@ -6,7 +6,7 @@ export async function getBetaVersionSelect(components: string[]) {
   const result: string[] = [];
 
   for (const component of components) {
-    const betaVersionData = JSON.parse(await getBetaVersionData(component));
+    const betaVersionData = JSON.parse(await getPackageVersionData(component));
 
     const selectedResult = await getSelect(
       `Select beta version of ${component}`,
