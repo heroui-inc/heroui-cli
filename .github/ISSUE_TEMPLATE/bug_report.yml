@@ -8,25 +8,25 @@ body:
       value: |
         Thank you for reporting an issue :pray:.
 
-        This issue tracker is for reporting bugs found in [NextUI CLI github repository](https://github.com/nextui-org/nextui-cli/)
+      This issue tracker is for reporting bugs found in [HeroUI CLI github repository](https://github.com/heroui-inc/heroui-cli/)
         If you have a question about how to achieve something and are struggling, please post a question
         inside of either of the following places:
-          - NextUI CLI's [Discussion's tab](https://github.com/nextui-org/nextui-cli/discussions)
-          - NextUI's [Discord channel](https://discord.gg/9b6yyZKmH4)
+          - HeroUI CLI's [Discussion's tab](https://github.com/heroui-inc/heroui-cli/discussions)
+          - HeroUI's [Discord channel](https://discord.gg/9b6yyZKmH4)
 
 
         Before submitting a new bug/issue, please check the links below to see if there is a solution or question posted there already:
-         - NextUI CLI's [Issue's tab](https://github.com/nextui-org/nextui-cli/pulls?q=is%3Apr+is%3Aopen+sort%3Aupdated-desc)
-         - NextUI CLI's [closed issues tab](https://github.com/nextui-org/nextui-cli/issues?q=is%3Aissue+sort%3Aupdated-desc+is%3Aclosed)
-         - NextUI CLI's [Discussions tab](https://github.com/nextui-org/nextui-cli/discussions)
+         - HeroUI CLI's [Issue's tab](https://github.com/heroui-inc/heroui-cli/pulls?q=is%3Apr+is%3Aopen+sort%3Aupdated-desc)
+         - HeroUI CLI's [closed issues tab](https://github.com/heroui-inc/heroui-cli/issues?q=is%3Aissue+sort%3Aupdated-desc+is%3Aclosed)
+         - HeroUI CLI's [Discussions tab](https://github.com/heroui-inc/heroui-cli/discussions)
 
         The more information you fill in, the better the community can help you.
   - type: input
     id: version
     attributes:
-      label: NextUI CLI Version
+      label: HeroUI CLI Version
       description: |
-        Please provide the version of NextUI CLI you are using.
+        Please provide the version of HeroUI CLI you are using.
         You can find the version number in the package.json file.
       placeholder: ex. 0.1.4
     validations:

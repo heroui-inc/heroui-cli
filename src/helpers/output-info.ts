@@ -4,10 +4,10 @@ import chalk from 'chalk';
 
 import {boxRound} from 'src/constants/box';
 import {
-  type NextUIComponent,
-  type NextUIComponents,
-  colorNextUIComponentKeys,
-  orderNextUIComponentKeys
+  type HeroUIComponent,
+  type HeroUIComponents,
+  colorHeroUIComponentKeys,
+  orderHeroUIComponentKeys
 } from 'src/constants/component';
 
 import {Logger} from './logger';
@@ -35,7 +35,7 @@ export function outputComponents({
   message = 'Current installed components:\n',
   warnError = true
 }: {
-  components: NextUIComponents;
+  components: HeroUIComponents;
   commandName?: CommandName;
   warnError?: boolean;
   message?: string;
@@ -48,7 +48,7 @@ export function outputComponents({
     return;
   }
 
-  const componentKeyLengthMap: Record<keyof NextUIComponent | 'originVersion', number> = {
+  const componentKeyLengthMap: Record<keyof HeroUIComponent | 'originVersion', number> = {
     description: 0,
     docs: 0,
     name: 0,
@@ -91,7 +91,7 @@ export function outputComponents({
   let transformComponentsOutput = components.reduce((acc, component) => {
     let outputData = padStart;
 
-    for (const key of orderNextUIComponentKeys) {
+    for (const key of orderHeroUIComponentKeys) {
       let value = fillAnsiLength(component[key], componentKeyLengthMap[key]);
 
       /** ======================== Replace version to new version ======================== */
@@ -119,7 +119,7 @@ export function outputComponents({
       }
 
       /** ======================== Change the color according to different status ======================== */
-      if (component.status === 'stable' && colorNextUIComponentKeys.includes(key)) {
+      if (component.status === 'stable' && colorHeroUIComponentKeys.includes(key)) {
         value = chalk.greenBright(value);
       } else if (component.status === 'new') {
         value = chalk.magentaBright(value);
@@ -142,7 +142,7 @@ export function outputComponents({
   let boxHeaderSec = padStart;
   let boxHeaderTrd = rounded.vertical + padStart.replace(/.*/g, rounded.horizontal).slice(1);
 
-  for (const key of orderNextUIComponentKeys) {
+  for (const key of orderHeroUIComponentKeys) {
     boxHeader += `${rounded.horizontal.padEnd(componentKeyLengthMap[key] + 7, rounded.horizontal)}`;
     boxHeaderSec += chalk.redBright(PasCalCase(key).padEnd(componentKeyLengthMap[key])) + padEnd;
     boxHeaderTrd += `${rounded.horizontal.padEnd(
@@ -157,7 +157,7 @@ export function outputComponents({
   /** ======================== Generate box footer ======================== */
   let boxFooter = rounded.bottomLeft + padStart.replace(/.*/g, rounded.horizontal).slice(1);
 
-  for (const key of orderNextUIComponentKeys) {
+  for (const key of orderHeroUIComponentKeys) {
     boxFooter += `${rounded.horizontal.padEnd(componentKeyLengthMap[key] + 7, rounded.horizontal)}`;
   }
 
@@ -335,4 +335,20 @@ export function outputBox({
 
 function generateComponentOutputVersion(currentVersion: string, newVersion: string) {
   return `${chalk.white(`${currentVersion} ->`)} ${chalk.yellowBright(`${newVersion} (new)`)}`;
+}
+
+export function outputDeprecatedInfo() {
+  outputBox({
+    color: 'yellow',
+    padding: 1,
+    text: `NextUI has rebranded to HeroUI! These packages are deprecated and won’t receive updates.
+HeroUI offers the same great features with ongoing improvements.
+
+→ ${chalk.bold('Switch to [HeroUI](https://heroui.com) for the latest updates.')}
+→ ${chalk.bold('Migration guide:')} [NextUI to HeroUI](https://heroui.com/docs/nextui-to-heroui)
+→ ${chalk.bold('New NPM package:')} "@heroui/react"
+
+Thanks for your support — see you at HeroUI!`,
+    title: chalk.yellow(`❗️ Notice: NextUI is now ${chalk.bold('HeroUI')} ❗️`)
+  });
 }

@@ -1,5 +1,5 @@
 import type {Agent} from './detect';
-import type {NextUIComponents} from 'src/constants/component';
+import type {HeroUIComponents} from 'src/constants/component';
 
 import {existsSync, readFileSync, writeFileSync} from 'node:fs';
 
@@ -24,13 +24,13 @@ export async function removeTailwind(
   type: CheckType,
   options: {
     tailwindPath?: string;
-    currentComponents: NextUIComponents;
+    currentComponents: HeroUIComponents;
     isPnpm: boolean;
     prettier: boolean;
-    isNextUIAll: boolean;
+    isHeroUIAll: boolean;
   }
 ) {
-  const {currentComponents, isNextUIAll, isPnpm, prettier, tailwindPath} = options;
+  const {currentComponents, isHeroUIAll, isPnpm, prettier, tailwindPath} = options;
 
   if (tailwindPath && !existsSync(tailwindPath)) {
     Logger.prefix('warn', `No tailwind.config.(j|t)s found remove action skipped`);
@@ -44,42 +44,42 @@ export async function removeTailwind(
 
   const insIncludeAll = contentMatch.some((c) => c.includes(tailwindRequired.content));
 
-  // Not installed NextUI components then remove the tailwind content about nextui
-  if (!currentComponents.length && !isNextUIAll) {
-    const index = pluginsMatch.findIndex((c) => c.includes('nextui'));
+  // Not installed HeroUI components then remove the tailwind content about heroui
+  if (!currentComponents.length && !isHeroUIAll) {
+    const index = pluginsMatch.findIndex((c) => c.includes('heroui'));
 
     index !== -1 && pluginsMatch.splice(index, 1);
     tailwindContent = replaceMatchArray('plugins', tailwindContent, pluginsMatch);
 
-    // Remove the import nextui content
-    tailwindContent = tailwindContent.replace(/(const|var|let|import)[\W\w]+?nextui.*?;\n/, '');
+    // Remove the import heroui content
+    tailwindContent = tailwindContent.replace(/(const|var|let|import)[\W\w]+?heroui.*?;\n/, '');
   }
 
-  // If there are already have all nextui content include then don't need to remove the content
+  // If there are already have all heroui content include then don't need to remove the content
   if (!insIncludeAll) {
-    // Remove the nextui content
-    while (contentMatch.some((c) => c.includes('nextui'))) {
+    // Remove the heroui content
+    while (contentMatch.some((c) => c.includes('heroui'))) {
       contentMatch.splice(
-        contentMatch.findIndex((c) => c.includes('nextui')),
+        contentMatch.findIndex((c) => c.includes('heroui')),
         1
       );
     }
     tailwindContent = replaceMatchArray('content', tailwindContent, contentMatch);
   }
-  //  if (!currentComponents.length && isNextUIAll) {
-  //   const index = contentMatch.findIndex(c => c.includes('nextui'));
+  //  if (!currentComponents.length && isHeroUIAll) {
+  //   const index = contentMatch.findIndex(c => c.includes('heroui'));
 
-  //   // Remove the nextui content
+  //   // Remove the heroui content
   //   index !== -1 &&
   //     contentMatch.splice(
-  //       contentMatch.indexOf('./node_modules/@nextui-org/theme/dist/components'),
+  //       contentMatch.indexOf('./node_modules/@heroui/theme/dist/components'),
   //       1
   //     );
   //   tailwindContent = replaceMatchArray('content', tailwindContent, contentMatch);
-  // } else if (!isNextUIAll && currentComponents.length) {
+  // } else if (!isHeroUIAll && currentComponents.length) {
   //   const index = contentMatch.indexOf(tailwindRequired.content);
 
-  //   // Remove the nextui content
+  //   // Remove the heroui content
   //   index !== -1 && contentMatch.splice(index, 1);
   //   tailwindContent = replaceMatchArray('content', tailwindContent, contentMatch);
   // }

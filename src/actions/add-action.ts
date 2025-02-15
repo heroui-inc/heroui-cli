@@ -19,11 +19,11 @@ import {detect} from '@helpers/detect';
 import {fixPnpm, fixProvider, fixTailwind} from '@helpers/fix';
 import {Logger} from '@helpers/logger';
 import {getPackageInfo} from '@helpers/package';
-import {findFiles} from '@helpers/utils';
+import {findFiles, strip} from '@helpers/utils';
 import {resolver} from 'src/constants/path';
 import {
   DOCS_PROVIDER_SETUP,
-  NEXT_UI,
+  HERO_UI,
   individualTailwindRequired,
   pnpmRequired
 } from 'src/constants/required';
@@ -46,7 +46,7 @@ export async function addAction(components: string[], options: AddActionOptions)
   const {
     addApp = false,
     all = false,
-    appPath = findFiles('**/App.(j|t)sx')[0],
+    appPath,
     beta = false,
     canary = false,
     packagePath = resolver('package.json'),
@@ -56,10 +56,10 @@ export async function addAction(components: string[], options: AddActionOptions)
   var {allDependencies, allDependenciesKeys, currentComponents} = getPackageInfo(packagePath);
   const prettier = options.prettier ?? allDependenciesKeys.has('prettier');
 
-  const isNextUIAll = !!allDependencies[NEXT_UI];
+  const isHeroUIAll = !!allDependencies[HERO_UI];
 
   if (!components.length && !all) {
-    const filteredComponents = store.nextUIComponents.filter(
+    const filteredComponents = store.heroUIComponents.filter(
       (component) =>
         !currentComponents.some((currentComponent) => currentComponent.name === component.name)
     );
@@ -80,7 +80,7 @@ export async function addAction(components: string[], options: AddActionOptions)
       })
     );
   } else if (all) {
-    components = [NEXT_UI];
+    components = [HERO_UI];
   }
 
   /** ======================== Add judge whether illegal component exist ======================== */
@@ -88,12 +88,12 @@ export async function addAction(components: string[], options: AddActionOptions)
     return;
   }
 
-  // Check whether have added the NextUI components
+  // Check whether have added the HeroUI components
   var {allDependenciesKeys, currentComponents} = getPackageInfo(packagePath);
 
   const currentComponentsKeys = currentComponents.map((c) => c.name);
   const filterCurrentComponents = components.filter(
-    (c) => currentComponentsKeys.includes(c) || (isNextUIAll && c === NEXT_UI)
+    (c) => currentComponentsKeys.includes(c) || (isHeroUIAll && c === HERO_UI)
   );
 
   if (filterCurrentComponents.length && !getStoreSync('debug')) {
@@ -122,11 +122,13 @@ export async function addAction(components: string[], options: AddActionOptions)
 
   /** ======================== Step 1 Add dependencies required ======================== */
   if (all) {
-    const [, ...missingDependencies] = await checkRequiredContentInstalled(
+    let [, ...missingDependencies] = await checkRequiredContentInstalled(
       'all',
       allDependenciesKeys,
-      {beta, canary}
+      {allDependencies, beta, canary, packageNames: [HERO_UI], peerDependencies: true}
     );
+
+    missingDependencies = missingDependencies.map((c) => strip(c));
 
     if (missingDependencies.length) {
       Logger.info(
@@ -141,17 +143,24 @@ export async function addAction(components: string[], options: AddActionOptions)
       );
     }
   } else {
-    const [, ..._missingDependencies] = await checkRequiredContentInstalled(
-      'partial',
-      allDependenciesKeys,
-      {beta, canary}
-    );
     const mergedComponents = beta
       ? await getBetaComponents(components)
       : canary
         ? await getCanaryComponents(components)
-        : components.map((c) => store.nextUIComponentsMap[c]!.package);
-    const missingDependencies = [..._missingDependencies, ...mergedComponents];
+        : components.map((c) => store.heroUIComponentsMap[c]!.package);
+    const [, ..._missingDependencies] = await checkRequiredContentInstalled(
+      'partial',
+      allDependenciesKeys,
+      {
+        allDependencies,
+        beta,
+        canary,
+        packageNames: mergedComponents,
+        peerDependencies: true
+      }
+    );
+
+    const missingDependencies = [..._missingDependencies, ...mergedComponents].map((c) => strip(c));
 
     Logger.info(
       `Adding required dependencies: ${[...missingDependencies]
@@ -211,9 +220,9 @@ export async function addAction(components: string[], options: AddActionOptions)
       fixProvider(appPath, {format: prettier});
 
       Logger.newLine();
-      Logger.info(`NextUIProvider successfully added to the App file at: ${appPath}`);
+      Logger.info(`HeroUIProvider successfully added to the App file at: ${appPath}`);
       Logger.warn(
-        "Please check the placement of NextUIProvider in the App file to ensure it's correctly integrated.'"
+        "Please check the placement of HeroUIProvider in the App file to ensure it's correctly integrated.'"
       );
     }
   }
@@ -233,16 +242,16 @@ export async function addAction(components: string[], options: AddActionOptions)
     }
   }
 
-  // Finish adding the NextUI components
+  // Finish adding the HeroUI components
   Logger.newLine();
   Logger.success('✅ Components added successfully');
 
-  // Check whether the user has installed the All NextUI components
-  if ((allDependenciesKeys.has(NEXT_UI) || all) && currentComponents.length) {
+  // Check whether the user has installed the All HeroUI components
+  if ((allDependenciesKeys.has(HERO_UI) || all) && currentComponents.length) {
     // Check whether have added redundant dependencies
     Logger.newLine();
     Logger.log(
-      `${chalk.yellow('Attention')} Individual components from NextUI do not require the \`@nextui-org/react\` package. For optimized bundle sizes, consider using individual components.`
+      `${chalk.yellow('Attention')} Individual components from HeroUI do not require the \`@heroui/react\` package. For optimized bundle sizes, consider using individual components.`
     );
     Logger.log('The redundant dependencies are:');
     [...new Set(currentComponents)].forEach((component) => {
@@ -250,11 +259,11 @@ export async function addAction(components: string[], options: AddActionOptions)
     });
   }
 
-  // Warn the user to check the NextUIProvider whether in the correct place
+  // Warn the user to check the HeroUIProvider whether in the correct place
   Logger.newLine();
   Logger.grey(
     `Please check the ${chalk.bold(
-      'NextUIProvider'
+      'HeroUIProvider'
     )} whether in the correct place (ignore if added)\nSee more info here: ${DOCS_PROVIDER_SETUP}`
   );
 

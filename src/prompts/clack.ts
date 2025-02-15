@@ -1,6 +1,14 @@
 import type {SAFE_ANY} from '@helpers/type';
 
-import {spinner as _spinner, cancel, isCancel, select, text} from '@clack/prompts';
+import {
+  type ConfirmOptions,
+  spinner as _spinner,
+  cancel,
+  confirm,
+  isCancel,
+  select,
+  text
+} from '@clack/prompts';
 import chalk from 'chalk';
 
 export const cancelClack = (value: SAFE_ANY) => {
@@ -30,7 +38,7 @@ export const spinner = _spinner();
 
 export interface TaskClackOptions<T> {
   text: string;
-  task: PromiseLike<T>;
+  task: PromiseLike<T> | T;
   successText?: string;
   failText?: string;
 }
@@ -42,12 +50,20 @@ export const taskClack = async <T>(opts: TaskClackOptions<T>) => {
 
   try {
     spinner.start(text);
-    result = await (task as SAFE_ANY);
+    result = await (task instanceof Promise ? task : Promise.resolve(task));
     spinner.stop(successText);
   } catch (error) {
     cancel(failText ?? result ?? 'Task failed');
     process.exit(0);
   }
+
+  return result;
+};
+
+export const confirmClack = async (opts: ConfirmOptions) => {
+  const result = await confirm(opts);
+
+  cancelClack(result);
 
   return result;
 };

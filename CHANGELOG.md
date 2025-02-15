@@ -1,3 +1,40 @@
+# [1.0.0](https://github.com/heroui-inc/heroui-cli/compare/v0.6.0...v1.0.0) (2025-01-18)
+
+# [0.6.0](https://github.com/heroui-inc/heroui-cli/compare/v0.5.4...v0.6.0) (2025-01-18)
+
+### Bug Fixes
+
+- autocompleteMultiselect cancel exit when prompt yes ([#139](https://github.com/heroui-inc/heroui-cli/issues/139)) ([a736537](https://github.com/heroui-inc/heroui-cli/commit/a736537e030b011e933d8a5809fbecf973bcc01a))
+- codemod bin command ([45712d7](https://github.com/heroui-inc/heroui-cli/commit/45712d7f5f00c05db2a8fdb82ef2dca6281d4257))
+- **codemod:** npm migrate issue ([#140](https://github.com/heroui-inc/heroui-cli/issues/140)) ([4987cc8](https://github.com/heroui-inc/heroui-cli/commit/4987cc814fceb3a14cc111b155bdb6a0ff059a41))
+
+## [0.5.4](https://github.com/heroui-inc/heroui-cli/compare/v0.5.3...v0.5.4) (2025-01-16)
+
+## [0.5.3](https://github.com/heroui-inc/heroui-cli/compare/v0.5.2...v0.5.3) (2025-01-16)
+
+## [0.5.2](https://github.com/nextui-org/nextui-cli/compare/v0.5.1...v0.5.2) (2025-01-16)
+
+### Bug Fixes
+
+- codemod release ([#136](https://github.com/nextui-org/nextui-cli/issues/136)) ([33fa8e6](https://github.com/nextui-org/nextui-cli/commit/33fa8e6e0740deffc786e7de02a5f7873736114b))
+- migrate nextui provider change to use regex ([#133](https://github.com/nextui-org/nextui-cli/issues/133)) ([af02fbe](https://github.com/nextui-org/nextui-cli/commit/af02fbe776fe5194a7fa93bcb28c73e9d775ea12))
+
+### Features
+
+- add deprecated info in nextui-cli ([#132](https://github.com/nextui-org/nextui-cli/issues/132)) ([0d68eb9](https://github.com/nextui-org/nextui-cli/commit/0d68eb9b401d278852155ea04bb626adefda1024))
+- add format effected files ([#134](https://github.com/nextui-org/nextui-cli/issues/134)) ([a27371b](https://github.com/nextui-org/nextui-cli/commit/a27371b55b365cd9591fa87324fee0b9e1f306bf))
+- add reinstall prompt and retry fetch version ([#137](https://github.com/nextui-org/nextui-cli/issues/137)) ([f36839e](https://github.com/nextui-org/nextui-cli/commit/f36839ed559b28b502b10639009f60c0622b7e4c))
+- add remaining files replace prompt and dot files detected and end note ([#135](https://github.com/nextui-org/nextui-cli/issues/135)) ([d29c05a](https://github.com/nextui-org/nextui-cli/commit/d29c05a71ab781dfa88e9b64014f993516d50f28))
+- **codemod:** change package version to latest ([#131](https://github.com/nextui-org/nextui-cli/issues/131)) ([b3bf4a8](https://github.com/nextui-org/nextui-cli/commit/b3bf4a896ecab6ceb8ac985b8cad9833b688cfbe))
+- init heroui codemod package ([#124](https://github.com/nextui-org/nextui-cli/issues/124)) ([2ddf426](https://github.com/nextui-org/nextui-cli/commit/2ddf426948f2e8ea31b3d31e5bba0f4a327ad611))
+
+## [0.5.1](https://github.com/nextui-org/nextui-cli/compare/v0.5.0...v0.5.1) (2024-12-23)
+
+### Bug Fixes
+
+- add action will upgrade to required min peerDep version ([#125](https://github.com/nextui-org/nextui-cli/issues/125)) ([9e0a96a](https://github.com/nextui-org/nextui-cli/commit/9e0a96a610a0425741eb6fd16fdf623bb240c49b))
+- catch pnpm error and give user choose fix or exit ([#123](https://github.com/nextui-org/nextui-cli/issues/123)) ([a4b18b3](https://github.com/nextui-org/nextui-cli/commit/a4b18b3e017743e25187ca26888f5afcaed8596a))
+
 # [0.5.0](https://github.com/nextui-org/nextui-cli/compare/v0.4.2...v0.5.0) (2024-12-08)
 
 ### Bug Fixes
@@ -81,7 +118,7 @@
 ### Bug Fixes
 
 - add command error in tailwind ([#80](https://github.com/nextui-org/nextui-cli/issues/80)) ([455d6e0](https://github.com/nextui-org/nextui-cli/commit/455d6e03ed33f2bba18cb5cd113966af0a7dc69f))
-- upgrade command select option cannot select @nextui-org/react pkg ([#78](https://github.com/nextui-org/nextui-cli/issues/78)) ([93e5cdc](https://github.com/nextui-org/nextui-cli/commit/93e5cdc98299ec75d5720c0a6d44d08241c66dc7))
+- upgrade command select option cannot select @heroui/react pkg ([#78](https://github.com/nextui-org/nextui-cli/issues/78)) ([93e5cdc](https://github.com/nextui-org/nextui-cli/commit/93e5cdc98299ec75d5720c0a6d44d08241c66dc7))
 
 ### Features
 

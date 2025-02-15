@@ -5,44 +5,44 @@ import {join} from 'pathe';
 
 import {getPackageInfo} from '@helpers/package';
 
-import {type NextUIComponent, type NextUIComponents} from './component';
+import {type HeroUIComponent, type HeroUIComponents} from './component';
 import {resolver} from './path';
 
-export const NEXTUI_CLI = 'nextui-cli';
+export const HEROUI_CLI = 'heroui-cli';
 
 export const FRAMER_MOTION = 'framer-motion';
 export const TAILWINDCSS = 'tailwindcss';
-export const NEXT_UI = '@nextui-org/react';
-export const THEME_UI = '@nextui-org/theme';
-export const SYSTEM_UI = '@nextui-org/system';
-export const ALL_COMPONENTS_REQUIRED = [NEXT_UI, FRAMER_MOTION] as const;
+export const HERO_UI = '@heroui/react';
+export const THEME_UI = '@heroui/theme';
+export const SYSTEM_UI = '@heroui/system';
+export const ALL_COMPONENTS_REQUIRED = [HERO_UI, FRAMER_MOTION] as const;
 
-export const DOCS_INSTALLED = 'https://nextui.org/docs/guide/installation#global-installation';
+export const DOCS_INSTALLED = 'https://heroui.com/docs/guide/installation#global-installation';
 export const DOCS_TAILWINDCSS_SETUP =
-  'https://nextui.org/docs/guide/installation#tailwind-css-setup';
-export const DOCS_APP_SETUP = 'https://nextui.org/docs/guide/installation#provider-setup';
-export const DOCS_PNPM_SETUP = 'https://nextui.org/docs/guide/installation#setup-pnpm-optional';
-export const DOCS_PROVIDER_SETUP = 'https://nextui.org/docs/guide/installation#provider-setup';
+  'https://heroui.com/docs/guide/installation#tailwind-css-setup';
+export const DOCS_APP_SETUP = 'https://heroui.com/docs/guide/installation#provider-setup';
+export const DOCS_PNPM_SETUP = 'https://heroui.com/docs/guide/installation#setup-pnpm-optional';
+export const DOCS_PROVIDER_SETUP = 'https://heroui.com/docs/guide/installation#provider-setup';
 
 // Record the required content of tailwind.config file
 export const tailwindRequired = {
-  checkPluginsRegex: /nextui(([\W\w]+)?)/,
-  content: './node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}',
+  checkPluginsRegex: /heroui(([\W\w]+)?)/,
+  content: './node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}',
   darkMode: 'darkMode: "class"',
   importContent: (isTypescript = false) => {
     if (isTypescript) {
-      return `import {nextui} from '@nextui-org/theme';`;
+      return `import {heroui} from '@heroui/theme';`;
     }
 
-    return `const {nextui} = require('@nextui-org/theme');`;
+    return `const {heroui} = require('@heroui/theme');`;
   },
-  plugins: 'nextui()'
+  plugins: 'heroui()'
 } as const;
 
 export const individualTailwindRequired = {
-  content: (currentComponents: NextUIComponents, isPnpm: boolean) => {
+  content: (currentComponents: HeroUIComponents, isPnpm: boolean) => {
     currentComponents.forEach((component) => {
-      const walkDeps = walkDepComponents(component, isPnpm) as NextUIComponents;
+      const walkDeps = walkDepComponents(component, isPnpm) as HeroUIComponents;
 
       currentComponents.push(...walkDeps);
     });
@@ -56,7 +56,7 @@ export const individualTailwindRequired = {
     ];
 
     if (outputComponents.length === 1) {
-      return `./node_modules/@nextui-org/theme/dist/components/${outputComponents[0]}.js`;
+      return `./node_modules/@heroui/theme/dist/components/${outputComponents[0]}.js`;
     }
     const requiredContent = outputComponents
       .reduce((acc, component) => {
@@ -64,28 +64,28 @@ export const individualTailwindRequired = {
       }, '')
       .replace(/\|$/, '');
 
-    return `./node_modules/@nextui-org/theme/dist/components/(${requiredContent}).js`;
+    return `./node_modules/@heroui/theme/dist/components/(${requiredContent}).js`;
   },
-  plugins: 'nextui()'
+  plugins: 'heroui()'
 } as const;
 
 export const appRequired = {
-  import: 'NextUIProvider'
+  import: 'HeroUIProvider'
 } as const;
 
 export const pnpmRequired = {
-  content: 'public-hoist-pattern[]=*@nextui-org/*'
+  content: 'public-hoist-pattern[]=*@heroui/*'
 } as const;
 
-export function walkDepComponents(nextUIComponent: NextUIComponent, isPnpm: boolean) {
-  const component = nextUIComponent.name;
-  let componentPath = resolver(`node_modules/@nextui-org/${component}`);
-  const components = [nextUIComponent];
+export function walkDepComponents(heroUIComponent: HeroUIComponent, isPnpm: boolean) {
+  const component = heroUIComponent.name;
+  let componentPath = resolver(`node_modules/@heroui/${component}`);
+  const components = [heroUIComponent];
 
   if (!existsSync(componentPath) && isPnpm) {
     const pnpmDir = resolver('node_modules/.pnpm');
 
-    const file = fg.sync(`**/@nextui-org/${component}`, {
+    const file = fg.sync(`**/@heroui/${component}`, {
       absolute: true,
       cwd: pnpmDir,
       onlyDirectories: true

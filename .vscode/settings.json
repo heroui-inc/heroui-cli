@@ -6,5 +6,5 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
   },
-  "cSpell.words": ["nextui", "tailwindcss"]
+  "cSpell.words": ["codemod", "codemods", "heroui", "nextui", "tailwindcss"]
 }

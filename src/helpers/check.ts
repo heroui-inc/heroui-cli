@@ -1,16 +1,16 @@
-import type {RequiredKey, SAFE_ANY} from './type';
+import type {PartialKey, RequiredKey, SAFE_ANY} from './type';
 import type {ProblemRecord} from 'src/actions/doctor-action';
 
 import {readFileSync} from 'node:fs';
 
 import chalk from 'chalk';
 
-import {type NextUIComponents} from 'src/constants/component';
+import {type HeroUIComponents} from 'src/constants/component';
 import {
   DOCS_INSTALLED,
   DOCS_TAILWINDCSS_SETUP,
   FRAMER_MOTION,
-  NEXT_UI,
+  HERO_UI,
   SYSTEM_UI,
   TAILWINDCSS,
   THEME_UI,
@@ -124,7 +124,7 @@ export function getConditionLatestVersion(beta: boolean, canary: boolean) {
 
 /**
  * Check if the required content is installed
- * @example return result and missing required [false, '@nextui-org/react', 'framer-motion']
+ * @example return result and missing required [false, '@heroui/react', 'framer-motion']
  * @param type
  * @param dependenciesKeys
  * @param checkPeerDependenciesConfig
@@ -137,7 +137,7 @@ export async function checkRequiredContentInstalled<
   dependenciesKeys: Set<string>,
   checkPeerDependenciesConfig?: T extends {peerDependencies: infer P}
     ? P extends true
-      ? Required<Omit<CheckPeerDependenciesConfig, 'beta' | 'canary'>>
+      ? PartialKey<Required<CheckPeerDependenciesConfig>, 'beta' | 'canary'>
       : T
     : T
 ): Promise<CheckResult> {
@@ -154,7 +154,7 @@ export async function checkRequiredContentInstalled<
   }
 
   if (type === 'all') {
-    const hasAllComponents = dependenciesKeys.has(NEXT_UI);
+    const hasAllComponents = dependenciesKeys.has(HERO_UI);
     const hasFramerMotion = dependenciesKeys.has(FRAMER_MOTION);
     const hasTailwind = dependenciesKeys.has(TAILWINDCSS);
 
@@ -162,7 +162,7 @@ export async function checkRequiredContentInstalled<
       return [true];
     }
     !hasAllComponents &&
-      result.push(conditionData ? `${NEXT_UI}@${conditionData.version}` : NEXT_UI);
+      result.push(conditionData ? `${HERO_UI}@${conditionData.version}` : HERO_UI);
     !hasFramerMotion && result.push(FRAMER_MOTION);
     !hasTailwind && result.push(TAILWINDCSS);
   } else if (type === 'partial') {
@@ -233,7 +233,7 @@ export async function checkPeerDependencies(
 export function checkTailwind(
   type: 'all',
   tailwindPath: string,
-  currentComponents?: NextUIComponents,
+  currentComponents?: HeroUIComponents,
   isPnpm?: boolean,
   content?: string,
   logWarning?: boolean
@@ -241,7 +241,7 @@ export function checkTailwind(
 export function checkTailwind(
   type: 'partial',
   tailwindPath: string,
-  currentComponents: NextUIComponents,
+  currentComponents: HeroUIComponents,
   isPnpm: boolean,
   content?: string,
   logWarning?: boolean
@@ -249,7 +249,7 @@ export function checkTailwind(
 export function checkTailwind(
   type: CheckType,
   tailwindPath: string,
-  currentComponents?: NextUIComponents,
+  currentComponents?: HeroUIComponents,
   isPnpm?: boolean,
   content?: string,
   logWarning?: boolean
@@ -266,7 +266,7 @@ export function checkTailwind(
   const pluginsMatch = getMatchArray('plugins', tailwindContent);
 
   if (type === 'all') {
-    // Check if the required content is added Detail: https://nextui.org/docs/guide/installation#global-installation
+    // Check if the required content is added Detail: https://heroui.com/docs/guide/installation#global-installation
     const darkMatch = getMatchArray('darkMode', tailwindContent);
     // Some tailwind.config.js use darkMode: 'class' not darkMode: ['class']
     const isDarkModeCorrect =
@@ -302,7 +302,7 @@ export function checkTailwind(
 
     if (logWarning && isHaveAllContent) {
       Logger.log(
-        `\n${chalk.yellow('Attention')} Individual components from NextUI do not require the "${chalk.bold(
+        `\n${chalk.yellow('Attention')} Individual components from HeroUI do not require the "${chalk.bold(
           tailwindRequired.content
         )}" in the tailwind config\nFor optimized bundle sizes, consider using "${chalk.bold(
           individualContent
@@ -375,8 +375,8 @@ export async function checkIllegalComponents<T extends boolean = false>(
   const illegalList: [string, null | string][] = [];
 
   for (const component of components) {
-    if (!store.nextUIComponentsKeysSet.has(component)) {
-      const matchComponent = findMostMatchText(store.nextUIComponentsKeys, component);
+    if (!store.heroUIComponentsKeysSet.has(component)) {
+      const matchComponent = findMostMatchText(store.heroUIComponentsKeys, component);
 
       illegalList.push([component, matchComponent]);
     }

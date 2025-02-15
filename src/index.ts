@@ -24,12 +24,12 @@ import {compareVersions, getComponents} from './scripts/helpers';
 
 const commandList: CommandName[] = ['add', 'env', 'init', 'list', 'upgrade', 'doctor', 'remove'];
 
-const nextui = new Command();
+const heroui = new Command();
 
-nextui
-  .name('nextui')
+heroui
+  .name('heroui')
   .usage('[command]')
-  .description(getCommandDescAndLog(`\nNextUI CLI v${pkg.version}\n`, ''))
+  .description(getCommandDescAndLog(`\nHeroUI CLI v${pkg.version}\n`, ''))
   .version(pkg.version, '-v, --version', 'Output the current version')
   .helpOption('-h, --help', 'Display help for command')
   .allowUnknownOption()
@@ -60,11 +60,11 @@ nextui
     }
 
     if (!isArgs) {
-      const helpInfo = (await getCacheExecData('nextui --help')) as string;
+      const helpInfo = (await getCacheExecData('heroui --help')) as string;
 
       let helpInfoArr = helpInfo.split('\n');
 
-      helpInfoArr = helpInfoArr.filter((info) => info && !info.includes('NextUI CLI v'));
+      helpInfoArr = helpInfoArr.filter((info) => info && !info.includes('HeroUI CLI v'));
       // Add command name color
       helpInfoArr = helpInfoArr.map((info) => {
         const command = info.match(/(\w+)\s\[/)?.[1];
@@ -81,7 +81,7 @@ nextui
     process.exit(0);
   });
 
-nextui
+heroui
   .command('init')
   .description('Initializes a new project')
   .argument('[projectName]', 'Name of the project to initialize')
@@ -89,7 +89,7 @@ nextui
   .option('-p --package [string]', 'The package manager to use for the new project', 'npm')
   .action(initAction);
 
-nextui
+heroui
   .command('add')
   .description('Adds components to your project')
   .argument('[components...]', 'Names of components to add')
@@ -103,7 +103,7 @@ nextui
   .option('-c --canary [boolean]', 'Add canary components', false)
   .action(addAction);
 
-nextui
+heroui
   .command('upgrade')
   .description('Upgrades project components to the latest versions')
   .argument('[components...]', 'Names of components to upgrade')
@@ -114,7 +114,7 @@ nextui
   .option('-c --canary [boolean]', 'Upgrade canary components', false)
   .action(upgradeAction);
 
-nextui
+heroui
   .command('remove')
   .description('Removes components from the project')
   .argument('[components...]', 'Names of components to remove')
@@ -124,19 +124,19 @@ nextui
   .option('--prettier [boolean]', 'Apply Prettier formatting to the added content')
   .action(removeAction);
 
-nextui
+heroui
   .command('list')
   .description('Lists all components, showing status, descriptions, and versions')
   .option('-p --packagePath [string]', 'Specify the path to the package.json file')
   .option('-r --remote', 'List all components available remotely')
   .action(listAction);
-nextui
+heroui
   .command('env')
   .description('Displays debugging information for the local environment')
   .option('-p --packagePath [string]', 'Specify the path to the package.json file')
   .action(envAction);
 
-nextui
+heroui
   .command('doctor')
   .description('Checks for issues in the project')
   .option('-p --packagePath [string]', 'Specify the path to the package.json file')
@@ -147,7 +147,7 @@ nextui
   .option('-cp --checkPnpm [boolean]', 'Check for Pnpm', true)
   .action(doctorAction);
 
-nextui.hook('preAction', async (command) => {
+heroui.hook('preAction', async (command) => {
   const args = command.args?.[0];
   const options = (command as SAFE_ANY).rawArgs.slice(2);
   const noCache = options.includes('--no-cache');
@@ -165,14 +165,14 @@ nextui.hook('preAction', async (command) => {
   if (args && commandList.includes(args as CommandName)) {
     // Before run the command init the components.json
     const components = await getComponents();
-    const nextUIComponents = components.components;
-    const nextUIComponentsBeta = components.betaComponents;
-    const nextUIComponentsCanary = components.canaryComponents;
+    const heroUIComponents = components.components;
+    const heroUIComponentsBeta = components.betaComponents;
+    const heroUIComponentsCanary = components.canaryComponents;
 
-    initStoreComponentsData({nextUIComponents});
-    store.beta && initStoreComponentsData({beta: true, nextUIComponents: nextUIComponentsBeta});
+    initStoreComponentsData({beta: false, canary: false, heroUIComponents});
+    store.beta && initStoreComponentsData({beta: true, heroUIComponents: heroUIComponentsBeta});
     store.canary &&
-      initStoreComponentsData({canary: true, nextUIComponents: nextUIComponentsCanary});
+      initStoreComponentsData({canary: true, heroUIComponents: heroUIComponentsCanary});
   }
 
   const [cliLatestVersion, latestVersion] = await Promise.all([
@@ -184,7 +184,7 @@ nextui.hook('preAction', async (command) => {
   store.latestVersion = latestVersion;
   store.cliLatestVersion = cliLatestVersion;
 
-  // Add NextUI CLI version check preAction
+  // Add HeroUI CLI version check preAction
   const currentVersion = pkg.version;
 
   if (compareVersions(currentVersion, cliLatestVersion) === -1) {
@@ -196,18 +196,18 @@ nextui.hook('preAction', async (command) => {
         `Available upgrade: v${currentVersion} -> ${chalk.greenBright(
           `v${cliLatestVersion}`
         )}\nRun \`${chalk.cyan(
-          'npm install -g nextui-cli@latest'
+          'npm install -g heroui-cli@latest'
         )}\` to upgrade\nChangelog: ${chalk.underline(
-          'https://github.com/nextui-org/nextui-cli/releases'
+          'https://github.com/heroui-inc/heroui-cli/releases'
         )}`
       )}`,
-      title: gradientString('NextUI CLI')
+      title: gradientString('HeroUI CLI')
     });
     Logger.newLine();
   }
 });
 
-nextui.parseAsync(process.argv).catch(async (reason) => {
+heroui.parseAsync(process.argv).catch(async (reason) => {
   Logger.newLine();
   Logger.error('Unexpected error. Please report it as a bug:');
   Logger.log(reason);

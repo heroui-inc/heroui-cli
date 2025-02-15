@@ -4,9 +4,9 @@ import {getBetaVersion} from '@helpers/beta';
 import {getCanaryVersion} from '@helpers/canary';
 import {type Components, getLatestVersion} from 'src/scripts/helpers';
 
-import {NEXTUI_CLI, NEXT_UI} from './required';
+import {HEROUI_CLI, HERO_UI} from './required';
 
-export type NextUIComponentsMap = Record<string, Components[0]>;
+export type HeroUIComponentsMap = Record<string, Components[0]>;
 
 export type Store = {
   debug: boolean;
@@ -18,29 +18,29 @@ export type Store = {
   betaVersion: string;
   canaryVersion: string;
 
-  // NextUI
-  nextUIComponents: Components;
-  nextUIComponentsKeys: string[];
-  nextUIcomponentsPackages: string[];
-  nextUIComponentsKeysSet: Set<string>;
-  nextUIComponentsMap: NextUIComponentsMap;
-  nextUIComponentsPackageMap: NextUIComponentsMap;
+  // HeroUI
+  heroUIComponents: Components;
+  heroUIComponentsKeys: string[];
+  heroUIcomponentsPackages: string[];
+  heroUIComponentsKeysSet: Set<string>;
+  heroUIComponentsMap: HeroUIComponentsMap;
+  heroUIComponentsPackageMap: HeroUIComponentsMap;
 
-  // Beta NextUI
-  betaNextUIComponents: Components;
-  betaNextUIComponentsKeys: string[];
-  betaNextUIcomponentsPackages: string[];
-  betaNextUIComponentsKeysSet: Set<string>;
-  betaNextUIComponentsMap: NextUIComponentsMap;
-  betaNextUIComponentsPackageMap: NextUIComponentsMap;
+  // Beta HeroUI
+  betaHeroUIComponents: Components;
+  betaHeroUIComponentsKeys: string[];
+  betaHeroUIcomponentsPackages: string[];
+  betaHeroUIComponentsKeysSet: Set<string>;
+  betaHeroUIComponentsMap: HeroUIComponentsMap;
+  betaHeroUIComponentsPackageMap: HeroUIComponentsMap;
 
-  // Canary NextUI
-  canaryNextUIComponents: Components;
-  canaryNextUIComponentsKeys: string[];
-  canaryNextUIcomponentsPackages: string[];
-  canaryNextUIComponentsKeysSet: Set<string>;
-  canaryNextUIComponentsMap: NextUIComponentsMap;
-  canaryNextUIComponentsPackageMap: NextUIComponentsMap;
+  // Canary HeroUI
+  canaryHeroUIComponents: Components;
+  canaryHeroUIComponentsKeys: string[];
+  canaryHeroUIcomponentsPackages: string[];
+  canaryHeroUIComponentsKeysSet: Set<string>;
+  canaryHeroUIComponentsMap: HeroUIComponentsMap;
+  canaryHeroUIComponentsPackageMap: HeroUIComponentsMap;
 };
 
 /* eslint-disable sort-keys-fix/sort-keys-fix, sort-keys */
@@ -54,26 +54,26 @@ export const store = {
   betaVersion: '',
   canaryVersion: '',
 
-  betaNextUIComponents: [],
-  betaNextUIComponentsKeys: [],
-  betaNextUIComponentsKeysSet: new Set(),
-  betaNextUIComponentsMap: {},
-  betaNextUIComponentsPackageMap: {},
-  betaNextUIcomponentsPackages: [],
+  betaHeroUIComponents: [],
+  betaHeroUIComponentsKeys: [],
+  betaHeroUIComponentsKeysSet: new Set(),
+  betaHeroUIComponentsMap: {},
+  betaHeroUIComponentsPackageMap: {},
+  betaHeroUIcomponentsPackages: [],
 
-  nextUIComponents: [],
-  nextUIComponentsKeys: [],
-  nextUIComponentsKeysSet: new Set(),
-  nextUIComponentsMap: {},
-  nextUIComponentsPackageMap: {},
-  nextUIcomponentsPackages: [],
+  heroUIComponents: [],
+  heroUIComponentsKeys: [],
+  heroUIComponentsKeysSet: new Set(),
+  heroUIComponentsMap: {},
+  heroUIComponentsPackageMap: {},
+  heroUIcomponentsPackages: [],
 
-  canaryNextUIComponents: [],
-  canaryNextUIComponentsKeys: [],
-  canaryNextUIcomponentsPackages: [],
-  canaryNextUIComponentsKeysSet: new Set(),
-  canaryNextUIComponentsMap: {},
-  canaryNextUIComponentsPackageMap: {}
+  canaryHeroUIComponents: [],
+  canaryHeroUIComponentsKeys: [],
+  canaryHeroUIcomponentsPackages: [],
+  canaryHeroUIComponentsKeysSet: new Set(),
+  canaryHeroUIComponentsMap: {},
+  canaryHeroUIComponentsPackageMap: {}
 } as Store;
 /* eslint-enable sort-keys-fix/sort-keys-fix, sort-keys */
 
@@ -86,15 +86,15 @@ export async function getStore<T extends StoreKeys = StoreKeys>(
 
   if (!data) {
     if (key === 'latestVersion') {
-      data = (await getLatestVersion(NEXT_UI)) as SAFE_ANY;
+      data = (await getLatestVersion(HERO_UI)) as SAFE_ANY;
 
       store[key] = data;
     } else if (key === 'cliLatestVersion') {
-      data = (await getLatestVersion(NEXTUI_CLI)) as SAFE_ANY;
+      data = (await getLatestVersion(HEROUI_CLI)) as SAFE_ANY;
 
       store[key] = data;
     } else if (key === 'betaVersion') {
-      data = (await getBetaVersion(NEXT_UI)) as SAFE_ANY;
+      data = (await getBetaVersion(HERO_UI)) as SAFE_ANY;
 
       store[key] = data;
     } else if (key === 'canaryVersion') {

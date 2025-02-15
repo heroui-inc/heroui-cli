@@ -3,7 +3,7 @@ import {outputComponents} from '@helpers/output-info';
 import {getPackageInfo} from '@helpers/package';
 import {store} from 'src/constants/store';
 
-import {type NextUIComponents} from '../../src/constants/component';
+import {type HeroUIComponents} from '../../src/constants/component';
 import {resolver} from '../../src/constants/path';
 
 interface ListActionOptions {
@@ -14,7 +14,7 @@ interface ListActionOptions {
 export async function listAction(options: ListActionOptions) {
   const {packagePath = resolver('package.json'), remote = false} = options;
 
-  let components = store.nextUIComponents as NextUIComponents;
+  let components = store.heroUIComponents as HeroUIComponents;
 
   try {
     /** ======================== Get the installed components ======================== */
@@ -25,7 +25,7 @@ export async function listAction(options: ListActionOptions) {
     }
 
     if (!components.length) {
-      Logger.warn(`No NextUI components detected in the specified package.json at: ${packagePath}`);
+      Logger.warn(`No HeroUI components detected in the specified package.json at: ${packagePath}`);
 
       return;
     }

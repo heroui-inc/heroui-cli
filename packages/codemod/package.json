@@ -1,0 +1,79 @@
+{
+  "name": "@heroui/codemod",
+  "private": false,
+  "type": "module",
+  "license": "MIT",
+  "version": "1.3.0",
+  "homepage": "https://github.com/heroui-inc/heroui-cli#readme",
+  "description": "HeroUI Codemod provides transformations to help migrate your codebase from NextUI to HeroUI",
+  "keywords": [
+    "UI",
+    "CLI",
+    "Tool",
+    "HeroUI",
+    "NextUI",
+    "HeroUI",
+    "Integration",
+    "Modify Codebase"
+  ],
+  "author": {
+    "name": "HeroUI",
+    "email": "support@heroui.com",
+    "url": "https://github.com/heroui-inc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/heroui-inc/heroui-cli.git"
+  },
+  "bugs": {
+    "url": "https://github.com/heroui-inc/heroui-cli/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "files": [
+    "dist"
+  ],
+  "bin": {
+    "heroui-codemod": "./dist/index.js"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "dev": "tsup --watch",
+    "link:cli": "pnpm link --global",
+    "link:remove": "pnpm uninstall --global heroui-codemod",
+    "build": "tsup",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --max-warnings=0 --fix",
+    "check:prettier": "prettier --check .",
+    "check:types": "tsc --noEmit",
+    "changelog": "npx conventional-changelog -p angular -i CHANGELOG.md -s --commit-path .",
+    "release": "bumpp --execute='pnpm run changelog' --all --tag 'heroui-codemodv%s'",
+    "prepublishOnly": "pnpm run build"
+  },
+  "dependencies": {
+    "@clack/prompts": "0.7.0",
+    "async-retry": "1.3.3",
+    "chalk": "5.3.0",
+    "@winches/prompts": "0.0.7",
+    "cli-progress": "3.12.0",
+    "commander": "11.0.0",
+    "find-up": "7.0.0",
+    "compare-versions": "6.1.1",
+    "fast-glob": "3.3.2",
+    "gradient-string": "2.0.2",
+    "jscodeshift": "17.1.1",
+    "ora": "8.0.1",
+    "pathe": "1.1.2"
+  },
+  "engines": {
+    "pnpm": ">=9.x"
+  },
+  "packageManager": "pnpm@9.6.0",
+  "devDependencies": {
+    "@types/jscodeshift": "0.12.0"
+  }
+}

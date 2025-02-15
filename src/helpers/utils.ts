@@ -36,7 +36,7 @@ export function PasCalCase<T extends string>(str: T) {
  * @param options
  */
 export const findFiles = (glob: string, options?: Options) => {
-  const file = fg.sync(`${glob}`, {
+  const file = fg.sync(glob, {
     absolute: true,
     cwd: ROOT,
     deep: 5,

@@ -2,85 +2,85 @@ import type {Components} from 'src/scripts/helpers';
 
 import {store} from './store';
 
-export function getNextuiComponentsData(nextUIComponents: Components) {
-  const nextUIComponentsKeys = nextUIComponents.map((component) => component.name);
-  const nextUIcomponentsPackages = nextUIComponents.map((component) => component.package);
+export function getHerouiComponentsData(heroUIComponents: Components) {
+  const heroUIComponentsKeys = heroUIComponents.map((component) => component.name);
+  const heroUIcomponentsPackages = heroUIComponents.map((component) => component.package);
 
-  const nextUIComponentsKeysSet = new Set(nextUIComponentsKeys);
+  const heroUIComponentsKeysSet = new Set(heroUIComponentsKeys);
 
-  const nextUIComponentsMap = nextUIComponents.reduce((acc, component) => {
+  const heroUIComponentsMap = heroUIComponents.reduce((acc, component) => {
     acc[component.name] = component;
 
     return acc;
-  }, {} as NextUIComponentsMap);
-  const nextUIComponentsPackageMap = nextUIComponents.reduce((acc, component) => {
+  }, {} as HeroUIComponentsMap);
+  const heroUIComponentsPackageMap = heroUIComponents.reduce((acc, component) => {
     acc[component.package] = component;
 
     return acc;
-  }, {} as NextUIComponentsMap);
+  }, {} as HeroUIComponentsMap);
 
   return {
-    nextUIComponentsKeys,
-    nextUIComponentsKeysSet,
-    nextUIComponentsMap,
-    nextUIComponentsPackageMap,
-    nextUIcomponentsPackages
+    heroUIComponentsKeys,
+    heroUIComponentsKeysSet,
+    heroUIComponentsMap,
+    heroUIComponentsPackageMap,
+    heroUIcomponentsPackages
   };
 }
 
 export function initStoreComponentsData({
   beta = false,
   canary = false,
-  nextUIComponents
+  heroUIComponents
 }: {
   beta?: boolean;
   canary?: boolean;
-  nextUIComponents: Components;
+  heroUIComponents: Components;
 }) {
   const {
-    nextUIComponentsKeys,
-    nextUIComponentsKeysSet,
-    nextUIComponentsMap,
-    nextUIComponentsPackageMap,
-    nextUIcomponentsPackages
-  } = getNextuiComponentsData(nextUIComponents);
+    heroUIComponentsKeys,
+    heroUIComponentsKeysSet,
+    heroUIComponentsMap,
+    heroUIComponentsPackageMap,
+    heroUIcomponentsPackages
+  } = getHerouiComponentsData(heroUIComponents);
 
   if (beta) {
-    store.betaNextUIComponents = nextUIComponents;
-    store.betaNextUIComponentsKeys = nextUIComponentsKeys;
-    store.betaNextUIComponentsKeysSet = nextUIComponentsKeysSet;
-    store.betaNextUIComponentsMap = nextUIComponentsMap;
-    store.betaNextUIComponentsPackageMap = nextUIComponentsPackageMap;
-    store.betaNextUIcomponentsPackages = nextUIcomponentsPackages;
+    store.betaHeroUIComponents = heroUIComponents;
+    store.betaHeroUIComponentsKeys = heroUIComponentsKeys;
+    store.betaHeroUIComponentsKeysSet = heroUIComponentsKeysSet;
+    store.betaHeroUIComponentsMap = heroUIComponentsMap;
+    store.betaHeroUIComponentsPackageMap = heroUIComponentsPackageMap;
+    store.betaHeroUIcomponentsPackages = heroUIcomponentsPackages;
   } else if (canary) {
-    store.canaryNextUIComponents = nextUIComponents;
-    store.canaryNextUIComponentsKeys = nextUIComponentsKeys;
-    store.canaryNextUIComponentsKeysSet = nextUIComponentsKeysSet;
-    store.canaryNextUIComponentsMap = nextUIComponentsMap;
-    store.canaryNextUIComponentsPackageMap = nextUIComponentsPackageMap;
-    store.canaryNextUIcomponentsPackages = nextUIcomponentsPackages;
+    store.canaryHeroUIComponents = heroUIComponents;
+    store.canaryHeroUIComponentsKeys = heroUIComponentsKeys;
+    store.canaryHeroUIComponentsKeysSet = heroUIComponentsKeysSet;
+    store.canaryHeroUIComponentsMap = heroUIComponentsMap;
+    store.canaryHeroUIComponentsPackageMap = heroUIComponentsPackageMap;
+    store.canaryHeroUIcomponentsPackages = heroUIcomponentsPackages;
   } else {
-    store.nextUIComponents = nextUIComponents;
-    store.nextUIComponentsKeys = nextUIComponentsKeys;
-    store.nextUIComponentsKeysSet = nextUIComponentsKeysSet;
-    store.nextUIComponentsMap = nextUIComponentsMap;
-    store.nextUIComponentsPackageMap = nextUIComponentsPackageMap;
-    store.nextUIcomponentsPackages = nextUIcomponentsPackages;
+    store.heroUIComponents = heroUIComponents;
+    store.heroUIComponentsKeys = heroUIComponentsKeys;
+    store.heroUIComponentsKeysSet = heroUIComponentsKeysSet;
+    store.heroUIComponentsMap = heroUIComponentsMap;
+    store.heroUIComponentsPackageMap = heroUIComponentsPackageMap;
+    store.heroUIcomponentsPackages = heroUIcomponentsPackages;
   }
 }
 
-export type NextUIComponentsMap = Record<string, (typeof store.nextUIComponents)[number]>;
+export type HeroUIComponentsMap = Record<string, (typeof store.heroUIComponents)[number]>;
 
-export const orderNextUIComponentKeys = ['package', 'version', 'status', 'docs'] as const;
+export const orderHeroUIComponentKeys = ['package', 'version', 'status', 'docs'] as const;
 
-export const colorNextUIComponentKeys = ['package', 'version', 'status'];
+export const colorHeroUIComponentKeys = ['package', 'version', 'status'];
 
 // eslint-disable-next-line @typescript-eslint/ban-types
-export type NextUIComponentStatus = 'stable' | 'updated' | 'new' | (string & {});
+export type HeroUIComponentStatus = 'stable' | 'updated' | 'new' | (string & {});
 
-export type NextUIComponent = (typeof store.nextUIComponents)[0];
+export type HeroUIComponent = (typeof store.heroUIComponents)[0];
 
-export type NextUIComponents = (Omit<NextUIComponent, 'status'> & {
-  status: NextUIComponentStatus;
+export type HeroUIComponents = (Omit<HeroUIComponent, 'status'> & {
+  status: HeroUIComponentStatus;
   versionMode: string;
 })[];
