@@ -22,7 +22,7 @@ export async function getCanaryVersion(componentName: string) {
  * @example Input: ["drawer"]
  *
  * Return:
- * ["@nextui-org/drawer@canary"]
+ * ["@heroui-org/drawer@canary"]
  */
 export async function getCanaryComponents(components: string[]) {
   const componentsVersionList = await Promise.all(
