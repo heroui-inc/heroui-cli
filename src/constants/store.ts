@@ -98,7 +98,7 @@ export async function getStore<T extends StoreKeys = StoreKeys>(
 
       store[key] = data;
     } else if (key === 'canaryVersion') {
-      data = (await getCanaryVersion(NEXT_UI)) as SAFE_ANY;
+      data = (await getCanaryVersion(HERO_UI)) as SAFE_ANY;
 
       store[key] = data;
     }

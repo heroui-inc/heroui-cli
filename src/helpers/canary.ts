@@ -4,8 +4,8 @@ import {getPackageVersionData, getPrefixComponent} from './beta';
 import {Logger} from './logger';
 
 export async function getCanaryVersion(componentName: string) {
-  if (store.canaryNextUIComponentsPackageMap[componentName]) {
-    return store.canaryNextUIComponentsPackageMap[componentName]!.version;
+  if (store.canaryHeroUIComponentsPackageMap[componentName]) {
+    return store.canaryHeroUIComponentsPackageMap[componentName]!.version;
   }
 
   const data = await getPackageVersionData(componentName);
