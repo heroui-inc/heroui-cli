@@ -179,8 +179,6 @@ importers:
         specifier: latest
         version: 3.0.2(@types/node@20.11.30)(jiti@1.21.7)(tsx@4.7.1)(yaml@2.4.2)
 
-  test/test-add-action: {}
-
 packages:
 
   '@ampproject/remapping@2.3.0':
