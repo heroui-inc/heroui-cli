@@ -4,7 +4,7 @@
     {
       "name": "accordion",
       "package": "@heroui/accordion",
-      "version": "2.2.7",
+      "version": "2.2.8",
       "docs": "https://heroui.com/docs/components/accordion",
       "description": "Collapse display a list of high-level options that can expand/collapse to reveal more information.",
       "status": "stable",
@@ -21,7 +21,7 @@
     {
       "name": "alert",
       "package": "@heroui/alert",
-      "version": "2.2.9",
+      "version": "2.2.10",
       "docs": "https://heroui.com/docs/components/alert",
       "description": "Alerts are temporary notifications that provide concise feedback about an action or event.",
       "status": "new",
@@ -37,7 +37,7 @@
     {
       "name": "autocomplete",
       "package": "@heroui/autocomplete",
-      "version": "2.3.10",
+      "version": "2.3.11",
       "docs": "https://heroui.com/docs/components/autocomplete",
       "description": "An autocomplete combines a text input with a listbox, allowing users to filter a list of options to items matching a query.",
       "status": "updated",
@@ -54,7 +54,7 @@
     {
       "name": "avatar",
       "package": "@heroui/avatar",
-      "version": "2.2.6",
+      "version": "2.2.7",
       "docs": "https://heroui.com/docs/components/avatar",
       "description": "The Avatar component is used to represent a user, and displays the profile picture, initials or fallback icon.",
       "status": "stable",
@@ -70,7 +70,7 @@
     {
       "name": "badge",
       "package": "@heroui/badge",
-      "version": "2.2.5",
+      "version": "2.2.6",
       "docs": "https://heroui.com/docs/components/badge",
       "description": "Badges are used as a small numerical value or status descriptor for UI elements.",
       "status": "stable",
@@ -86,7 +86,7 @@
     {
       "name": "breadcrumbs",
       "package": "@heroui/breadcrumbs",
-      "version": "2.2.6",
+      "version": "2.2.7",
       "docs": "https://heroui.com/docs/components/breadcrumbs",
       "description": "Breadcrumbs display a hierarchy of links to the current page or resource in an application.",
       "status": "stable",
@@ -102,7 +102,7 @@
     {
       "name": "button",
       "package": "@heroui/button",
-      "version": "2.2.9",
+      "version": "2.2.10",
       "docs": "https://heroui.com/docs/components/button",
       "description": "Buttons allow users to perform actions and choose with a single tap.",
       "status": "updated",
@@ -119,7 +119,7 @@
     {
       "name": "calendar",
       "package": "@heroui/calendar",
-      "version": "2.2.9",
+      "version": "2.2.10",
       "docs": "https://heroui.com/docs/components/calendar",
       "description": "A calendar displays one or more date grids and allows users to select a single date.",
       "status": "stable",
@@ -136,7 +136,7 @@
     {
       "name": "card",
       "package": "@heroui/card",
-      "version": "2.2.9",
+      "version": "2.2.10",
       "docs": "https://heroui.com/docs/components/card",
       "description": "Card is a container for text, photos, and actions in the context of a single subject.",
       "status": "stable",
@@ -153,7 +153,7 @@
     {
       "name": "checkbox",
       "package": "@heroui/checkbox",
-      "version": "2.3.8",
+      "version": "2.3.9",
       "docs": "https://heroui.com/docs/components/checkbox",
       "description": "Checkboxes allow users to select multiple items from a list of individual items, or to mark one individual item as selected.",
       "status": "updated",
@@ -169,7 +169,7 @@
     {
       "name": "chip",
       "package": "@heroui/chip",
-      "version": "2.2.6",
+      "version": "2.2.7",
       "docs": "https://heroui.com/docs/components/chip",
       "description": "Chips help people enter information, make selections, filter content, or trigger actions.",
       "status": "stable",
@@ -185,7 +185,7 @@
     {
       "name": "code",
       "package": "@heroui/code",
-      "version": "2.2.6",
+      "version": "2.2.7",
       "docs": "https://heroui.com/docs/components/code",
       "description": "Code is a component used to display inline code.",
       "status": "stable",
@@ -200,7 +200,7 @@
     {
       "name": "date-input",
       "package": "@heroui/date-input",
-      "version": "2.3.8",
+      "version": "2.3.9",
       "docs": "https://heroui.com/docs/components/date-input",
       "description": "A date input allows users to enter and edit date and time values using a keyboard.",
       "status": "stable",
@@ -216,7 +216,7 @@
     {
       "name": "date-picker",
       "package": "@heroui/date-picker",
-      "version": "2.3.9",
+      "version": "2.3.10",
       "docs": "https://heroui.com/docs/components/date-picker",
       "description": "A date picker combines a DateInput and a Calendar popover to allow users to enter or select a date and time value.",
       "status": "stable",
@@ -233,7 +233,7 @@
     {
       "name": "divider",
       "package": "@heroui/divider",
-      "version": "2.2.5",
+      "version": "2.2.6",
       "docs": "https://heroui.com/docs/components/divider",
       "description": ". A separator is a visual divider between two groups of content",
       "status": "stable",
@@ -248,7 +248,7 @@
     {
       "name": "drawer",
       "package": "@heroui/drawer",
-      "version": "2.2.7",
+      "version": "2.2.8",
       "docs": "https://heroui.com/docs/components/drawer",
       "description": "Used to render a content that slides in from the side of the screen.",
       "status": "new",
@@ -264,7 +264,7 @@
     {
       "name": "dropdown",
       "package": "@heroui/dropdown",
-      "version": "2.3.9",
+      "version": "2.3.10",
       "docs": "https://heroui.com/docs/components/dropdown",
       "description": "A dropdown displays a list of actions or options that a user can choose.",
       "status": "stable",
@@ -281,7 +281,7 @@
     {
       "name": "form",
       "package": "@heroui/form",
-      "version": "2.1.8",
+      "version": "2.1.9",
       "docs": "https://heroui.com/docs/components/form",
       "description": "A form is a group of inputs that allows users submit data to a server and supports field validation errors.",
       "status": "new",
@@ -297,7 +297,7 @@
     {
       "name": "image",
       "package": "@heroui/image",
-      "version": "2.2.5",
+      "version": "2.2.6",
       "docs": "https://heroui.com/docs/components/image",
       "description": "A simple image component",
       "status": "stable",
@@ -313,7 +313,7 @@
     {
       "name": "input",
       "package": "@heroui/input",
-      "version": "2.4.9",
+      "version": "2.4.10",
       "docs": "https://heroui.com/docs/components/input",
       "description": "The input component is designed for capturing user input within a text field.",
       "status": "updated",
@@ -329,7 +329,7 @@
     {
       "name": "input-otp",
       "package": "@heroui/input-otp",
-      "version": "2.1.8",
+      "version": "2.1.9",
       "docs": "https://heroui.com/docs/components/input-otp",
       "description": "",
       "status": "new",
@@ -345,7 +345,7 @@
     {
       "name": "kbd",
       "package": "@heroui/kbd",
-      "version": "2.2.6",
+      "version": "2.2.7",
       "docs": "https://heroui.com/docs/components/kbd",
       "description": "The keyboard key components indicates which key or set of keys used to execute a specificv  action",
       "status": "stable",
@@ -360,7 +360,7 @@
     {
       "name": "link",
       "package": "@heroui/link",
-      "version": "2.2.7",
+      "version": "2.2.8",
       "docs": "https://heroui.com/docs/components/link",
       "description": "Links allow users to click their way from page to page. This component is styled to resemble a hyperlink and semantically renders an &lt;a&gt;",
       "status": "stable",
@@ -376,7 +376,7 @@
     {
       "name": "listbox",
       "package": "@heroui/listbox",
-      "version": "2.3.9",
+      "version": "2.3.10",
       "docs": "https://heroui.com/docs/components/listbox",
       "description": "A listbox displays a list of options and allows a user to select one or more of them.",
       "status": "updated",
@@ -392,7 +392,7 @@
     {
       "name": "menu",
       "package": "@heroui/menu",
-      "version": "2.2.9",
+      "version": "2.2.10",
       "docs": "https://heroui.com/docs/components/menu",
       "description": "A menu displays a list of options and allows a user to select one or more of them.",
       "status": "stable",
@@ -408,7 +408,7 @@
     {
       "name": "modal",
       "package": "@heroui/modal",
-      "version": "2.2.7",
+      "version": "2.2.8",
       "docs": "https://heroui.com/docs/components/modal",
       "description": "Displays a dialog with a custom content that requires attention or provides additional information.",
       "status": "updated",
@@ -425,7 +425,7 @@
     {
       "name": "navbar",
       "package": "@heroui/navbar",
-      "version": "2.2.8",
+      "version": "2.2.9",
       "docs": "https://heroui.com/docs/components/navbar",
       "description": "A responsive navigation header positioned on top side of your page that includes support for branding, links, navigation, collapse and more.",
       "status": "stable",
@@ -442,7 +442,7 @@
     {
       "name": "pagination",
       "package": "@heroui/pagination",
-      "version": "2.2.8",
+      "version": "2.2.9",
       "docs": "https://heroui.com/docs/components/pagination",
       "description": "The Pagination component allows you to display active page and navigate between multiple pages.",
       "status": "stable",
@@ -458,7 +458,7 @@
     {
       "name": "popover",
       "package": "@heroui/popover",
-      "version": "2.3.9",
+      "version": "2.3.10",
       "docs": "https://heroui.com/docs/components/popover",
       "description": "A popover is an overlay element positioned relative to a trigger.",
       "status": "stable",
@@ -475,7 +475,7 @@
     {
       "name": "progress",
       "package": "@heroui/progress",
-      "version": "2.2.6",
+      "version": "2.2.7",
       "docs": "https://heroui.com/docs/components/progress",
       "description": "Progress bars show either determinate or indeterminate progress of an operation over time.",
       "status": "stable",
@@ -491,7 +491,7 @@
     {
       "name": "radio",
       "package": "@heroui/radio",
-      "version": "2.3.8",
+      "version": "2.3.9",
       "docs": "https://heroui.com/docs/components/radio",
       "description": "Radios allow users to select a single option from a list of mutually exclusive options.",
       "status": "stable",
@@ -507,7 +507,7 @@
     {
       "name": "ripple",
       "package": "@heroui/ripple",
-      "version": "2.2.7",
+      "version": "2.2.8",
       "docs": "https://heroui.com/docs/components/ripple",
       "description": "A simple implementation to display a ripple animation when the source component is clicked",
       "status": "stable",
@@ -524,7 +524,7 @@
     {
       "name": "scroll-shadow",
       "package": "@heroui/scroll-shadow",
-      "version": "2.3.5",
+      "version": "2.3.6",
       "docs": "https://heroui.com/docs/components/scroll-shadow",
       "description": "A component that applies top and bottom shadows when content overflows on scroll.",
       "status": "stable",
@@ -540,7 +540,7 @@
     {
       "name": "select",
       "package": "@heroui/select",
-      "version": "2.4.9",
+      "version": "2.4.10",
       "docs": "https://heroui.com/docs/components/select",
       "description": "A select displays a collapsible list of options and allows a user to select one of them.",
       "status": "updated",
@@ -557,7 +557,7 @@
     {
       "name": "skeleton",
       "package": "@heroui/skeleton",
-      "version": "2.2.5",
+      "version": "2.2.6",
       "docs": "https://heroui.com/docs/components/skeleton",
       "description": "Skeleton is used to display the loading state of some component.",
       "status": "stable",
@@ -573,7 +573,7 @@
     {
       "name": "slider",
       "package": "@heroui/slider",
-      "version": "2.4.7",
+      "version": "2.4.8",
       "docs": "https://heroui.com/docs/components/slider",
       "description": "A slider allows a user to select one or more values within a range.",
       "status": "stable",
@@ -589,7 +589,7 @@
     {
       "name": "snippet",
       "package": "@heroui/snippet",
-      "version": "2.2.10",
+      "version": "2.2.11",
       "docs": "https://heroui.com/docs/components/snippet",
       "description": "Display a snippet of copyable code for the command line.",
       "status": "stable",
@@ -606,7 +606,7 @@
     {
       "name": "spacer",
       "package": "@heroui/spacer",
-      "version": "2.2.6",
+      "version": "2.2.7",
       "docs": "https://heroui.com/docs/components/spacer",
       "description": "A flexible spacer component designed to create consistent spacing and maintain alignment in your layout.",
       "status": "stable",
@@ -621,7 +621,7 @@
     {
       "name": "spinner",
       "package": "@heroui/spinner",
-      "version": "2.2.6",
+      "version": "2.2.7",
       "docs": "https://heroui.com/docs/components/spinner",
       "description": "Loaders express an unspecified wait time or display the length of a process.",
       "status": "stable",
@@ -636,7 +636,7 @@
     {
       "name": "switch",
       "package": "@heroui/switch",
-      "version": "2.2.8",
+      "version": "2.2.9",
       "docs": "https://heroui.com/docs/components/switch",
       "description": "A switch is similar to a checkbox, but represents on/off values as opposed to selection.",
       "status": "updated",
@@ -652,7 +652,7 @@
     {
       "name": "table",
       "package": "@heroui/table",
-      "version": "2.2.8",
+      "version": "2.2.9",
       "docs": "https://heroui.com/docs/components/table",
       "description": "Tables are used to display tabular data using rows and columns. ",
       "status": "stable",
@@ -668,7 +668,7 @@
     {
       "name": "tabs",
       "package": "@heroui/tabs",
-      "version": "2.2.7",
+      "version": "2.2.8",
       "docs": "https://heroui.com/docs/components/tabs",
       "description": "Tabs organize content into multiple sections and allow users to navigate between them.",
       "status": "stable",
@@ -685,7 +685,7 @@
     {
       "name": "tooltip",
       "package": "@heroui/tooltip",
-      "version": "2.2.7",
+      "version": "2.2.8",
       "docs": "https://heroui.com/docs/components/tooltip",
       "description": "A React Component for rendering dynamically positioned Tooltips",
       "status": "stable",
@@ -702,7 +702,7 @@
     {
       "name": "user",
       "package": "@heroui/user",
-      "version": "2.2.6",
+      "version": "2.2.7",
       "docs": "https://heroui.com/docs/components/user",
       "description": "Flexible User Profile Component.",
       "status": "stable",
@@ -716,5 +716,5 @@
       }
     }
   ],
-  "version": "2.6.13"
+  "version": "2.6.14"
 }

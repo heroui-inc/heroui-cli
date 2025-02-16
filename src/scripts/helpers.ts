@@ -67,7 +67,7 @@ export async function updateComponents() {
 
   if (
     compareVersions(currentVersion, latestVersion) === -1 ||
-    compareVersions(betaVersion, latestBetaVersion) === -1
+    (betaVersion && compareVersions(betaVersion, latestBetaVersion) === -1)
   ) {
     // After the first time, check the version and update
     await autoUpdateComponents(latestVersion, latestBetaVersion);
@@ -151,7 +151,9 @@ export async function autoUpdateComponents(latestVersion?: string, betaVersion?:
 
   const [components, betaComponents] = await Promise.all([
     downloadFile(url),
-    getStoreSync('beta') ? downloadFile(getUnpkgUrl(betaVersion), false) : Promise.resolve([])
+    getStoreSync('beta') && betaVersion
+      ? downloadFile(getUnpkgUrl(betaVersion), false)
+      : Promise.resolve([])
   ]);
 
   const filterMissingComponents = betaComponents.filter(

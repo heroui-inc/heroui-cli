@@ -13,7 +13,7 @@ node_modules
 /.swc
 /coverage
 __snapshots__
-
+test/test*
 
 # misc
 .DS_Store
