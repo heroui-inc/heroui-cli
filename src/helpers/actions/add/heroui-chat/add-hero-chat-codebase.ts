@@ -57,6 +57,7 @@ export async function addHeroChatCodebase(targets: string[], options: AddActionO
   if (appFile) {
     const relatedFiles = await fetchAllRelatedFiles({
       content: appFile.content,
+      entries: codeFiles,
       filePath: 'src/App.tsx'
     });
 

@@ -1,4 +1,6 @@
-import {join} from 'node:path';
+import type {CodeBaseFile} from './get-codebase-files';
+
+import {basename} from 'node:path';
 
 import {fetchRequest} from '@helpers/fetch';
 import {Logger} from '@helpers/logger';
@@ -17,41 +19,48 @@ export interface FetchAllRelatedFilesParams {
   filePath: string;
   fetchBaseUrl?: string;
   content?: string;
+  entries?: CodeBaseFile[];
 }
 
 export async function fetchAllRelatedFiles(params: FetchAllRelatedFilesParams) {
-  const {content, fetchBaseUrl, filePath} = params;
+  const {content, entries, filePath} = params;
   const result: {filePath: string; fileContent: string; fileName: string}[] = [];
 
-  async function fetchRelatedImports(fileContent: string, parentPath: string = '') {
-    let relatedImports = getRelatedImports(fileContent);
+  async function fetchRelatedImports(fileContent: string) {
+    const relatedImports = getRelatedImports(fileContent);
 
     if (relatedImports.length === 0) return;
 
-    if (parentPath) {
-      relatedImports = relatedImports.map(
-        (importPath) => `${join(parentPath.replace(/\/[^/]+\.tsx/, ''), importPath)}.tsx`
-      );
-    } else {
-      relatedImports = relatedImports.map(
-        (importPath) => `src/${importPath.replace('./', '')}.tsx`
-      );
-    }
+    // if (parentPath) {
+    //   relatedImports = relatedImports.map(
+    //     (importPath) => `${join(parentPath.replace(/\/[^/]+\.tsx/, ''), importPath)}.tsx`
+    //   );
+    // } else {
+    //   relatedImports = relatedImports.map(
+    //     (importPath) => `src/${importPath.replace('./', '')}.tsx`
+    //   );
+    // }
 
     // Add related imports
     await Promise.all(
       relatedImports.map(async (relatedPath) => {
-        const filePath = `${fetchBaseUrl}/${relatedPath}`;
-        const response = await fetchRequest(filePath);
-        const fileContent = await response.text();
+        const filePath = `src/${relatedPath.replace(/.*?\//, '')}`;
+
+        if (result.some((file) => file.fileName === filePath)) return;
+
+        const targetFile = entries?.find((file) => {
+          return basename(file.name).includes(basename(relatedPath));
+        });
+        const suffix = targetFile?.name.split('.').pop();
+        const fileContent = targetFile?.content ?? (await (await fetchRequest(filePath)).text());
 
         result.push({
           fileContent,
-          fileName: relatedPath.split('/').pop()!,
-          filePath: relatedPath
+          fileName: `${relatedPath.split('/').pop()}${suffix ? `.${suffix}` : ''}`,
+          filePath
         });
 
-        await fetchRelatedImports(fileContent, relatedPath);
+        await fetchRelatedImports(fileContent);
       })
     );
   }
