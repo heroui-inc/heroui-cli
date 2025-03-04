@@ -11,8 +11,8 @@ import {Logger} from '@helpers/logger';
 import {getPackageInfo} from '@helpers/package';
 import {confirmClack, getDirectoryClack} from 'src/prompts/clack';
 
-import {fetchPackage} from './fetch-package';
 import {getBaseStorageUrl} from './get-base-storage-url';
+import {getCodeBaseFiles} from './get-codebase-files';
 import {fetchAllRelatedFiles} from './get-related-imports';
 import {writeFilesWithMkdir} from './write-files';
 
@@ -29,7 +29,6 @@ export interface AddActionOptions {
 
 const httpRegex = /^https?:\/\//;
 const APP_FILE = 'App.tsx';
-const ROOT_FILE = 'src/App.tsx';
 
 export function isAddingHeroChatCodebase(targets: string[]) {
   return targets.some((target) => httpRegex.test(target));
@@ -39,7 +38,7 @@ export async function addHeroChatCodebase(targets: string[], options: AddActionO
   p.intro(chalk.cyan('Starting to add Hero Chat codebase'));
 
   const directory = resolve(process.cwd(), options.directory ?? (await getDirectoryClack()));
-  const {chatTitle, url} = await getBaseStorageUrl(targets[0]!);
+  const {baseStorageUrl, chatTitle, codeSandboxId, token} = await getBaseStorageUrl(targets[0]!);
   const chatTitleFile = chatTitle ? `${chatTitle}.tsx` : undefined;
 
   const ifExists = fs.existsSync(directory);
@@ -50,30 +49,36 @@ export async function addHeroChatCodebase(targets: string[], options: AddActionO
   }
 
   /** ======================== Add files ======================== */
-  const filePath = `${url}/${ROOT_FILE}`;
+  const filePath = `${baseStorageUrl}/retrieve?codeSandboxId=${codeSandboxId}`;
+  const codeFiles = await getCodeBaseFiles(filePath, token);
+  const appFile = codeFiles.find((file) => file.name.includes(APP_FILE));
+  const pkgContent = codeFiles.find((file) => file.name.includes('package.json'))?.content;
 
-  const [relatedFiles, pkgContent] = await Promise.all([
-    fetchAllRelatedFiles({fetchBaseUrl: url, filePath}),
-    fetchPackage(`${url}/package.json`)
-  ]);
+  if (appFile) {
+    const relatedFiles = await fetchAllRelatedFiles({
+      content: appFile.content,
+      filePath: 'src/App.tsx'
+    });
 
-  for (const relatedFile of relatedFiles) {
-    if (relatedFile.fileName.includes(APP_FILE)) {
-      writeFilesWithMkdir(directory, `${chatTitleFile || APP_FILE}`, relatedFile.fileContent);
-      continue;
+    for (const relatedFile of relatedFiles) {
+      if (relatedFile.fileName.includes(APP_FILE)) {
+        writeFilesWithMkdir(directory, `${chatTitleFile || APP_FILE}`, relatedFile.fileContent);
+        continue;
+      }
+
+      writeFilesWithMkdir(
+        directory,
+        `${relatedFile.filePath.replace('src/', '')}`,
+        relatedFile.fileContent
+      );
     }
-
-    writeFilesWithMkdir(
-      directory,
-      `${relatedFile.filePath.replace('src/', '')}`,
-      relatedFile.fileContent
-    );
   }
 
   /** ======================== Check if the project missing dependencies ======================== */
   if (pkgContent) {
+    const pkgContentJson = JSON.parse(pkgContent);
     const {allDependenciesKeys} = getPackageInfo(join(process.cwd(), 'package.json'));
-    const missingDependencies = Object.keys(pkgContent.dependencies).filter(
+    const missingDependencies = Object.keys(pkgContentJson.dependencies).filter(
       (key) => !allDependenciesKeys.has(key)
     );
 
@@ -88,7 +93,7 @@ export async function addHeroChatCodebase(targets: string[], options: AddActionO
 
       const currentPkgManager = await detect();
       const runCmd = currentPkgManager === 'npm' ? 'install' : 'add';
-      const installCmd = `${currentPkgManager} ${runCmd} ${missingDependencies.map((target) => `${target}@${pkgContent.dependencies[target]}`).join(' ')}`;
+      const installCmd = `${currentPkgManager} ${runCmd} ${missingDependencies.map((target) => `${target}@${pkgContentJson.dependencies[target]}`).join(' ')}`;
 
       if (isAddMissingDependencies) {
         try {

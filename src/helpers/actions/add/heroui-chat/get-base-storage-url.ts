@@ -5,22 +5,27 @@ import {fetchRequest} from '@helpers/fetch';
  */
 export async function getBaseStorageUrl(url: string) {
   const removedHttp = url.replace(/^https:\/\//, '');
-  const [baseUrl, chatId, recentlyMessageId, chatTitle] = removedHttp.split('/');
+  const [baseUrl, baseUrlKey, codeSandboxId, chatTitle] = removedHttp.split('/');
 
-  const dubUrl = `https://${baseUrl}/${chatId}`;
+  const dubUrl = `https://${baseUrl}/${baseUrlKey}`;
   let baseStorageUrl = '';
+  let token = '';
 
-  const response = await fetchRequest(dubUrl, {fetchInfo: 'base storage url'});
+  const response = await fetchRequest(dubUrl, {fetchInfo: 'base storage url', throwError: false});
 
   if (response.redirected) {
     baseStorageUrl = response.url.replace(/\/$/, '');
+    const httpMatch = baseStorageUrl.match(/^https?:\/\//)?.[0] ?? '';
+    const [baseUrl, tokenUrl, ...rest] = baseStorageUrl.replace(httpMatch, '').split('/');
+
+    baseStorageUrl = `${httpMatch}${baseUrl}${rest.length ? `/${rest.join('/')}` : ''}`;
+    token = decodeURI(tokenUrl ?? '').split(' ')[1] ?? '';
   }
 
   return {
     baseStorageUrl,
-    chatId,
     chatTitle,
-    recentlyMessageId,
-    url: `${baseStorageUrl}/${chatId}/${recentlyMessageId}`
+    codeSandboxId,
+    token
   };
 }

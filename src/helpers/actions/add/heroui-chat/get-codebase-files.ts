@@ -1,3 +1,7 @@
+import type {SAFE_ANY} from '@helpers/type';
+
+import {fetchRequest} from '@helpers/fetch';
+
 export const CODEBASE_FILES = [
   'index.html',
   'package.json',
@@ -9,3 +13,21 @@ export const CODEBASE_FILES = [
   'tsconfig.json',
   'vite.config.ts'
 ];
+
+export interface CodeBaseFile {
+  name: string;
+  type: 'file' | 'directory';
+  isSymlink: boolean;
+  content: string;
+}
+
+export async function getCodeBaseFiles(url: string, token: string): Promise<CodeBaseFile[]> {
+  const response = await fetchRequest(url, {
+    fetchInfo: 'codebase files',
+    headers: {Authorization: `Bearer ${token}`}
+  });
+
+  const data = await response.json();
+
+  return ((data as SAFE_ANY).entries ?? {}) as CodeBaseFile[];
+}

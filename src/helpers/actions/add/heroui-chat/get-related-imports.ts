@@ -15,11 +15,12 @@ export function getRelatedImports(fileContent: string) {
 
 export interface FetchAllRelatedFilesParams {
   filePath: string;
-  fetchBaseUrl: string;
+  fetchBaseUrl?: string;
+  content?: string;
 }
 
 export async function fetchAllRelatedFiles(params: FetchAllRelatedFilesParams) {
-  const {fetchBaseUrl, filePath} = params;
+  const {content, fetchBaseUrl, filePath} = params;
   const result: {filePath: string; fileContent: string; fileName: string}[] = [];
 
   async function fetchRelatedImports(fileContent: string, parentPath: string = '') {
@@ -55,9 +56,15 @@ export async function fetchAllRelatedFiles(params: FetchAllRelatedFilesParams) {
     );
   }
 
-  try {
+  async function fetchFileContent(filePath: string) {
     const response = await fetchRequest(filePath);
     const fileContent = await response.text();
+
+    return fileContent;
+  }
+
+  try {
+    const fileContent = content ?? (await fetchFileContent(filePath));
 
     await fetchRelatedImports(fileContent);
 

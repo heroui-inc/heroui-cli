@@ -48,9 +48,9 @@ export async function downloadTemplate(root: string, url: string) {
 
 export async function fetchRequest(
   url: string,
-  options?: RequestInit & {fetchInfo?: string}
+  options?: RequestInit & {fetchInfo?: string; throwError?: boolean}
 ): Promise<Response> {
-  const {fetchInfo, ...rest} = options ?? {};
+  const {fetchInfo, throwError = true, ...rest} = options ?? {};
   const text = `Fetching ${fetchInfo ?? basename(url)}`;
   const spinner = ora({
     discardStdin: false,
@@ -84,7 +84,7 @@ export async function fetchRequest(
           }
         });
 
-        if (!response.ok) {
+        if (!response.ok && throwError) {
           throw new Error(`Request failed with status ${response.status}`);
         }
 
