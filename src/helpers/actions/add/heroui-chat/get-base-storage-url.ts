@@ -3,9 +3,9 @@
  */
 export async function getBaseStorageUrl(url: string) {
   const httpMatch = url.match(/^https?:\/\//)?.[0] ?? '';
-  const [baseUrl, userId, sandboxId, chatTitle] = url.replace(httpMatch, '').split('/');
+  const [baseUrl, userId, chatId, sandboxId, chatTitle] = url.replace(httpMatch, '').split('/');
 
-  const baseStorageUrl = `${httpMatch}${baseUrl}/sandbox/files/${sandboxId}`;
+  const baseStorageUrl = `${httpMatch}${baseUrl}/sandbox/files/${chatId}?sandboxId=${sandboxId}`;
 
   return {
     baseStorageUrl,
