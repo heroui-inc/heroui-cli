@@ -2,7 +2,6 @@ import type {CodeBaseFile} from './get-codebase-files';
 
 import {basename} from 'node:path';
 
-import {fetchRequest} from '@helpers/fetch';
 import {Logger} from '@helpers/logger';
 import {getMatchImport} from '@helpers/match';
 
@@ -16,14 +15,13 @@ export function getRelatedImports(fileContent: string) {
 }
 
 export interface FetchAllRelatedFilesParams {
+  content: string;
+  entries: CodeBaseFile[];
   filePath: string;
-  fetchBaseUrl?: string;
-  content?: string;
-  entries?: CodeBaseFile[];
 }
 
 export async function fetchAllRelatedFiles(params: FetchAllRelatedFilesParams) {
-  const {content, entries, filePath} = params;
+  const {content: fileContent, entries, filePath} = params;
   const result: {filePath: string; fileContent: string; fileName: string}[] = [];
 
   async function fetchRelatedImports(fileContent: string) {
@@ -31,32 +29,23 @@ export async function fetchAllRelatedFiles(params: FetchAllRelatedFilesParams) {
 
     if (relatedImports.length === 0) return;
 
-    // if (parentPath) {
-    //   relatedImports = relatedImports.map(
-    //     (importPath) => `${join(parentPath.replace(/\/[^/]+\.tsx/, ''), importPath)}.tsx`
-    //   );
-    // } else {
-    //   relatedImports = relatedImports.map(
-    //     (importPath) => `src/${importPath.replace('./', '')}.tsx`
-    //   );
-    // }
-
     // Add related imports
     await Promise.all(
       relatedImports.map(async (relatedPath) => {
-        const filePath = `src/${relatedPath.replace(/.*?\//, '')}`;
-
-        if (result.some((file) => file.fileName === filePath)) return;
-
         const targetFile = entries?.find((file) => {
           return basename(file.name).includes(basename(relatedPath));
         });
         const suffix = targetFile?.name.split('.').pop();
-        const fileContent = targetFile?.content ?? (await (await fetchRequest(filePath)).text());
+        const fileName = `${relatedPath.split('/').pop()}`;
+        const filePath = `src/${relatedPath.replace(/.*?\//, '')}${suffix ? `.${suffix}` : ''}`;
+
+        if (result.some((file) => file.fileName === fileName)) return;
+
+        const fileContent = targetFile?.content ?? '';
 
         result.push({
           fileContent,
-          fileName: `${relatedPath.split('/').pop()}${suffix ? `.${suffix}` : ''}`,
+          fileName,
           filePath
         });
 
@@ -65,16 +54,7 @@ export async function fetchAllRelatedFiles(params: FetchAllRelatedFilesParams) {
     );
   }
 
-  async function fetchFileContent(filePath: string) {
-    const response = await fetchRequest(filePath);
-    const fileContent = await response.text();
-
-    return fileContent;
-  }
-
   try {
-    const fileContent = content ?? (await fetchFileContent(filePath));
-
     await fetchRelatedImports(fileContent);
 
     result.push({
