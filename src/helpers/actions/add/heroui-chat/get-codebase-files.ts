@@ -21,10 +21,10 @@ export interface CodeBaseFile {
   content: string;
 }
 
-export async function getCodeBaseFiles(url: string, token: string): Promise<CodeBaseFile[]> {
+export async function getCodeBaseFiles(url: string, userId: string): Promise<CodeBaseFile[]> {
   const response = await fetchRequest(url, {
     fetchInfo: 'codebase files',
-    headers: {Authorization: `Bearer ${token}`}
+    headers: {userId}
   });
 
   const data = await response.json();

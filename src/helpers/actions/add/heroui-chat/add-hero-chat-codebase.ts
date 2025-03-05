@@ -38,7 +38,7 @@ export async function addHeroChatCodebase(targets: string[], options: AddActionO
   p.intro(chalk.cyan('Starting to add Hero Chat codebase'));
 
   const directory = resolve(process.cwd(), options.directory ?? (await getDirectoryClack()));
-  const {baseStorageUrl, chatTitle, codeSandboxId, token} = await getBaseStorageUrl(targets[0]!);
+  const {baseStorageUrl, chatTitle, userId} = await getBaseStorageUrl(targets[0]!);
   const chatTitleFile = chatTitle ? `${chatTitle}.tsx` : undefined;
 
   const ifExists = fs.existsSync(directory);
@@ -49,8 +49,8 @@ export async function addHeroChatCodebase(targets: string[], options: AddActionO
   }
 
   /** ======================== Add files ======================== */
-  const filePath = `${baseStorageUrl}/retrieve?codeSandboxId=${codeSandboxId}`;
-  const codeFiles = await getCodeBaseFiles(filePath, token);
+
+  const codeFiles = await getCodeBaseFiles(baseStorageUrl, userId);
   const appFile = codeFiles.find((file) => file.name.includes(APP_FILE));
   const pkgContent = codeFiles.find((file) => file.name.includes('package.json'))?.content;
 
