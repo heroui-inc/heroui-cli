@@ -86,11 +86,11 @@ HeroUI CLI v0.2.1
 ┌  Create a new project
 │
 ◇  Select a template (Enter to select)
-│  ● App (A Next.js 15 with app directory template pre-configured with NextUI (v2) and Tailwind CSS.)
-│  ○ Pages (A Next.js 15 with pages directory template pre-configured with NextUI (v2) and Tailwind CSS.)
-│  ○ Vite (A Vite template pre-configured with NextUI (v2) and Tailwind CSS.)
-│  ○ Remix (A Remix template pre-configured with NextUI (v2) and Tailwind CSS.)
-│  ○ Laravel (A Laravel template pre-configured with NextUI (v2) and Tailwind CSS.)
+│  ● App (A Next.js 15 with app directory template pre-configured with HeroUI (v2) and Tailwind CSS.)
+│  ○ Pages (A Next.js 15 with pages directory template pre-configured with HeroUI (v2) and Tailwind CSS.)
+│  ○ Vite (A Vite template pre-configured with HeroUI (v2) and Tailwind CSS.)
+│  ○ Remix (A Remix template pre-configured with HeroUI (v2) and Tailwind CSS.)
+│  ○ Laravel (A Laravel template pre-configured with HeroUI (v2) and Tailwind CSS.)
 │
 ◇  New project name (Enter to skip with default name)
 │  my-heroui-app
