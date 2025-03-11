@@ -157,7 +157,7 @@ async function getTableInfo(packageName?: string, projectName?: string, template
       value: 'app'
     },
     {
-      hint: 'A Next.js 14 with pages directory template pre-configured with HeroUI (v2) and Tailwind CSS.',
+      hint: 'A Next.js 15 with pages directory template pre-configured with HeroUI (v2) and Tailwind CSS.',
       label: 'Pages',
       value: 'pages'
     },
@@ -173,7 +173,7 @@ async function getTableInfo(packageName?: string, projectName?: string, template
     },
     {
       hint: 'A Laravel template pre-configured with HeroUI (v2) and Tailwind CSS.',
-      label: chalk.gray('(coming soon) Laravel'),
+      label: 'laravel',
       value: 'laravel'
     }
   ];
