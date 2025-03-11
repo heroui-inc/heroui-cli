@@ -13,7 +13,7 @@ import {Logger, type PrefixLogType} from '@helpers/logger';
 import {getPackageInfo} from '@helpers/package';
 import {findFiles, strip, transformOption} from '@helpers/utils';
 import {resolver} from 'src/constants/path';
-import {DOCS_PNPM_SETUP, DOCS_TAILWINDCSS_SETUP, NEXT_UI} from 'src/constants/required';
+import {DOCS_PNPM_SETUP, DOCS_TAILWINDCSS_SETUP, HERO_UI} from 'src/constants/required';
 
 interface DoctorActionOptions {
   packagePath?: string;
@@ -52,8 +52,8 @@ export async function doctorAction(options: DoctorActionOptions) {
     Logger.prefix(
       'error',
       `❌ No ${chalk.underline(
-        'NextUI components'
-      )} found in your project. Please consult the installation guide at: https://nextui.org/docs/guide/installation#global-installation`
+        'HeroUI components'
+      )} found in your project. Please consult the installation guide at: https://heroui.com/docs/guide/installation#global-installation`
     );
 
     return;
@@ -111,7 +111,7 @@ export async function doctorAction(options: DoctorActionOptions) {
     let [isCorrectInstalled, ...missingDependencies] = await checkRequiredContentInstalled(
       'all',
       allDependenciesKeys,
-      {allDependencies, packageNames: [NEXT_UI], peerDependencies: true}
+      {allDependencies, packageNames: [HERO_UI], peerDependencies: true}
     );
 
     // Check if other allComponents are installed

@@ -19,7 +19,7 @@ import {findFiles} from '@helpers/utils';
 import {resolver} from 'src/constants/path';
 import {
   DOCS_PROVIDER_SETUP,
-  NEXT_UI,
+  HERO_UI,
   SYSTEM_UI,
   THEME_UI,
   pnpmRequired
@@ -44,17 +44,17 @@ export async function removeAction(components: string[], options: RemoveOptionsA
   const packageManager = await detect();
   const prettier = options.prettier ?? allDependenciesKeys.has('prettier');
 
-  let isNextUIAll = !!allDependencies[NEXT_UI];
+  let isHeroUIAll = !!allDependencies[HERO_UI];
 
-  // If no Installed NextUI components then exit
-  if (!currentComponents.length && !isNextUIAll) {
-    Logger.prefix('error', `No NextUI components detected in your package.json at: ${packagePath}`);
+  // If no Installed HeroUI components then exit
+  if (!currentComponents.length && !isHeroUIAll) {
+    Logger.prefix('error', `No HeroUI components detected in your package.json at: ${packagePath}`);
 
     return;
   }
 
-  if (all || isNextUIAll) {
-    components = isNextUIAll ? [NEXT_UI] : currentComponents.map((component) => component.package);
+  if (all || isHeroUIAll) {
+    components = isHeroUIAll ? [HERO_UI] : currentComponents.map((component) => component.package);
   } else if (!components.length) {
     components = await getAutocompleteMultiselect(
       'Select the components to remove',
@@ -76,7 +76,7 @@ export async function removeAction(components: string[], options: RemoveOptionsA
   }
 
   // Ask user whether need to remove these components
-  const filteredComponents = components.includes(NEXT_UI)
+  const filteredComponents = components.includes(HERO_UI)
     ? await transformPackageDetail(components, allDependencies)
     : currentComponents.filter((component) =>
         components.some((c) => c.includes(component.package) || c.includes(component.name))
@@ -113,20 +113,20 @@ export async function removeAction(components: string[], options: RemoveOptionsA
   // Get the new package information
   var {allDependencies, currentComponents} = getPackageInfo(packagePath, false);
 
-  isNextUIAll = !!allDependencies[NEXT_UI];
+  isHeroUIAll = !!allDependencies[HERO_UI];
 
-  const type: SAFE_ANY = isNextUIAll ? 'all' : 'partial';
+  const type: SAFE_ANY = isHeroUIAll ? 'all' : 'partial';
 
   removeTailwind(type, {
     currentComponents,
-    isNextUIAll,
+    isHeroUIAll,
     isPnpm: packageManager === 'pnpm',
     prettier,
     tailwindPath: tailwindPath!
   });
 
   /** ======================== Step 3 Remove the pnpm ======================== */
-  if (!currentComponents.length && !isNextUIAll) {
+  if (!currentComponents.length && !isHeroUIAll) {
     if (packageManager === 'pnpm') {
       const npmrcPath = resolver('.npmrc');
 
@@ -144,14 +144,14 @@ export async function removeAction(components: string[], options: RemoveOptionsA
 
     Logger.newLine();
     Logger.warn(
-      `No NextUI components remain installed. Ensure the NextUIProvider is also removed if necessary.\nFor more information, visit: ${DOCS_PROVIDER_SETUP}`
+      `No HeroUI components remain installed. Ensure the HeroUIProvider is also removed if necessary.\nFor more information, visit: ${DOCS_PROVIDER_SETUP}`
     );
   }
 
   Logger.newLine();
 
   Logger.success(
-    `✅ Successfully removed the specified NextUI components: ${components
+    `✅ Successfully removed the specified HeroUI components: ${components
       .map((c) => chalk.underline(c))
       .join(', ')}`
   );

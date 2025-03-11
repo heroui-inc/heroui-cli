@@ -13,9 +13,9 @@ import {getPackageInfo} from '@helpers/package';
 import {setupPnpm} from '@helpers/setup';
 import {upgrade, writeUpgradeVersion} from '@helpers/upgrade';
 import {getColorVersion, getPackageManagerInfo, transformPeerVersion} from '@helpers/utils';
-import {type NextUIComponents} from 'src/constants/component';
+import {type HeroUIComponents} from 'src/constants/component';
 import {resolver} from 'src/constants/path';
-import {NEXT_UI} from 'src/constants/required';
+import {HERO_UI} from 'src/constants/required';
 import {store} from 'src/constants/store';
 import {getAutocompleteMultiselect, getMultiselect, getSelect} from 'src/prompts';
 import {compareVersions, getLatestVersion} from 'src/scripts/helpers';
@@ -31,7 +31,7 @@ interface UpgradeActionOptions {
 }
 
 type TransformComponent = Required<
-  AppendKeyValue<NextUIComponents[0], 'latestVersion', string> & {isLatest: boolean}
+  AppendKeyValue<HeroUIComponents[0], 'latestVersion', string> & {isLatest: boolean}
 >;
 
 function betaCompareVersions(version: string, latestVersion: string, beta: boolean) {
@@ -62,14 +62,14 @@ export async function upgradeAction(components: string[], options: UpgradeAction
   const {allDependencies, currentComponents, dependencies, devDependencies, packageJson} =
     getPackageInfo(packagePath, false);
 
-  const isNextUIAll = !!allDependencies[NEXT_UI];
+  const isHeroUIAll = !!allDependencies[HERO_UI];
 
   const transformComponents: TransformComponent[] = [];
 
   await Promise.all(
     currentComponents.map(async (component) => {
       const latestVersion =
-        store.nextUIComponentsMap[component.name]?.version ||
+        store.heroUIComponentsMap[component.name]?.version ||
         (await getLatestVersion(component.package));
       const mergedVersion = beta ? await getBetaVersion(component.package) : latestVersion;
       const compareResult = betaCompareVersions(component.version, mergedVersion, beta);
@@ -82,9 +82,9 @@ export async function upgradeAction(components: string[], options: UpgradeAction
     })
   );
 
-  // If no Installed NextUI components then exit
-  if (!transformComponents.length && !isNextUIAll) {
-    Logger.prefix('error', `No NextUI components detected in your package.json at: ${packagePath}`);
+  // If no Installed HeroUI components then exit
+  if (!transformComponents.length && !isHeroUIAll) {
+    Logger.prefix('error', `No HeroUI components detected in your package.json at: ${packagePath}`);
 
     return;
   }
@@ -92,22 +92,22 @@ export async function upgradeAction(components: string[], options: UpgradeAction
   if (all) {
     components = currentComponents.map((component) => component.package);
   } else if (!components.length) {
-    // If have the main nextui then add
-    if (isNextUIAll) {
-      const nextuiData = {
+    // If have the main heroui then add
+    if (isHeroUIAll) {
+      const herouiData = {
         isLatest:
-          compareVersions(store.latestVersion, transformPeerVersion(allDependencies[NEXT_UI])) <= 0,
+          compareVersions(store.latestVersion, transformPeerVersion(allDependencies[HERO_UI])) <= 0,
         latestVersion: store.latestVersion,
-        package: NEXT_UI,
-        version: transformPeerVersion(allDependencies[NEXT_UI])
+        package: HERO_UI,
+        version: transformPeerVersion(allDependencies[HERO_UI])
       } as TransformComponent;
 
-      transformComponents.push(nextuiData);
+      transformComponents.push(herouiData);
     }
 
     // If all package is latest then pass
     if (transformComponents.every((component) => component.isLatest)) {
-      Logger.success('✅ All NextUI packages are up to date');
+      Logger.success('✅ All HeroUI packages are up to date');
       process.exit(0);
     }
 
@@ -139,8 +139,8 @@ export async function upgradeAction(components: string[], options: UpgradeAction
   }
 
   components = components.map((c) => {
-    if (store.nextUIComponentsMap[c]?.package) {
-      return store.nextUIComponentsMap[c]!.package;
+    if (store.heroUIComponentsMap[c]?.package) {
+      return store.heroUIComponentsMap[c]!.package;
     }
 
     return c;
@@ -152,7 +152,7 @@ export async function upgradeAction(components: string[], options: UpgradeAction
   let result = await upgrade({
     all,
     allDependencies,
-    isNextUIAll,
+    isHeroUIAll,
     upgradeOptionList
   });
   let ignoreList: string[] = [];
@@ -218,7 +218,7 @@ export async function upgradeAction(components: string[], options: UpgradeAction
         upgradePackageList: result
       });
 
-      fs.writeFileSync(packagePath, JSON.stringify(packageJson, null, 2));
+      fs.writeFileSync(packagePath, JSON.stringify(packageJson, null, 2), 'utf-8');
 
       Logger.newLine();
       Logger.success('✅ Upgrade version written to package.json');

@@ -25,21 +25,21 @@ export function fixProvider(appPath: string, options: FixProvider) {
   const {format = false, write = true} = options;
   let appContent = readFileSync(appPath, 'utf-8');
 
-  appContent = `import {NextUIProvider} from "@nextui-org/react";\n${appContent}`;
+  appContent = `import {HeroUIProvider} from "@heroui/react";\n${appContent}`;
 
-  appContent = wrapWithNextUIProvider(appContent);
+  appContent = wrapWithHeroUIProvider(appContent);
 
   write && writeFileSync(appPath, appContent, 'utf-8');
   format && execSync(`npx prettier --write ${appPath}`, {stdio: 'ignore'});
 }
 
-function wrapWithNextUIProvider(content: string) {
+function wrapWithHeroUIProvider(content: string) {
   const returnRegex = /return\s*\(([\S\s]*?)\);/g;
   const wrappedCode = content.replace(returnRegex, (_, p1) => {
     return `return (
-      <NextUIProvider>
+      <HeroUIProvider>
         ${p1.trim()}
-      </NextUIProvider>
+      </HeroUIProvider>
     );`;
   });
 
@@ -66,7 +66,7 @@ export function fixTailwind(type: CheckType, options: FixTailwind) {
 
       if (allPublic) continue;
 
-      contentMatch = contentMatch.filter((content) => !content.includes('@nextui-org/theme/dist/'));
+      contentMatch = contentMatch.filter((content) => !content.includes('@heroui/theme/dist/'));
       contentMatch.push(info);
       tailwindContent = replaceMatchArray(
         'content',

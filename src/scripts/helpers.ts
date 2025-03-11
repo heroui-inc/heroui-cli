@@ -129,8 +129,8 @@ export async function oraExecCmd(cmd: string, text?: string): Promise<SAFE_ANY> 
 }
 
 export async function getLatestVersion(packageName: string): Promise<string> {
-  if (store.nextUIComponentsPackageMap[packageName]) {
-    return store.nextUIComponentsPackageMap[packageName]!.version;
+  if (store.heroUIComponentsPackageMap[packageName]) {
+    return store.heroUIComponentsPackageMap[packageName]!.version;
   }
 
   const result = await getPackageVersion(packageName);
@@ -139,7 +139,7 @@ export async function getLatestVersion(packageName: string): Promise<string> {
 }
 
 const getUnpkgUrl = (version: string) =>
-  `https://unpkg.com/@nextui-org/react@${version}/dist/components.json`;
+  `https://unpkg.com/@heroui/react@${version}/dist/components.json`;
 
 export async function autoUpdateComponents(latestVersion?: string, betaVersion?: string) {
   [latestVersion, betaVersion] = await Promise.all([

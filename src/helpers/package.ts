@@ -2,8 +2,8 @@ import type {UpgradeOption} from './upgrade';
 
 import {readFileSync} from 'node:fs';
 
-import {type NextUIComponents} from 'src/constants/component';
-import {NEXT_UI} from 'src/constants/required';
+import {type HeroUIComponents} from 'src/constants/component';
+import {HERO_UI} from 'src/constants/required';
 import {store} from 'src/constants/store';
 import {getCacheExecData} from 'src/scripts/cache/cache';
 import {getLatestVersion} from 'src/scripts/helpers';
@@ -31,7 +31,7 @@ export function getPackageInfo(packagePath: string, transformVersion = true) {
   const allDependencies = {...devDependencies, ...dependencies};
   const allDependenciesKeys = new Set(Object.keys(allDependencies));
 
-  const currentComponents = (store.nextUIComponents as unknown as NextUIComponents)
+  const currentComponents = (store.heroUIComponents as unknown as HeroUIComponents)
     .map((component) => {
       let version = component.version;
       let versionMode = component.versionMode;
@@ -49,8 +49,8 @@ export function getPackageInfo(packagePath: string, transformVersion = true) {
         versionMode
       };
     })
-    .filter((component) => allDependenciesKeys.has(component.package)) as NextUIComponents;
-  const isAllComponents = allDependenciesKeys.has(NEXT_UI);
+    .filter((component) => allDependenciesKeys.has(component.package)) as HeroUIComponents;
+  const isAllComponents = allDependenciesKeys.has(HERO_UI);
 
   return {
     allDependencies,
@@ -65,8 +65,8 @@ export function getPackageInfo(packagePath: string, transformVersion = true) {
 
 export function transformComponentsToPackage(components: string[]) {
   return components.map((component) => {
-    const nextuiComponent = store.nextUIComponentsMap[component];
-    const packageName = nextuiComponent?.package;
+    const herouiComponent = store.heroUIComponentsMap[component];
+    const packageName = herouiComponent?.package;
 
     return packageName ? packageName : component;
   });
@@ -82,8 +82,8 @@ export async function transformPackageDetail(
   components: string[],
   allDependencies: Record<string, string>,
   transformVersion = true
-): Promise<NextUIComponents> {
-  const result: NextUIComponents = [];
+): Promise<HeroUIComponents> {
+  const result: HeroUIComponents = [];
 
   for (const component of components) {
     let {currentVersion} = getVersionAndMode(allDependencies, component);
@@ -95,11 +95,11 @@ export async function transformPackageDetail(
       ((await getCacheExecData(`npm show ${component} description`)) || '') as string
     ).replace(/\n/, '');
     const latestVersion =
-      store.nextUIComponentsPackageMap[component]?.version || (await getLatestVersion(component));
+      store.heroUIComponentsPackageMap[component]?.version || (await getLatestVersion(component));
 
     currentVersion = transformVersion ? `${currentVersion} new: ${latestVersion}` : currentVersion;
 
-    const detailPackageInfo: NextUIComponents[0] = {
+    const detailPackageInfo: HeroUIComponents[0] = {
       description: description || '',
       docs: docs || '',
       name: component,

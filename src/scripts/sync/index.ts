@@ -4,11 +4,11 @@ import {resolver} from 'src/constants/path';
 
 export function syncDocs() {
   const docs = readFileSync(resolver('README.md'), 'utf-8');
-  const matchDocs = docs.match(/(?<=Usage: nextui \[command]\n\n)[\W\w]+(?=## Documentation)/)?.[0];
+  const matchDocs = docs.match(/(?<=Usage: heroui \[command]\n\n)[\W\w]+(?=## Documentation)/)?.[0];
 
-  const targetPath = resolver('nextui/apps/docs/content/docs/api-references/cli-api.mdx');
+  const targetPath = resolver('heroui/apps/docs/content/docs/api-references/cli-api.mdx');
   const targetDocs = readFileSync(targetPath, 'utf-8');
-  const replaceTargetDocs = targetDocs.replace(/(?<=Usage: nextui \[command])[\W\w]+/, '');
+  const replaceTargetDocs = targetDocs.replace(/(?<=Usage: heroui \[command])[\W\w]+/, '');
   let writeDocs = `${replaceTargetDocs}\n\n${matchDocs?.replace(/\n$/, '')}`;
 
   writeDocs = writeDocs.replaceAll(/```bash/g, '```codeBlock bash');
@@ -19,7 +19,7 @@ export function syncDocs() {
 }
 
 function syncApiRoutes() {
-  const targetPath = resolver('nextui/apps/docs/config/routes.json');
+  const targetPath = resolver('heroui/apps/docs/config/routes.json');
   const targetDocs = JSON.parse(readFileSync(targetPath, 'utf-8'));
 
   targetDocs.routes.forEach((route) => {

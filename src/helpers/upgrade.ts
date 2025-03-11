@@ -2,7 +2,7 @@ import type {RequiredKey, SAFE_ANY} from './type';
 
 import chalk from 'chalk';
 
-import {NEXT_UI, THEME_UI} from 'src/constants/required';
+import {HERO_UI, THEME_UI} from 'src/constants/required';
 import {store} from 'src/constants/store';
 import {getCacheExecData} from 'src/scripts/cache/cache';
 import {type Dependencies, compareVersions, getLatestVersion} from 'src/scripts/helpers';
@@ -34,13 +34,13 @@ const DEFAULT_SPACE = ''.padEnd(7);
 const MISSING = 'Missing';
 
 interface Upgrade {
-  isNextUIAll: boolean;
+  isHeroUIAll: boolean;
   allDependencies?: Record<string, SAFE_ANY>;
   upgradeOptionList?: UpgradeOption[];
   all?: boolean;
 }
 
-type ExtractUpgrade<T extends Upgrade> = T extends {isNextUIAll: infer U}
+type ExtractUpgrade<T extends Upgrade> = T extends {isHeroUIAll: infer U}
   ? U extends true
     ? RequiredKey<Upgrade, 'allDependencies' | 'all'>
     : RequiredKey<Upgrade, 'upgradeOptionList'>
@@ -52,11 +52,11 @@ type MissingDepSetType = {
 };
 
 export async function upgrade<T extends Upgrade = Upgrade>(options: ExtractUpgrade<T>) {
-  const {all, allDependencies, isNextUIAll, upgradeOptionList} = options as Required<Upgrade>;
+  const {all, allDependencies, isHeroUIAll, upgradeOptionList} = options as Required<Upgrade>;
   let result: UpgradeOption[] = [];
   const missingDepSet = new Set<MissingDepSetType>();
 
-  const allOutputData = await getAllOutputData(all, isNextUIAll, allDependencies, missingDepSet);
+  const allOutputData = await getAllOutputData(all, isHeroUIAll, allDependencies, missingDepSet);
 
   const transformUpgradeOptionList = upgradeOptionList.map((c) => ({
     ...c,
@@ -259,11 +259,11 @@ function outputDependencies(outputList: UpgradeOption[], peerDepList: UpgradeOpt
  */
 export async function getAllOutputData(
   all: boolean,
-  isNextUIAll: boolean,
+  isHeroUIAll: boolean,
   allDependencies: Record<string, SAFE_ANY>,
   missingDepSet: Set<MissingDepSetType>
 ) {
-  if (!all || !isNextUIAll) {
+  if (!all || !isHeroUIAll) {
     return {
       allOutputList: [],
       allPeerDepList: []
@@ -272,23 +272,23 @@ export async function getAllOutputData(
 
   const latestVersion = store.latestVersion;
 
-  const {currentVersion, versionMode} = getVersionAndMode(allDependencies, NEXT_UI);
+  const {currentVersion, versionMode} = getVersionAndMode(allDependencies, HERO_UI);
   const colorVersion = getColorVersion(currentVersion, latestVersion);
   const isLatest = compareVersions(currentVersion, latestVersion) >= 0;
 
-  const nextUIPeerDepList = await getPackagePeerDep(NEXT_UI, allDependencies, missingDepSet);
-  const nextUIThemePeerDepList = await getPackagePeerDep(THEME_UI, allDependencies, missingDepSet);
+  const heroUIPeerDepList = await getPackagePeerDep(HERO_UI, allDependencies, missingDepSet);
+  const heroUIThemePeerDepList = await getPackagePeerDep(THEME_UI, allDependencies, missingDepSet);
 
   const allOutputList = [
     {
       isLatest,
       latestVersion: colorVersion,
-      package: NEXT_UI,
+      package: HERO_UI,
       version: currentVersion,
       versionMode
     }
   ];
-  const allPeerDepList = [...nextUIPeerDepList, ...nextUIThemePeerDepList];
+  const allPeerDepList = [...heroUIPeerDepList, ...heroUIThemePeerDepList];
   const allOutputData = {
     allOutputList,
     allPeerDepList

@@ -13,12 +13,12 @@ export async function getBetaVersionData(component: string) {
 }
 
 export function getPrefixComponent(component: string) {
-  return `@nextui-org/${component.replace('@nextui-org/', '')}`;
+  return `@heroui/${component.replace('@heroui/', '')}`;
 }
 
 export async function getBetaVersion(componentName: string) {
-  if (store.betaNextUIComponentsPackageMap[componentName]) {
-    return store.betaNextUIComponentsPackageMap[componentName]!.version;
+  if (store.betaHeroUIComponentsPackageMap[componentName]) {
+    return store.betaHeroUIComponentsPackageMap[componentName]!.version;
   }
 
   const data = await getBetaVersionData(componentName);
@@ -35,7 +35,7 @@ export async function getBetaVersion(componentName: string) {
  * @example Input: ["drawer"]
  *
  * Return:
- * ["@nextui-org/drawer@beta"]
+ * ["@heroui/drawer@beta"]
  */
 export async function getBetaComponents(components: string[]) {
   const componentsVersionList = await Promise.all(

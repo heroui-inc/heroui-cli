@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import type {NextUIComponentsMap, StoreKeys} from 'src/constants/store';
+import type {HeroUIComponentsMap, StoreKeys} from 'src/constants/store';
 import type {Components} from 'src/scripts/helpers';
 
 /**
@@ -84,16 +84,16 @@ export type ChalkColor =
 
 export type ExtractStoreData<T extends StoreKeys> = T extends 'latestVersion' | 'cliLatestVersion'
   ? string
-  : T extends 'nextUIComponents'
+  : T extends 'heroUIComponents'
     ? Components
-    : T extends 'nextUIComponentsKeys' | 'nextUIcomponentsPackages'
+    : T extends 'heroUIComponentsKeys' | 'heroUIcomponentsPackages'
       ? string[]
-      : T extends 'nextUIComponentsKeysSet'
+      : T extends 'heroUIComponentsKeysSet'
         ? Set<string>
-        : T extends 'nextUIComponentsMap'
-          ? NextUIComponentsMap
-          : T extends 'nextUIComponentsPackageMap'
-            ? NextUIComponentsMap
+        : T extends 'heroUIComponentsMap'
+          ? HeroUIComponentsMap
+          : T extends 'heroUIComponentsPackageMap'
+            ? HeroUIComponentsMap
             : never;
 
 /**

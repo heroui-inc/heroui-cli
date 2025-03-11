@@ -152,27 +152,27 @@ export type GenerateOptions<T, Last = GetUnionLastValue<T>> = [T] extends [never
 async function getTableInfo(packageName?: string, projectName?: string, template?: string) {
   const options: GenerateOptions<Exclude<InitActionOptions['template'], undefined>> = [
     {
-      hint: 'A Next.js 15 with app directory template pre-configured with NextUI (v2) and Tailwind CSS.',
+      hint: 'A Next.js 15 with app directory template pre-configured with HeroUI (v2) and Tailwind CSS.',
       label: 'App',
       value: 'app'
     },
     {
-      hint: 'A Next.js 14 with pages directory template pre-configured with NextUI (v2) and Tailwind CSS.',
+      hint: 'A Next.js 14 with pages directory template pre-configured with HeroUI (v2) and Tailwind CSS.',
       label: 'Pages',
       value: 'pages'
     },
     {
-      hint: 'A Vite template pre-configured with NextUI (v2) and Tailwind CSS.',
+      hint: 'A Vite template pre-configured with HeroUI (v2) and Tailwind CSS.',
       label: 'Vite',
       value: 'vite'
     },
     {
-      hint: 'A Remix template pre-configured with NextUI (v2) and Tailwind CSS.',
+      hint: 'A Remix template pre-configured with HeroUI (v2) and Tailwind CSS.',
       label: 'Remix',
       value: 'remix'
     },
     {
-      hint: 'A Laravel template pre-configured with NextUI (v2) and Tailwind CSS.',
+      hint: 'A Laravel template pre-configured with HeroUI (v2) and Tailwind CSS.',
       label: chalk.gray('(coming soon) Laravel'),
       value: 'laravel'
     }

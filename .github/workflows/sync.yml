@@ -31,9 +31,9 @@ jobs:
           git config --global user.name 'GitHub Action'
           git config --global user.email 'action@github.com'
 
-      - name: Clone nextui repository
+      - name: Clone heroui repository
         run: |
-          git clone https://github.com/nextui-org/nextui nextui --depth 1
+          git clone https://github.com/heroui-inc/heroui-cli heroui --depth 1
 
       - name: Run docs sync script
         run: |
@@ -45,17 +45,17 @@ jobs:
           VERSION=$(jq -r '.version' package.json)
           echo "::set-output name=version::$VERSION"
 
-      - name: Commit changes to nextui repository
+      - name: Commit changes to heroui repository
         run: |
-          cd nextui
+          cd heroui
           git add .
-          git commit -m "docs: sync api from nextui-cli v${{ steps.get_version.outputs.version }}"
+          git commit -m "docs: sync api from heroui-cli v${{ steps.get_version.outputs.version }}"
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.PAT }}
-          path: nextui
+          path: heroui
           branch: sync-docs-${{ steps.get_version.outputs.version }}-${{ github.run_id }}
-          title: "docs: sync api from nextui-cli v${{ steps.get_version.outputs.version }}"
-          body: Sync api from nextui-cli.
+          title: "docs: sync api from heroui-cli v${{ steps.get_version.outputs.version }}"
+          body: Sync api from heroui-cli.

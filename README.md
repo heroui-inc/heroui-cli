@@ -1,43 +1,43 @@
 <p align="center">
-  <a href="https://nextui.org">
-      <img width="20%" src="https://raw.githubusercontent.com/nextui-org/nextui/main/apps/docs/public/isotipo.png" alt="nextui" />
-      <h1 align="center">NextUI CLI</h1>
+  <a href="https://heroui.com">
+      <img width="20%" src="https://raw.githubusercontent.com/heroui-inc/heroui/main/apps/docs/public/isotipo.png" alt="heroui (previously nextui)" />
+      <h1 align="center">HeroUI CLI (Previously NextUI CLI)</h1>
   </a>
 </p>
 </br>
 <p align="center">
-  <a href="https://github.com/nextui-org/nextui-cli/blob/main/license">
-    <img src="https://img.shields.io/npm/l/@nextui-org/react?style=flat" alt="License">
+  <a href="https://github.com/heroui-inc/heroui-cli/blob/main/license">
+    <img src="https://img.shields.io/npm/l/@heroui-inc/heroui?style=flat" alt="License">
   </a>
-  <a href="https://www.npmjs.com/package/nextui-cli">
-    <img src="https://img.shields.io/npm/dm/nextui-cli.svg?style=flat-round" alt="npm downloads">
+  <a href="https://www.npmjs.com/package/heroui-cli">
+    <img src="https://img.shields.io/npm/dm/heroui-cli.svg?style=flat-round" alt="npm downloads">
   </a>
 </p>
 
-The CLI offers a comprehensive suite of commands to initialize, manage, and improve your NextUI projects. It enables you to `add`, `remove`, or `upgrade` individual components, assess the health of your project, and more.
+The CLI offers a comprehensive suite of commands to initialize, manage, and improve your HeroUI projects. It enables you to `add`, `remove`, or `upgrade` individual components, assess the health of your project, and more.
 
 ## Quick Start
 
-> **Note**: The NextUI CLI requires [Node.js](https://nodejs.org/en) _18.17.x+_ or later
+> **Note**: The HeroUI CLI requires [Node.js](https://nodejs.org/en) _18.17.x+_ or later
 
-You can choose the following ways to start the NextUI CLI.
+You can choose the following ways to start the HeroUI CLI.
 
 ### Npx
 
 ```bash
-npx nextui-cli@latest
+npx heroui-cli@latest
 ```
 
 ### Global Installation
 
 ```bash
-npm install -g nextui-cli
+npm install -g heroui-cli
 ```
 
 ## Usage
 
 ```bash
-Usage: nextui [command]
+Usage: heroui [command]
 
 Options:
   -v, --version                      Output the current version
@@ -60,10 +60,10 @@ Commands:
 
 ### Init
 
-Initialize a new NextUI project with official templates.
+Initialize a new HeroUI project with official templates.
 
 ```bash
-nextui init [projectName] [options]
+heroui init [projectName] [options]
 ```
 
 #### Init Options
@@ -74,26 +74,26 @@ nextui init [projectName] [options]
 ##### Example
 
 ```bash
-# Initialize a new NextUI project with the app template, named my-nextui-app
-nextui init my-nextui-app -t app
+# Initialize a new HeroUI project with the app template, named my-heroui-app
+heroui init my-heroui-app -t app
 ```
 
 output:
 
 ```bash
-NextUI CLI v0.2.1
+HeroUI CLI v0.2.1
 
 ┌  Create a new project
 │
 ◇  Select a template (Enter to select)
 │  ● App (A Next.js 15 with app directory template pre-configured with NextUI (v2) and Tailwind CSS.)
-│  ○ Pages (A Next.js 14 with pages directory template pre-configured with NextUI (v2) and Tailwind CSS.)
+│  ○ Pages (A Next.js 15 with pages directory template pre-configured with NextUI (v2) and Tailwind CSS.)
 │  ○ Vite (A Vite template pre-configured with NextUI (v2) and Tailwind CSS.)
 │  ○ Remix (A Remix template pre-configured with NextUI (v2) and Tailwind CSS.)
-│  ○ (coming soon) Laravel (A Laravel template pre-configured with NextUI (v2) and Tailwind CSS.)
+│  ○ Laravel (A Laravel template pre-configured with NextUI (v2) and Tailwind CSS.)
 │
 ◇  New project name (Enter to skip with default name)
-│  my-nextui-app
+│  my-heroui-app
 │
 ◇  Select a package manager (Enter to select)
 │  ● npm
@@ -105,7 +105,7 @@ NextUI CLI v0.2.1
 │
 ◇  Next steps ───────╮
 │                    │
-│  cd my-nextui-app  │
+│  cd my-heroui-app  │
 │  npm install       │
 │                    │
 ├────────────────────╯
@@ -115,7 +115,7 @@ NextUI CLI v0.2.1
 
 ### Add
 
-Add NextUI components to your project.
+Add HeorUI components to your project.
 
 #### Features
 
@@ -124,12 +124,12 @@ Add NextUI components to your project.
 > 3. Detect whether using pnpm, if so, add the required configuration to your `.npmrc` file
 
 ```bash
-nextui add [components...] [options]
+heroui add [components...] [options]
 ```
 
 #### Add Options
 
-- `-a --all` [boolean] Add all the NextUI components (default: `false`)
+- `-a --all` [boolean] Add all the HeroUI components (default: `false`)
 - `-p --packagePath` [string] The path to the package.json file
 - `-tw --tailwindPath` [string] The path to the tailwind.config file file
 - `-app --appPath` [string] The path to the App.tsx file
@@ -142,13 +142,13 @@ nextui add [components...] [options]
 Without setting a specific component, the `add` command will show a list of available components.
 
 ```bash
-nextui add
+heroui add
 ```
 
 Output:
 
 ```bash
-NextUI CLI v0.2.1
+HeroUI CLI v0.2.1
 
 ? Which components would you like to add? › - Space to select. Return to submit
 Instructions:
@@ -174,23 +174,23 @@ Filtered results for: Enter something to filter
 If you want to add a specific component, you can specify the component name.
 
 ```bash
-nextui add button
+heroui add button
 ```
 
 Output:
 
 ```bash
-NextUI CLI v0.2.1
+HeroUI CLI v0.2.1
 
-Adding the required dependencies: @nextui-org/button
+Adding the required dependencies: @heroui/button
 
-pnpm add @nextui-org/button
+pnpm add @heroui/button
 Packages: +1
 +
 Progress: resolved 470, reused 462, downloaded 0, added 0, done
 
 dependencies:
-+ @nextui-org/button 2.0.24
++ @heroui/button 2.0.24
 
 Done in 3.4s
 
@@ -201,16 +201,16 @@ Tailwind CSS settings have been updated in: /project-path/tailwind.config.js
 
 ### Upgrade
 
-Upgrade the NextUI components to the latest version.
+Upgrade the HeroUI components to the latest version.
 
 ```bash
-nextui upgrade [components...] [options]
+heroui upgrade [components...] [options]
 ```
 
 #### Upgrade Options
 
 - `-p --packagePath` [string] The path to the package.json file
-- `-a --all` [boolean] Upgrade all the NextUI components (default: `false`)
+- `-a --all` [boolean] Upgrade all the HeroUI components (default: `false`)
 - `-w --write` [boolean] Write the upgrade version to package.json file (default: `false`)
 - `-b --beta` [boolean] Upgrade beta components (default: `false`)
 - `-h --help` Display help for command
@@ -220,21 +220,21 @@ nextui upgrade [components...] [options]
 Upgrade the **Button** component to the latest version.
 
 ```bash
-nextui upgrade button
+heroui upgrade button
 ```
 
 Output:
 
 ```bash
-NextUI CLI v0.2.1
+HeroUI CLI v0.2.1
 
 ╭───────────────────────── Component ─────────────────────────╮
-│  @nextui-org/button              ^2.0.11  ->  ^2.0.31       │
+│  @heroui/button              ^2.0.11  ->  ^2.0.31       │
 ╰─────────────────────────────────────────────────────────────╯
 
-Required min version: @nextui-org/theme>=2.1.0, tailwindcss>=3.4.0, react>=18.3.1, react-dom>=18.3.1
+Required min version: @heroui/theme>=2.1.0, tailwindcss>=3.4.0, react>=18.3.1, react-dom>=18.3.1
 ╭───────────────────── PeerDependencies ─────────────────────╮
-│  @nextui-org/theme               2.0.1    ->  2.1.0        │
+│  @heroui/theme               2.0.1    ->  2.1.0        │
 │  tailwindcss                     ^3.2.3   ->  ^3.4.0       │
 │  react                           Missing  ->  18.3.1       │
 │  react-dom                       Missing  ->  18.3.1       │
@@ -245,11 +245,11 @@ Required min version: @nextui-org/theme>=2.1.0, tailwindcss>=3.4.0, react>=18.3.
 ❯   Yes
     No
 
-pnpm add @nextui-org/button@2.0.31 @nextui-org/theme@2.1.0 tailwindcss@3.4.0 react@18.3.1 react-dom@18.3.1
+pnpm add @heroui/button@2.0.31 @heroui/theme@2.1.0 tailwindcss@3.4.0 react@18.3.1 react-dom@18.3.1
 
 dependencies:
-- @nextui-org/theme 2.0.1
-+ @nextui-org/theme 2.1.0 (2.2.3 is available)
+- @heroui/theme 2.0.1
++ @heroui/theme 2.1.0 (2.2.3 is available)
 + react 18.3.1
 + react-dom 18.3.1
 
@@ -260,18 +260,18 @@ Done in 1.8s
 
 ### Remove
 
-Remove NextUI components from your project.
+Remove HeroUI components from your project.
 
-> **Note**: If there are no NextUI components after removing, the required content will also be removed
+> **Note**: If there are no HeroUI components after removing, the required content will also be removed
 
 ```bash
-nextui remove [components...] [options]
+heroui remove [components...] [options]
 ```
 
 #### Remove Options
 
 - `-p --packagePath` [string] The path to the package.json file
-- `-a --all` [boolean] Remove all the NextUI components (default: `false`)
+- `-a --all` [boolean] Remove all the HeroUI components (default: `false`)
 - `-tw --tailwindPath` [string] The path to the tailwind.config file file
 - `--prettier` [boolean] Add prettier format in the add content which required installed prettier - (default: `false`)
 
@@ -280,36 +280,36 @@ nextui remove [components...] [options]
 Remove the **Button** component from your project.
 
 ```bash
-nextui remove button
+heroui remove button
 ```
 
 Output:
 
 ```bash
-NextUI CLI v0.2.1
+HeroUI CLI v0.2.1
 
 ❗️ Components slated for removal:
 ╭──────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
 │   Package              │   Version              │   Status   │   Docs                                        │
 │──────────────────────────────────────────────────────────────────────────────────────────────────────────────│
-│   @nextui-org/button   │   2.0.27 🚀latest      │   stable   │   https://nextui.org/docs/components/button   │
+│   @heroui/button   │   2.0.27 🚀latest      │   stable   │   https://heroui.com/docs/components/button   │
 ╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ? Confirm removal of these components: › - Use arrow-keys. Return to submit.
 ❯   Yes
     No
 
-pnpm remove  @nextui-org/button
+pnpm remove  @heroui/button
 Already up to date
 Progress: resolved 474, reused 465, downloaded 0, added 0, done
 
 dependencies:
-- @nextui-org/button 2.0.27
+- @heroui/button 2.0.27
 
 Done in 2.1s
 
 Remove the removed components tailwind content in file:/project-path/tailwind.config.js
 
-✅ Successfully removed the specified NextUI components: @nextui-org/button
+✅ Successfully removed the specified HeroUI components: @heroui/button
 ```
 
 ### List
@@ -317,7 +317,7 @@ Remove the removed components tailwind content in file:/project-path/tailwind.co
 List all the current installed components.
 
 ```bash
-nextui list [options]
+heroui list [options]
 ```
 
 #### List Options
@@ -328,23 +328,23 @@ nextui list [options]
 ##### Example
 
 ```bash
-nextui list
+heroui list
 ```
 
 Output:
 
 ```bash
-NextUI CLI v0.2.1
+HeroUI CLI v0.2.1
 
 Current installed components:
 
 ╭───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
 │   Package                    │   Version              │   Status    │   Docs                                              │
 │───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────│
-│   @nextui-org/autocomplete   │   2.0.10 🚀latest      │   stable    │   https://nextui.org/docs/components/autocomplete   │
-│   @nextui-org/badge          │   2.0.24 🚀latest      │   stable    │   https://nextui.org/docs/components/badge          │
-│   @nextui-org/button         │   2.0.27 🚀latest      │   stable    │   https://nextui.org/docs/components/button         │
-│   @nextui-org/chip           │   2.0.25 🚀latest      │   stable    │   https://nextui.org/docs/components/chip           │
+│   @heroui/autocomplete   │   2.0.10 🚀latest      │   stable    │   https://heroui.com/docs/components/autocomplete   │
+│   @heroui/badge          │   2.0.24 🚀latest      │   stable    │   https://heroui.com/docs/components/badge          │
+│   @heroui/button         │   2.0.27 🚀latest      │   stable    │   https://heroui.com/docs/components/button         │
+│   @heroui/chip           │   2.0.25 🚀latest      │   stable    │   https://heroui.com/docs/components/chip           │
 ╰───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ```
 
@@ -353,13 +353,13 @@ Current installed components:
 Check whether exist problem in your project by using the `doctor` command.
 
 ```bash
-nextui doctor [options]
+heroui doctor [options]
 ```
 
 ### Features
 
 > 1. Check whether have `redundant dependencies` in the project
-> 2. Check whether the NextUI components `required dependencies are installed` in the project
+> 2. Check whether the HeroUI components `required dependencies are installed` in the project
 > 3. Check the required `tailwind.config.js` file and the content is correct
 > 4. Check `.npmrc` is correct when using `pnpm`
 > 5. Check `peerDependencies with required version` are installed in the project
@@ -376,7 +376,7 @@ nextui doctor [options]
 #### Example
 
 ```bash
-nextui doctor
+heroui doctor
 ```
 
 Output:
@@ -384,19 +384,19 @@ Output:
 If there is a problem in your project, the `doctor` command will display the problem information.
 
 ```bash
-NextUI CLI v0.2.1
+HeroUI CLI v0.2.1
 
-NextUI CLI: ❌ Your project has 1 issue that require attention
+HeroUI CLI: ❌ Your project has 1 issue that require attention
 
 ❗️Issue 1: missingTailwind
 
-Missing tailwind.config.(j|t)s file. To set up, visit: https://nextui.org/docs/guide/installation#tailwind-css-setup
+Missing tailwind.config.(j|t)s file. To set up, visit: https://heroui.com/docs/guide/installation#tailwind-css-setup
 ```
 
 Otherwise, the `doctor` command will display the following message.
 
 ```bash
-NextUI CLI v0.2.1
+HeroUI CLI v0.2.1
 
 ✅ Your project has no detected issues.
 ```
@@ -406,7 +406,7 @@ NextUI CLI v0.2.1
 Display debug information about the local environment.
 
 ```bash
-nextui env [options]
+heroui env [options]
 ```
 
 #### Env Options
@@ -418,23 +418,23 @@ nextui env [options]
 Display the local environment Information by using the `env` command.
 
 ```bash
-nextui env
+heroui env
 ```
 
 Output:
 
 ```bash
-NextUI CLI v0.2.1
+HeroUI CLI v0.2.1
 
 Current installed components:
 
 ╭───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
 │   Package                    │   Version              │   Status    │   Docs                                              │
 │───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────│
-│   @nextui-org/autocomplete   │   2.0.10 🚀latest      │   stable    │   https://nextui.org/docs/components/autocomplete   │
-│   @nextui-org/badge          │   2.0.24 🚀latest      │   stable    │   https://nextui.org/docs/components/badge          │
-│   @nextui-org/button         │   2.0.27 🚀latest      │   stable    │   https://nextui.org/docs/components/button         │
-│   @nextui-org/chip           │   2.0.25 🚀latest      │   stable    │   https://nextui.org/docs/components/chip           │
+│   @heroui/autocomplete   │   2.0.10 🚀latest      │   stable    │   https://heroui.com/docs/components/autocomplete   │
+│   @heroui/badge          │   2.0.24 🚀latest      │   stable    │   https://heroui.com/docs/components/badge          │
+│   @heroui/button         │   2.0.27 🚀latest      │   stable    │   https://heroui.com/docs/components/button         │
+│   @heroui/chip           │   2.0.25 🚀latest      │   stable    │   https://heroui.com/docs/components/chip           │
 ╰───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 
 Environment Info:
@@ -447,24 +447,24 @@ Environment Info:
 
 ## Documentation
 
-Visit [https://nextui.org/docs/guide/cli](https://nextui.org/docs/guide/cli) to view the full documentation.
+Visit [https://heroui.com/docs/guide/cli](https://heroui.com/docs/guide/cli) to view the full documentation.
 
 ### Community
 
-We're excited to see the community adopt NextUI CLI, raise issues, and provide feedback.
+We're excited to see the community adopt HeroUI CLI, raise issues, and provide feedback.
 Whether it's a feature request, bug report, or a project to showcase, please get involved!
 
 - [Discord](https://discord.gg/9b6yyZKmH4)
-- [Twitter](https://twitter.com/getnextui)
-- [GitHub Discussions](https://github.com/nextui-org/nextui-cli/discussions)
+- [Twitter](https://twitter.com/hero_ui)
+- [GitHub Discussions](https://github.com/heroui-inc/heroui-cli/discussions)
 
 ## Contributing
 
 Contributions are always welcome!
 
-See [CONTRIBUTING.md](https://github.com/nextui-org/nextui-cli/blob/main/CONTRIBUTING.md) for ways to get started.
+See [CONTRIBUTING.md](https://github.com/heroui-inc/heroui-cli/blob/main/CONTRIBUTING.md) for ways to get started.
 
-Please adhere to this project's [CODE_OF_CONDUCT](https://github.com/nextui-org/nextui-cli/blob/main/CODE_OF_CONDUCT.md).
+Please adhere to this project's [CODE_OF_CONDUCT](https://github.com/heroui-inc/heroui-cli/blob/main/CODE_OF_CONDUCT.md).
 
 ## License
 
