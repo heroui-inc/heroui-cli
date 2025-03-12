@@ -1,3 +1,9 @@
+# [1.1.0](https://github.com/heroui-inc/heroui-cli/compare/v1.0.0...v1.1.0) (2025-03-12)
+
+### Bug Fixes
+
+- upgrade all should upgrade all heroui packages ([#151](https://github.com/heroui-inc/heroui-cli/issues/151)) ([ef84d5b](https://github.com/heroui-inc/heroui-cli/commit/ef84d5b4bb2e52cc5f603cef47f5bf95a0760574))
+
 # [1.0.0](https://github.com/heroui-inc/heroui-cli/compare/v0.6.0...v1.0.0) (2025-01-18)
 
 # [0.6.0](https://github.com/heroui-inc/heroui-cli/compare/v0.5.4...v0.6.0) (2025-01-18)
