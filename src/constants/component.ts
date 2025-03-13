@@ -75,3 +75,30 @@ export type HeroUIComponents = (Omit<HeroUIComponent, 'status'> & {
   status: HeroUIComponentStatus;
   versionMode: string;
 })[];
+
+/**
+ * Get the component data
+ * isBeta --> betaHeroUIComponents
+ * isStable --> heroUIComponents
+ */
+export function getComponentData() {
+  if (store.beta) {
+    return {
+      components: store.betaHeroUIComponents,
+      componentsKeys: store.betaHeroUIIComponentsKeys,
+      componentsKeysSet: store.betaHeroUIComponentsKeysSet,
+      componentsMap: store.betaHeroUIComponentsMap,
+      componentsPackageMap: store.betaHeroUIComponentsPackageMap,
+      componentsPackages: store.betaHeroUIcomponentsPackages
+    };
+  }
+
+  return {
+    components: store.heroUIComponents,
+    componentsKeys: store.heroUIComponentsKeys,
+    componentsKeysSet: store.heroUIComponentsKeysSet,
+    componentsMap: store.heroUIComponentsMap,
+    componentsPackageMap: store.heroUIComponentsPackageMap,
+    componentsPackages: store.heroUIcomponentsPackages
+  };
+}
