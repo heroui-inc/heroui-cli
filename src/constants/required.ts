@@ -16,6 +16,7 @@ export const HERO_UI = '@heroui/react';
 export const THEME_UI = '@heroui/theme';
 export const SYSTEM_UI = '@heroui/system';
 export const ALL_COMPONENTS_REQUIRED = [HERO_UI, FRAMER_MOTION] as const;
+export const HEROUI_PREFIX = '@heroui';
 
 export const DOCS_INSTALLED = 'https://heroui.com/docs/guide/installation#global-installation';
 export const DOCS_TAILWINDCSS_SETUP =
