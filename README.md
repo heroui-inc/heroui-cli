@@ -113,7 +113,7 @@ HeroUI CLI v0.2.1
 
 ### Add
 
-Add HeorUI components to your project.
+Add HeroUI components to your project.
 
 #### Features
 
