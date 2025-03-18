@@ -1,4 +1,10 @@
-import type {RequiredKey, SAFE_ANY} from './type';
+import type {
+  ExtractUpgrade,
+  MissingDepSetType,
+  Upgrade,
+  UpgradeOption
+} from './actions/upgrade/upgrade-types';
+import type {SAFE_ANY} from './type';
 
 import chalk from 'chalk';
 
@@ -7,6 +13,7 @@ import {store} from 'src/constants/store';
 import {getCacheExecData} from 'src/scripts/cache/cache';
 import {type Dependencies, compareVersions, getLatestVersion} from 'src/scripts/helpers';
 
+import {getLibsData} from './actions/upgrade/get-libs-data';
 import {Logger} from './logger';
 import {colorMatchRegex, outputBox} from './output-info';
 import {
@@ -20,36 +27,9 @@ import {
   versionModeRegex
 } from './utils';
 
-export interface UpgradeOption {
-  package: string;
-  version: string;
-  latestVersion: string;
-  isLatest: boolean;
-  versionMode: string;
-  peerDependencies?: Dependencies;
-}
-
 const DEFAULT_SPACE = ''.padEnd(7);
 
 const MISSING = 'Missing';
-
-interface Upgrade {
-  isHeroUIAll: boolean;
-  allDependencies?: Record<string, SAFE_ANY>;
-  upgradeOptionList?: UpgradeOption[];
-  all?: boolean;
-}
-
-type ExtractUpgrade<T extends Upgrade> = T extends {isHeroUIAll: infer U}
-  ? U extends true
-    ? RequiredKey<Upgrade, 'allDependencies' | 'all'>
-    : RequiredKey<Upgrade, 'upgradeOptionList'>
-  : T;
-
-type MissingDepSetType = {
-  name: string;
-  version: string;
-};
 
 export async function upgrade<T extends Upgrade = Upgrade>(options: ExtractUpgrade<T>) {
   const {all, allDependencies, isHeroUIAll, upgradeOptionList} = options as Required<Upgrade>;
@@ -57,6 +37,7 @@ export async function upgrade<T extends Upgrade = Upgrade>(options: ExtractUpgra
   const missingDepSet = new Set<MissingDepSetType>();
 
   const allOutputData = await getAllOutputData(all, isHeroUIAll, allDependencies, missingDepSet);
+  const libsData = await getLibsData(allDependencies);
 
   const transformUpgradeOptionList = upgradeOptionList.map((c) => ({
     ...c,
@@ -78,6 +59,7 @@ export async function upgrade<T extends Upgrade = Upgrade>(options: ExtractUpgra
 
   const outputList = [...transformUpgradeOptionList, ...allOutputData.allOutputList];
   const peerDepList = [
+    ...libsData,
     ...upgradePeerList.flat(),
     ...allOutputData.allPeerDepList,
     ...missingDepList
@@ -150,7 +132,7 @@ export function getUpgradeVersion(upgradeOptionList: UpgradeOption[], peer = fal
           `${`${upgradeOption.package}@${upgradeOption.versionMode || ''}${
             upgradeOption.latestVersion
           }`.padEnd(optionMaxLenMap.package + DEFAULT_SPACE.length + DEFAULT_SPACE.length)}`
-        )}${chalk.greenBright('latest').padStart(optionMaxLenMap.version)}${DEFAULT_SPACE}`
+        )}${DEFAULT_SPACE}${chalk.greenBright('latest').padStart(optionMaxLenMap.version)}${DEFAULT_SPACE}`
       );
       continue;
     }

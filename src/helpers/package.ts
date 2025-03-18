@@ -1,4 +1,4 @@
-import type {UpgradeOption} from './upgrade';
+import type {UpgradeOption} from './actions/upgrade/upgrade-types';
 
 import {readFileSync} from 'node:fs';
 

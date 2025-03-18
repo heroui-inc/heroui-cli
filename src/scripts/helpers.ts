@@ -5,7 +5,7 @@ import {existsSync, readFileSync, writeFileSync} from 'node:fs';
 
 import retry from 'async-retry';
 import chalk from 'chalk';
-import {compareVersions as InternalCompareVersions} from 'compare-versions';
+import {compareVersions as InternalCompareVersions, validate} from 'compare-versions';
 import ora, {oraPromise} from 'ora';
 
 import {Logger} from '@helpers/logger';
@@ -43,6 +43,10 @@ export type ComponentsJson = {
  * @param version2
  */
 export function compareVersions(version1 = '', version2 = '') {
+  if (!validate(version1)) {
+    // e.g. Current version is https://pkg.pr.new/@heroui/dropdown@4656 then just upgrade to latest version
+    return -1;
+  }
   try {
     return InternalCompareVersions(version1, version2);
   } catch {
