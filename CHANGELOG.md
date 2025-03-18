@@ -1,3 +1,9 @@
+# [1.2.0](https://github.com/heroui-inc/heroui-cli/compare/v1.1.0...v1.2.0) (2025-03-18)
+
+### Features
+
+- add action support chat codebase ([#146](https://github.com/heroui-inc/heroui-cli/issues/146)) ([8aa774d](https://github.com/heroui-inc/heroui-cli/commit/8aa774d7832541c6155dadad228f8017b7f3d406))
+
 # [1.1.0](https://github.com/heroui-inc/heroui-cli/compare/v1.0.0...v1.1.0) (2025-03-12)
 
 ### Bug Fixes
