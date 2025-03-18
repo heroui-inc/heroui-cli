@@ -1,3 +1,9 @@
+## [1.2.2](https://github.com/heroui-inc/heroui-cli/compare/v1.2.1...v1.2.2) (2025-03-18)
+
+### Reverts
+
+- Revert "chore: remove trace components.json (#153)" (#154) ([5bcab33](https://github.com/heroui-inc/heroui-cli/commit/5bcab3327904d67920f6465eeba00d3dc7e3f3b2)), closes [#153](https://github.com/heroui-inc/heroui-cli/issues/153) [#154](https://github.com/heroui-inc/heroui-cli/issues/154)
+
 ## [1.2.1](https://github.com/heroui-inc/heroui-cli/compare/v1.2.0...v1.2.1) (2025-03-18)
 
 ### Bug Fixes
