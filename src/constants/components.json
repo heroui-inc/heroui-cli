@@ -1,0 +1,1502 @@
+{
+  "betaComponents": [
+    {
+      "name": "accordion",
+      "package": "@heroui/accordion",
+      "version": "2.2.14-beta.2",
+      "docs": "https://heroui.com/docs/components/accordion",
+      "description": "Collapse display a list of high-level options that can expand/collapse to reveal more information.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "framer-motion": ">=11.5.6 || >=12.0.0-alpha.1",
+        "@heroui/theme": ">=2.4.13-beta.0",
+        "@heroui/system": ">=2.4.13-beta.0",
+        "tailwindcss": ">=4.0.0"
+      }
+    },
+    {
+      "name": "alert",
+      "package": "@heroui/alert",
+      "version": "2.2.17-beta.2",
+      "docs": "https://heroui.com/docs/components/alert",
+      "description": "Alerts are temporary notifications that provide concise feedback about an action or event.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.13-beta.0",
+        "@heroui/system": ">=2.4.13-beta.0",
+        "tailwindcss": ">=4.0.0"
+      }
+    },
+    {
+      "name": "autocomplete",
+      "package": "@heroui/autocomplete",
+      "version": "2.3.18-beta.2",
+      "docs": "https://heroui.com/docs/components/autocomplete",
+      "description": "An autocomplete combines a text input with a listbox, allowing users to filter a list of options to items matching a query.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "@heroui/system": ">=2.4.13-beta.0",
+        "@heroui/theme": ">=2.4.13-beta.0",
+        "framer-motion": ">=11.5.6 || >=12.0.0-alpha.1",
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "tailwindcss": ">=4.0.0"
+      }
+    },
+    {
+      "name": "avatar",
+      "package": "@heroui/avatar",
+      "version": "2.2.13-beta.1",
+      "docs": "https://heroui.com/docs/components/avatar",
+      "description": "The Avatar component is used to represent a user, and displays the profile picture, initials or fallback icon.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.13-beta.0",
+        "@heroui/system": ">=2.4.13-beta.0",
+        "tailwindcss": ">=4.0.0"
+      }
+    },
+    {
+      "name": "badge",
+      "package": "@heroui/badge",
+      "version": "2.2.11-beta.1",
+      "docs": "https://heroui.com/docs/components/badge",
+      "description": "Badges are used as a small numerical value or status descriptor for UI elements.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.13-beta.0",
+        "@heroui/system": ">=2.4.13-beta.0",
+        "tailwindcss": ">=4.0.0"
+      }
+    },
+    {
+      "name": "breadcrumbs",
+      "package": "@heroui/breadcrumbs",
+      "version": "2.2.13-beta.1",
+      "docs": "https://heroui.com/docs/components/breadcrumbs",
+      "description": "Breadcrumbs display a hierarchy of links to the current page or resource in an application.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.13-beta.0",
+        "@heroui/system": ">=2.4.13-beta.0",
+        "tailwindcss": ">=4.0.0"
+      }
+    },
+    {
+      "name": "button",
+      "package": "@heroui/button",
+      "version": "2.2.17-beta.2",
+      "docs": "https://heroui.com/docs/components/button",
+      "description": "Buttons allow users to perform actions and choose with a single tap.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "framer-motion": ">=11.5.6 || >=12.0.0-alpha.1",
+        "@heroui/theme": ">=2.4.13-beta.0",
+        "@heroui/system": ">=2.4.13-beta.0",
+        "tailwindcss": ">=4.0.0"
+      }
+    },
+    {
+      "name": "calendar",
+      "package": "@heroui/calendar",
+      "version": "2.2.17-beta.2",
+      "docs": "https://heroui.com/docs/components/calendar",
+      "description": "A calendar displays one or more date grids and allows users to select a single date.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "@heroui/system": ">=2.4.13-beta.0",
+        "@heroui/theme": ">=2.4.13-beta.0",
+        "framer-motion": ">=11.5.6 || >=12.0.0-alpha.1",
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "tailwindcss": ">=4.0.0"
+      }
+    },
+    {
+      "name": "card",
+      "package": "@heroui/card",
+      "version": "2.2.16-beta.1",
+      "docs": "https://heroui.com/docs/components/card",
+      "description": "Card is a container for text, photos, and actions in the context of a single subject.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "framer-motion": ">=11.5.6 || >=12.0.0-alpha.1",
+        "@heroui/theme": ">=2.4.13-beta.0",
+        "@heroui/system": ">=2.4.13-beta.0",
+        "tailwindcss": ">=4.0.0"
+      }
+    },
+    {
+      "name": "checkbox",
+      "package": "@heroui/checkbox",
+      "version": "2.3.16-beta.2",
+      "docs": "https://heroui.com/docs/components/checkbox",
+      "description": "Checkboxes allow users to select multiple items from a list of individual items, or to mark one individual item as selected.",
+      "status": "updated",
+      "style": "",
+      "peerDependencies": {
+        "@heroui/system": ">=2.4.13-beta.0",
+        "@heroui/theme": ">=2.4.13-beta.0",
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "tailwindcss": ">=4.0.0"
+      }
+    },
+    {
+      "name": "chip",
+      "package": "@heroui/chip",
+      "version": "2.2.13-beta.1",
+      "docs": "https://heroui.com/docs/components/chip",
+      "description": "Chips help people enter information, make selections, filter content, or trigger actions.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.13-beta.0",
+        "@heroui/system": ">=2.4.13-beta.0",
+        "tailwindcss": ">=4.0.0"
+      }
+    },
+    {
+      "name": "code",
+      "package": "@heroui/code",
+      "version": "2.2.13-beta.1",
+      "docs": "https://heroui.com/docs/components/code",
+      "description": "Code is a component used to display inline code.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.13-beta.0",
+        "tailwindcss": ">=4.0.0"
+      }
+    },
+    {
+      "name": "date-input",
+      "package": "@heroui/date-input",
+      "version": "2.3.16-beta.2",
+      "docs": "https://heroui.com/docs/components/date-input",
+      "description": "A date input allows users to enter and edit date and time values using a keyboard.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "@heroui/system": ">=2.4.13-beta.0",
+        "@heroui/theme": ">=2.4.13-beta.0",
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "tailwindcss": ">=4.0.0"
+      }
+    },
+    {
+      "name": "date-picker",
+      "package": "@heroui/date-picker",
+      "version": "2.3.17-beta.2",
+      "docs": "https://heroui.com/docs/components/date-picker",
+      "description": "A date picker combines a DateInput and a Calendar popover to allow users to enter or select a date and time value.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "@heroui/system": ">=2.4.13-beta.0",
+        "@heroui/theme": ">=2.4.13-beta.0",
+        "framer-motion": ">=11.5.6 || >=12.0.0-alpha.1",
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "tailwindcss": ">=4.0.0"
+      }
+    },
+    {
+      "name": "divider",
+      "package": "@heroui/divider",
+      "version": "2.2.12-beta.1",
+      "docs": "https://heroui.com/docs/components/divider",
+      "description": ". A separator is a visual divider between two groups of content",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.13-beta.0",
+        "tailwindcss": ">=4.0.0"
+      }
+    },
+    {
+      "name": "drawer",
+      "package": "@heroui/drawer",
+      "version": "2.2.14-beta.2",
+      "docs": "https://heroui.com/docs/components/drawer",
+      "description": "Used to render a content that slides in from the side of the screen.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.13-beta.0",
+        "@heroui/system": ">=2.4.13-beta.0",
+        "tailwindcss": ">=4.0.0"
+      }
+    },
+    {
+      "name": "dropdown",
+      "package": "@heroui/dropdown",
+      "version": "2.3.17-beta.2",
+      "docs": "https://heroui.com/docs/components/dropdown",
+      "description": "A dropdown displays a list of actions or options that a user can choose.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "@heroui/system": ">=2.4.13-beta.0",
+        "@heroui/theme": ">=2.4.13-beta.0",
+        "framer-motion": ">=11.5.6 || >=12.0.0-alpha.1",
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "tailwindcss": ">=4.0.0"
+      }
+    },
+    {
+      "name": "form",
+      "package": "@heroui/form",
+      "version": "2.1.16-beta.2",
+      "docs": "https://heroui.com/docs/components/form",
+      "description": "A form is a group of inputs that allows users submit data to a server and supports field validation errors.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "@heroui/system": ">=2.4.13-beta.0",
+        "@heroui/theme": ">=2.4.13-beta.0",
+        "react": ">=18",
+        "react-dom": ">=18",
+        "tailwindcss": ">=4.0.0"
+      }
+    },
+    {
+      "name": "image",
+      "package": "@heroui/image",
+      "version": "2.2.11-beta.1",
+      "docs": "https://heroui.com/docs/components/image",
+      "description": "A simple image component",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.13-beta.0",
+        "@heroui/system": ">=2.4.13-beta.0",
+        "tailwindcss": ">=4.0.0"
+      }
+    },
+    {
+      "name": "input",
+      "package": "@heroui/input",
+      "version": "2.4.17-beta.2",
+      "docs": "https://heroui.com/docs/components/input",
+      "description": "The input component is designed for capturing user input within a text field.",
+      "status": "updated",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.13-beta.0",
+        "@heroui/system": ">=2.4.13-beta.0",
+        "tailwindcss": ">=4.0.0"
+      }
+    },
+    {
+      "name": "input-otp",
+      "package": "@heroui/input-otp",
+      "version": "2.1.16-beta.2",
+      "docs": "https://heroui.com/docs/components/input-otp",
+      "description": "",
+      "status": "updated",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18",
+        "react-dom": ">=18",
+        "@heroui/theme": ">=2.4.13-beta.0",
+        "@heroui/system": ">=2.4.13-beta.0",
+        "tailwindcss": ">=4.0.0"
+      }
+    },
+    {
+      "name": "kbd",
+      "package": "@heroui/kbd",
+      "version": "2.2.13-beta.1",
+      "docs": "https://heroui.com/docs/components/kbd",
+      "description": "The keyboard key components indicates which key or set of keys used to execute a specificv  action",
+      "status": "updated",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.13-beta.0",
+        "tailwindcss": ">=4.0.0"
+      }
+    },
+    {
+      "name": "link",
+      "package": "@heroui/link",
+      "version": "2.2.14-beta.1",
+      "docs": "https://heroui.com/docs/components/link",
+      "description": "Links allow users to click their way from page to page. This component is styled to resemble a hyperlink and semantically renders an &lt;a&gt;",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.13-beta.0",
+        "@heroui/system": ">=2.4.13-beta.0",
+        "tailwindcss": ">=4.0.0"
+      }
+    },
+    {
+      "name": "listbox",
+      "package": "@heroui/listbox",
+      "version": "2.3.16-beta.2",
+      "docs": "https://heroui.com/docs/components/listbox",
+      "description": "A listbox displays a list of options and allows a user to select one or more of them.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.13-beta.0",
+        "@heroui/system": ">=2.4.13-beta.0",
+        "tailwindcss": ">=4.0.0"
+      }
+    },
+    {
+      "name": "menu",
+      "package": "@heroui/menu",
+      "version": "2.2.16-beta.2",
+      "docs": "https://heroui.com/docs/components/menu",
+      "description": "A menu displays a list of options and allows a user to select one or more of them.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.13-beta.0",
+        "@heroui/system": ">=2.4.13-beta.0",
+        "tailwindcss": ">=4.0.0"
+      }
+    },
+    {
+      "name": "modal",
+      "package": "@heroui/modal",
+      "version": "2.2.14-beta.2",
+      "docs": "https://heroui.com/docs/components/modal",
+      "description": "Displays a dialog with a custom content that requires attention or provides additional information.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "framer-motion": ">=11.5.6 || >=12.0.0-alpha.1",
+        "@heroui/theme": ">=2.4.13-beta.0",
+        "@heroui/system": ">=2.4.13-beta.0",
+        "tailwindcss": ">=4.0.0"
+      }
+    },
+    {
+      "name": "navbar",
+      "package": "@heroui/navbar",
+      "version": "2.2.15-beta.2",
+      "docs": "https://heroui.com/docs/components/navbar",
+      "description": "A responsive navigation header positioned on top side of your page that includes support for branding, links, navigation, collapse and more.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "framer-motion": ">=11.5.6 || >=12.0.0-alpha.1",
+        "@heroui/theme": ">=2.4.13-beta.0",
+        "@heroui/system": ">=2.4.13-beta.0",
+        "tailwindcss": ">=4.0.0"
+      }
+    },
+    {
+      "name": "number-input",
+      "package": "@heroui/number-input",
+      "version": "2.0.7-beta.2",
+      "docs": "https://heroui.com/docs/components/number-input",
+      "description": "The numeric input component is designed for users to enter a number, and increase or decrease the value using stepper buttons",
+      "status": "new",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/system": ">=2.4.13-beta.0",
+        "@heroui/theme": ">=2.4.13-beta.0",
+        "tailwindcss": ">=4.0.0"
+      }
+    },
+    {
+      "name": "pagination",
+      "package": "@heroui/pagination",
+      "version": "2.2.15-beta.1",
+      "docs": "https://heroui.com/docs/components/pagination",
+      "description": "The Pagination component allows you to display active page and navigate between multiple pages.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.13-beta.0",
+        "@heroui/system": ">=2.4.13-beta.0",
+        "tailwindcss": ">=4.0.0"
+      }
+    },
+    {
+      "name": "popover",
+      "package": "@heroui/popover",
+      "version": "2.3.17-beta.2",
+      "docs": "https://heroui.com/docs/components/popover",
+      "description": "A popover is an overlay element positioned relative to a trigger.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "@heroui/system": ">=2.4.13-beta.0",
+        "@heroui/theme": ">=2.4.13-beta.0",
+        "framer-motion": ">=11.5.6 || >=12.0.0-alpha.1",
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "tailwindcss": ">=4.0.0"
+      }
+    },
+    {
+      "name": "progress",
+      "package": "@heroui/progress",
+      "version": "2.2.13-beta.1",
+      "docs": "https://heroui.com/docs/components/progress",
+      "description": "Progress bars show either determinate or indeterminate progress of an operation over time.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.13-beta.0",
+        "@heroui/system": ">=2.4.13-beta.0",
+        "tailwindcss": ">=4.0.0"
+      }
+    },
+    {
+      "name": "radio",
+      "package": "@heroui/radio",
+      "version": "2.3.16-beta.2",
+      "docs": "https://heroui.com/docs/components/radio",
+      "description": "Radios allow users to select a single option from a list of mutually exclusive options.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.13-beta.0",
+        "@heroui/system": ">=2.4.13-beta.0",
+        "tailwindcss": ">=4.0.0"
+      }
+    },
+    {
+      "name": "ripple",
+      "package": "@heroui/ripple",
+      "version": "2.2.13-beta.1",
+      "docs": "https://heroui.com/docs/components/ripple",
+      "description": "A simple implementation to display a ripple animation when the source component is clicked",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "framer-motion": ">=11.5.6 || >=12.0.0-alpha.1",
+        "@heroui/theme": ">=2.4.13-beta.0",
+        "@heroui/system": ">=2.4.13-beta.0",
+        "tailwindcss": ">=4.0.0"
+      }
+    },
+    {
+      "name": "scroll-shadow",
+      "package": "@heroui/scroll-shadow",
+      "version": "2.3.11-beta.1",
+      "docs": "https://heroui.com/docs/components/scroll-shadow",
+      "description": "A component that applies top and bottom shadows when content overflows on scroll.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.13-beta.0",
+        "@heroui/system": ">=2.4.13-beta.0",
+        "tailwindcss": ">=4.0.0"
+      }
+    },
+    {
+      "name": "select",
+      "package": "@heroui/select",
+      "version": "2.4.17-beta.2",
+      "docs": "https://heroui.com/docs/components/select",
+      "description": "A select displays a collapsible list of options and allows a user to select one of them.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "@heroui/system": ">=2.4.13-beta.0",
+        "@heroui/theme": ">=2.4.13-beta.0",
+        "framer-motion": ">=11.5.6 || >=12.0.0-alpha.1",
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "tailwindcss": ">=4.0.0"
+      }
+    },
+    {
+      "name": "skeleton",
+      "package": "@heroui/skeleton",
+      "version": "2.2.11-beta.1",
+      "docs": "https://heroui.com/docs/components/skeleton",
+      "description": "Skeleton is used to display the loading state of some component.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.13-beta.0",
+        "@heroui/system": ">=2.4.13-beta.0",
+        "tailwindcss": ">=4.0.0"
+      }
+    },
+    {
+      "name": "slider",
+      "package": "@heroui/slider",
+      "version": "2.4.14-beta.2",
+      "docs": "https://heroui.com/docs/components/slider",
+      "description": "A slider allows a user to select one or more values within a range.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.13-beta.0",
+        "@heroui/system": ">=2.4.13-beta.0",
+        "tailwindcss": ">=4.0.0"
+      }
+    },
+    {
+      "name": "snippet",
+      "package": "@heroui/snippet",
+      "version": "2.2.18-beta.2",
+      "docs": "https://heroui.com/docs/components/snippet",
+      "description": "Display a snippet of copyable code for the command line.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "framer-motion": ">=11.5.6 || >=12.0.0-alpha.1",
+        "@heroui/theme": ">=2.4.13-beta.0",
+        "@heroui/system": ">=2.4.13-beta.0",
+        "tailwindcss": ">=4.0.0"
+      }
+    },
+    {
+      "name": "spacer",
+      "package": "@heroui/spacer",
+      "version": "2.2.13-beta.1",
+      "docs": "https://heroui.com/docs/components/spacer",
+      "description": "A flexible spacer component designed to create consistent spacing and maintain alignment in your layout.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.13-beta.0",
+        "tailwindcss": ">=4.0.0"
+      }
+    },
+    {
+      "name": "spinner",
+      "package": "@heroui/spinner",
+      "version": "2.2.14-beta.2",
+      "docs": "https://heroui.com/docs/components/spinner",
+      "description": "Loaders express an unspecified wait time or display the length of a process.",
+      "status": "updated",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.13-beta.0",
+        "tailwindcss": ">=4.0.0"
+      }
+    },
+    {
+      "name": "switch",
+      "package": "@heroui/switch",
+      "version": "2.2.15-beta.1",
+      "docs": "https://heroui.com/docs/components/switch",
+      "description": "A switch is similar to a checkbox, but represents on/off values as opposed to selection.",
+      "status": "stable",
+      "style": "toggle",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.13-beta.0",
+        "@heroui/system": ">=2.4.13-beta.0",
+        "tailwindcss": ">=4.0.0"
+      }
+    },
+    {
+      "name": "table",
+      "package": "@heroui/table",
+      "version": "2.2.16-beta.2",
+      "docs": "https://heroui.com/docs/components/table",
+      "description": "Tables are used to display tabular data using rows and columns. ",
+      "status": "updated",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.13-beta.0",
+        "@heroui/system": ">=2.4.13-beta.0",
+        "tailwindcss": ">=4.0.0"
+      }
+    },
+    {
+      "name": "tabs",
+      "package": "@heroui/tabs",
+      "version": "2.2.14-beta.2",
+      "docs": "https://heroui.com/docs/components/tabs",
+      "description": "Tabs organize content into multiple sections and allow users to navigate between them.",
+      "status": "updated",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "framer-motion": ">=11.5.6 || >=12.0.0-alpha.1",
+        "@heroui/theme": ">=2.4.13-beta.0",
+        "@heroui/system": ">=2.4.13-beta.0",
+        "tailwindcss": ">=4.0.0"
+      }
+    },
+    {
+      "name": "toast",
+      "package": "@heroui/toast",
+      "version": "2.0.7-beta.2",
+      "docs": "https://heroui.com/docs/components/toast",
+      "description": "Toast are temporary notifications that provide concise feedback about an action or event",
+      "status": "new",
+      "style": "",
+      "peerDependencies": {
+        "@heroui/system": ">=2.4.13-beta.0",
+        "@heroui/theme": ">=2.4.13-beta.0",
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "framer-motion": ">=11.5.6 || >=12.0.0-alpha.1",
+        "tailwindcss": ">=4.0.0"
+      }
+    },
+    {
+      "name": "tooltip",
+      "package": "@heroui/tooltip",
+      "version": "2.2.14-beta.2",
+      "docs": "https://heroui.com/docs/components/tooltip",
+      "description": "A React Component for rendering dynamically positioned Tooltips",
+      "status": "stable",
+      "style": "popover",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "framer-motion": ">=11.5.6 || >=12.0.0-alpha.1",
+        "@heroui/theme": ">=2.4.13-beta.0",
+        "@heroui/system": ">=2.4.13-beta.0",
+        "tailwindcss": ">=4.0.0"
+      }
+    },
+    {
+      "name": "user",
+      "package": "@heroui/user",
+      "version": "2.2.13-beta.1",
+      "docs": "https://heroui.com/docs/components/user",
+      "description": "Flexible User Profile Component.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.13-beta.0",
+        "@heroui/system": ">=2.4.13-beta.0",
+        "tailwindcss": ">=4.0.0"
+      }
+    }
+  ],
+  "betaVersion": "2.7.6-beta.2",
+  "components": [
+    {
+      "name": "accordion",
+      "package": "@heroui/accordion",
+      "version": "2.2.13",
+      "docs": "https://heroui.com/docs/components/accordion",
+      "description": "Collapse display a list of high-level options that can expand/collapse to reveal more information.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "framer-motion": ">=11.5.6 || >=12.0.0-alpha.1",
+        "@heroui/theme": ">=2.4.6",
+        "@heroui/system": ">=2.4.7",
+        "tailwindcss": ">=3.4.0"
+      }
+    },
+    {
+      "name": "alert",
+      "package": "@heroui/alert",
+      "version": "2.2.16",
+      "docs": "https://heroui.com/docs/components/alert",
+      "description": "Alerts are temporary notifications that provide concise feedback about an action or event.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.6",
+        "@heroui/system": ">=2.4.7",
+        "tailwindcss": ">=3.4.0"
+      }
+    },
+    {
+      "name": "autocomplete",
+      "package": "@heroui/autocomplete",
+      "version": "2.3.17",
+      "docs": "https://heroui.com/docs/components/autocomplete",
+      "description": "An autocomplete combines a text input with a listbox, allowing users to filter a list of options to items matching a query.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "@heroui/system": ">=2.4.7",
+        "@heroui/theme": ">=2.4.6",
+        "framer-motion": ">=11.5.6 || >=12.0.0-alpha.1",
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "tailwindcss": ">=3.4.0"
+      }
+    },
+    {
+      "name": "avatar",
+      "package": "@heroui/avatar",
+      "version": "2.2.12",
+      "docs": "https://heroui.com/docs/components/avatar",
+      "description": "The Avatar component is used to represent a user, and displays the profile picture, initials or fallback icon.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.6",
+        "@heroui/system": ">=2.4.7",
+        "tailwindcss": ">=3.4.0"
+      }
+    },
+    {
+      "name": "badge",
+      "package": "@heroui/badge",
+      "version": "2.2.10",
+      "docs": "https://heroui.com/docs/components/badge",
+      "description": "Badges are used as a small numerical value or status descriptor for UI elements.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.6",
+        "@heroui/system": ">=2.4.7",
+        "tailwindcss": ">=3.4.0"
+      }
+    },
+    {
+      "name": "breadcrumbs",
+      "package": "@heroui/breadcrumbs",
+      "version": "2.2.12",
+      "docs": "https://heroui.com/docs/components/breadcrumbs",
+      "description": "Breadcrumbs display a hierarchy of links to the current page or resource in an application.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.6",
+        "@heroui/system": ">=2.4.7",
+        "tailwindcss": ">=3.4.0"
+      }
+    },
+    {
+      "name": "button",
+      "package": "@heroui/button",
+      "version": "2.2.16",
+      "docs": "https://heroui.com/docs/components/button",
+      "description": "Buttons allow users to perform actions and choose with a single tap.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "framer-motion": ">=11.5.6 || >=12.0.0-alpha.1",
+        "@heroui/theme": ">=2.4.6",
+        "@heroui/system": ">=2.4.7",
+        "tailwindcss": ">=3.4.0"
+      }
+    },
+    {
+      "name": "calendar",
+      "package": "@heroui/calendar",
+      "version": "2.2.16",
+      "docs": "https://heroui.com/docs/components/calendar",
+      "description": "A calendar displays one or more date grids and allows users to select a single date.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "@heroui/system": ">=2.4.7",
+        "@heroui/theme": ">=2.4.6",
+        "framer-motion": ">=11.5.6 || >=12.0.0-alpha.1",
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "tailwindcss": ">=3.4.0"
+      }
+    },
+    {
+      "name": "card",
+      "package": "@heroui/card",
+      "version": "2.2.15",
+      "docs": "https://heroui.com/docs/components/card",
+      "description": "Card is a container for text, photos, and actions in the context of a single subject.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "framer-motion": ">=11.5.6 || >=12.0.0-alpha.1",
+        "@heroui/theme": ">=2.4.6",
+        "@heroui/system": ">=2.4.7",
+        "tailwindcss": ">=3.4.0"
+      }
+    },
+    {
+      "name": "checkbox",
+      "package": "@heroui/checkbox",
+      "version": "2.3.15",
+      "docs": "https://heroui.com/docs/components/checkbox",
+      "description": "Checkboxes allow users to select multiple items from a list of individual items, or to mark one individual item as selected.",
+      "status": "updated",
+      "style": "",
+      "peerDependencies": {
+        "@heroui/system": ">=2.4.7",
+        "@heroui/theme": ">=2.4.3",
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "tailwindcss": ">=3.4.0"
+      }
+    },
+    {
+      "name": "chip",
+      "package": "@heroui/chip",
+      "version": "2.2.12",
+      "docs": "https://heroui.com/docs/components/chip",
+      "description": "Chips help people enter information, make selections, filter content, or trigger actions.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.6",
+        "@heroui/system": ">=2.4.7",
+        "tailwindcss": ">=3.4.0"
+      }
+    },
+    {
+      "name": "code",
+      "package": "@heroui/code",
+      "version": "2.2.12",
+      "docs": "https://heroui.com/docs/components/code",
+      "description": "Code is a component used to display inline code.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.6",
+        "tailwindcss": ">=3.4.0"
+      }
+    },
+    {
+      "name": "date-input",
+      "package": "@heroui/date-input",
+      "version": "2.3.15",
+      "docs": "https://heroui.com/docs/components/date-input",
+      "description": "A date input allows users to enter and edit date and time values using a keyboard.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "@heroui/system": ">=2.4.10",
+        "@heroui/theme": ">=2.4.9",
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "tailwindcss": ">=3.4.0"
+      }
+    },
+    {
+      "name": "date-picker",
+      "package": "@heroui/date-picker",
+      "version": "2.3.16",
+      "docs": "https://heroui.com/docs/components/date-picker",
+      "description": "A date picker combines a DateInput and a Calendar popover to allow users to enter or select a date and time value.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "@heroui/system": ">=2.4.10",
+        "@heroui/theme": ">=2.4.9",
+        "framer-motion": ">=11.5.6 || >=12.0.0-alpha.1",
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "tailwindcss": ">=3.4.0"
+      }
+    },
+    {
+      "name": "divider",
+      "package": "@heroui/divider",
+      "version": "2.2.11",
+      "docs": "https://heroui.com/docs/components/divider",
+      "description": ". A separator is a visual divider between two groups of content",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.6",
+        "tailwindcss": ">=3.4.0"
+      }
+    },
+    {
+      "name": "drawer",
+      "package": "@heroui/drawer",
+      "version": "2.2.13",
+      "docs": "https://heroui.com/docs/components/drawer",
+      "description": "Used to render a content that slides in from the side of the screen.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.6",
+        "@heroui/system": ">=2.4.7",
+        "tailwindcss": ">=3.4.0"
+      }
+    },
+    {
+      "name": "dropdown",
+      "package": "@heroui/dropdown",
+      "version": "2.3.16",
+      "docs": "https://heroui.com/docs/components/dropdown",
+      "description": "A dropdown displays a list of actions or options that a user can choose.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "@heroui/system": ">=2.4.7",
+        "@heroui/theme": ">=2.4.6",
+        "framer-motion": ">=11.5.6 || >=12.0.0-alpha.1",
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "tailwindcss": ">=3.4.0"
+      }
+    },
+    {
+      "name": "form",
+      "package": "@heroui/form",
+      "version": "2.1.15",
+      "docs": "https://heroui.com/docs/components/form",
+      "description": "A form is a group of inputs that allows users submit data to a server and supports field validation errors.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "@heroui/system": ">=2.4.7",
+        "@heroui/theme": ">=2.4.6",
+        "react": ">=18",
+        "react-dom": ">=18",
+        "tailwindcss": ">=3.4.0"
+      }
+    },
+    {
+      "name": "image",
+      "package": "@heroui/image",
+      "version": "2.2.10",
+      "docs": "https://heroui.com/docs/components/image",
+      "description": "A simple image component",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.6",
+        "@heroui/system": ">=2.4.7",
+        "tailwindcss": ">=3.4.0"
+      }
+    },
+    {
+      "name": "input",
+      "package": "@heroui/input",
+      "version": "2.4.16",
+      "docs": "https://heroui.com/docs/components/input",
+      "description": "The input component is designed for capturing user input within a text field.",
+      "status": "updated",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.9",
+        "@heroui/system": ">=2.4.10",
+        "tailwindcss": ">=3.4.0"
+      }
+    },
+    {
+      "name": "input-otp",
+      "package": "@heroui/input-otp",
+      "version": "2.1.15",
+      "docs": "https://heroui.com/docs/components/input-otp",
+      "description": "",
+      "status": "updated",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18",
+        "react-dom": ">=18",
+        "@heroui/theme": ">=2.4.6",
+        "@heroui/system": ">=2.4.7",
+        "tailwindcss": ">=3.4.0"
+      }
+    },
+    {
+      "name": "kbd",
+      "package": "@heroui/kbd",
+      "version": "2.2.12",
+      "docs": "https://heroui.com/docs/components/kbd",
+      "description": "The keyboard key components indicates which key or set of keys used to execute a specificv  action",
+      "status": "updated",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.6",
+        "tailwindcss": ">=3.4.0"
+      }
+    },
+    {
+      "name": "link",
+      "package": "@heroui/link",
+      "version": "2.2.13",
+      "docs": "https://heroui.com/docs/components/link",
+      "description": "Links allow users to click their way from page to page. This component is styled to resemble a hyperlink and semantically renders an &lt;a&gt;",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.6",
+        "@heroui/system": ">=2.4.7",
+        "tailwindcss": ">=3.4.0"
+      }
+    },
+    {
+      "name": "listbox",
+      "package": "@heroui/listbox",
+      "version": "2.3.15",
+      "docs": "https://heroui.com/docs/components/listbox",
+      "description": "A listbox displays a list of options and allows a user to select one or more of them.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.6",
+        "@heroui/system": ">=2.4.7",
+        "tailwindcss": ">=3.4.0"
+      }
+    },
+    {
+      "name": "menu",
+      "package": "@heroui/menu",
+      "version": "2.2.15",
+      "docs": "https://heroui.com/docs/components/menu",
+      "description": "A menu displays a list of options and allows a user to select one or more of them.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.6",
+        "@heroui/system": ">=2.4.7",
+        "tailwindcss": ">=3.4.0"
+      }
+    },
+    {
+      "name": "modal",
+      "package": "@heroui/modal",
+      "version": "2.2.13",
+      "docs": "https://heroui.com/docs/components/modal",
+      "description": "Displays a dialog with a custom content that requires attention or provides additional information.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "framer-motion": ">=11.5.6 || >=12.0.0-alpha.1",
+        "@heroui/theme": ">=2.4.6",
+        "@heroui/system": ">=2.4.7",
+        "tailwindcss": ">=3.4.0"
+      }
+    },
+    {
+      "name": "navbar",
+      "package": "@heroui/navbar",
+      "version": "2.2.14",
+      "docs": "https://heroui.com/docs/components/navbar",
+      "description": "A responsive navigation header positioned on top side of your page that includes support for branding, links, navigation, collapse and more.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "framer-motion": ">=11.5.6 || >=12.0.0-alpha.1",
+        "@heroui/theme": ">=2.4.6",
+        "@heroui/system": ">=2.4.7",
+        "tailwindcss": ">=3.4.0"
+      }
+    },
+    {
+      "name": "number-input",
+      "package": "@heroui/number-input",
+      "version": "2.0.6",
+      "docs": "https://heroui.com/docs/components/number-input",
+      "description": "The numeric input component is designed for users to enter a number, and increase or decrease the value using stepper buttons",
+      "status": "new",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/system": ">=2.4.10",
+        "@heroui/theme": ">=2.4.9",
+        "tailwindcss": ">=3.4.0"
+      }
+    },
+    {
+      "name": "pagination",
+      "package": "@heroui/pagination",
+      "version": "2.2.14",
+      "docs": "https://heroui.com/docs/components/pagination",
+      "description": "The Pagination component allows you to display active page and navigate between multiple pages.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.6",
+        "@heroui/system": ">=2.4.7",
+        "tailwindcss": ">=3.4.0"
+      }
+    },
+    {
+      "name": "popover",
+      "package": "@heroui/popover",
+      "version": "2.3.16",
+      "docs": "https://heroui.com/docs/components/popover",
+      "description": "A popover is an overlay element positioned relative to a trigger.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "@heroui/system": ">=2.4.7",
+        "@heroui/theme": ">=2.4.6",
+        "framer-motion": ">=11.5.6 || >=12.0.0-alpha.1",
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "tailwindcss": ">=3.4.0"
+      }
+    },
+    {
+      "name": "progress",
+      "package": "@heroui/progress",
+      "version": "2.2.12",
+      "docs": "https://heroui.com/docs/components/progress",
+      "description": "Progress bars show either determinate or indeterminate progress of an operation over time.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.6",
+        "@heroui/system": ">=2.4.7",
+        "tailwindcss": ">=3.4.0"
+      }
+    },
+    {
+      "name": "radio",
+      "package": "@heroui/radio",
+      "version": "2.3.15",
+      "docs": "https://heroui.com/docs/components/radio",
+      "description": "Radios allow users to select a single option from a list of mutually exclusive options.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.3",
+        "@heroui/system": ">=2.4.7",
+        "tailwindcss": ">=3.4.0"
+      }
+    },
+    {
+      "name": "ripple",
+      "package": "@heroui/ripple",
+      "version": "2.2.12",
+      "docs": "https://heroui.com/docs/components/ripple",
+      "description": "A simple implementation to display a ripple animation when the source component is clicked",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "framer-motion": ">=11.5.6 || >=12.0.0-alpha.1",
+        "@heroui/theme": ">=2.4.6",
+        "@heroui/system": ">=2.4.7",
+        "tailwindcss": ">=3.4.0"
+      }
+    },
+    {
+      "name": "scroll-shadow",
+      "package": "@heroui/scroll-shadow",
+      "version": "2.3.10",
+      "docs": "https://heroui.com/docs/components/scroll-shadow",
+      "description": "A component that applies top and bottom shadows when content overflows on scroll.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.6",
+        "@heroui/system": ">=2.4.7",
+        "tailwindcss": ">=3.4.0"
+      }
+    },
+    {
+      "name": "select",
+      "package": "@heroui/select",
+      "version": "2.4.16",
+      "docs": "https://heroui.com/docs/components/select",
+      "description": "A select displays a collapsible list of options and allows a user to select one of them.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "@heroui/system": ">=2.4.10",
+        "@heroui/theme": ">=2.4.9",
+        "framer-motion": ">=11.5.6 || >=12.0.0-alpha.1",
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "tailwindcss": ">=3.4.0"
+      }
+    },
+    {
+      "name": "skeleton",
+      "package": "@heroui/skeleton",
+      "version": "2.2.10",
+      "docs": "https://heroui.com/docs/components/skeleton",
+      "description": "Skeleton is used to display the loading state of some component.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.6",
+        "@heroui/system": ">=2.4.7",
+        "tailwindcss": ">=3.4.0"
+      }
+    },
+    {
+      "name": "slider",
+      "package": "@heroui/slider",
+      "version": "2.4.13",
+      "docs": "https://heroui.com/docs/components/slider",
+      "description": "A slider allows a user to select one or more values within a range.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.6",
+        "@heroui/system": ">=2.4.7",
+        "tailwindcss": ">=3.4.0"
+      }
+    },
+    {
+      "name": "snippet",
+      "package": "@heroui/snippet",
+      "version": "2.2.17",
+      "docs": "https://heroui.com/docs/components/snippet",
+      "description": "Display a snippet of copyable code for the command line.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "framer-motion": ">=11.5.6 || >=12.0.0-alpha.1",
+        "@heroui/theme": ">=2.4.6",
+        "@heroui/system": ">=2.4.7",
+        "tailwindcss": ">=3.4.0"
+      }
+    },
+    {
+      "name": "spacer",
+      "package": "@heroui/spacer",
+      "version": "2.2.12",
+      "docs": "https://heroui.com/docs/components/spacer",
+      "description": "A flexible spacer component designed to create consistent spacing and maintain alignment in your layout.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.6",
+        "tailwindcss": ">=3.4.0"
+      }
+    },
+    {
+      "name": "spinner",
+      "package": "@heroui/spinner",
+      "version": "2.2.13",
+      "docs": "https://heroui.com/docs/components/spinner",
+      "description": "Loaders express an unspecified wait time or display the length of a process.",
+      "status": "updated",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.6",
+        "tailwindcss": ">=3.4.0"
+      }
+    },
+    {
+      "name": "switch",
+      "package": "@heroui/switch",
+      "version": "2.2.14",
+      "docs": "https://heroui.com/docs/components/switch",
+      "description": "A switch is similar to a checkbox, but represents on/off values as opposed to selection.",
+      "status": "stable",
+      "style": "toggle",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.3",
+        "@heroui/system": ">=2.4.7",
+        "tailwindcss": ">=3.4.0"
+      }
+    },
+    {
+      "name": "table",
+      "package": "@heroui/table",
+      "version": "2.2.15",
+      "docs": "https://heroui.com/docs/components/table",
+      "description": "Tables are used to display tabular data using rows and columns. ",
+      "status": "updated",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.6",
+        "@heroui/system": ">=2.4.7",
+        "tailwindcss": ">=3.4.0"
+      }
+    },
+    {
+      "name": "tabs",
+      "package": "@heroui/tabs",
+      "version": "2.2.13",
+      "docs": "https://heroui.com/docs/components/tabs",
+      "description": "Tabs organize content into multiple sections and allow users to navigate between them.",
+      "status": "updated",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "framer-motion": ">=11.5.6 || >=12.0.0-alpha.1",
+        "@heroui/theme": ">=2.4.6",
+        "@heroui/system": ">=2.4.7",
+        "tailwindcss": ">=3.4.0"
+      }
+    },
+    {
+      "name": "toast",
+      "package": "@heroui/toast",
+      "version": "2.0.6",
+      "docs": "https://heroui.com/docs/components/toast",
+      "description": "Toast are temporary notifications that provide concise feedback about an action or event",
+      "status": "new",
+      "style": "",
+      "peerDependencies": {
+        "@heroui/system": ">=2.4.10",
+        "@heroui/theme": ">=2.4.9",
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "framer-motion": ">=11.5.6 || >=12.0.0-alpha.1",
+        "tailwindcss": ">=3.4.0"
+      }
+    },
+    {
+      "name": "tooltip",
+      "package": "@heroui/tooltip",
+      "version": "2.2.13",
+      "docs": "https://heroui.com/docs/components/tooltip",
+      "description": "A React Component for rendering dynamically positioned Tooltips",
+      "status": "stable",
+      "style": "popover",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "framer-motion": ">=11.5.6 || >=12.0.0-alpha.1",
+        "@heroui/theme": ">=2.4.6",
+        "@heroui/system": ">=2.4.7",
+        "tailwindcss": ">=3.4.0"
+      }
+    },
+    {
+      "name": "user",
+      "package": "@heroui/user",
+      "version": "2.2.12",
+      "docs": "https://heroui.com/docs/components/user",
+      "description": "Flexible User Profile Component.",
+      "status": "stable",
+      "style": "",
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-rc.0",
+        "react-dom": ">=18 || >=19.0.0-rc.0",
+        "@heroui/theme": ">=2.4.6",
+        "@heroui/system": ">=2.4.7",
+        "tailwindcss": ">=3.4.0"
+      }
+    }
+  ],
+  "version": "2.7.5"
+}
