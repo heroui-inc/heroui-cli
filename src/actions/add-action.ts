@@ -5,6 +5,11 @@ import {existsSync, writeFileSync} from 'node:fs';
 
 import chalk from 'chalk';
 
+import {
+  type AddActionOptions,
+  addHeroChatCodebase,
+  isAddingHeroChatCodebase
+} from '@helpers/actions/add/heroui-chat/add-hero-chat-codebase';
 import {getBetaComponents} from '@helpers/beta';
 import {
   checkApp,
@@ -30,17 +35,13 @@ import {getStoreSync, store} from 'src/constants/store';
 import {tailwindTemplate} from 'src/constants/templates';
 import {getAutocompleteMultiselect} from 'src/prompts';
 
-interface AddActionOptions {
-  all?: boolean;
-  prettier?: boolean;
-  packagePath?: string;
-  tailwindPath?: string;
-  appPath?: string;
-  addApp?: boolean;
-  beta?: boolean;
-}
+export async function addAction(targets: string[], options: AddActionOptions) {
+  if (isAddingHeroChatCodebase(targets)) {
+    // Add hero chat codebase
+    await addHeroChatCodebase(targets, options);
+    process.exit(0);
+  }
 
-export async function addAction(components: string[], options: AddActionOptions) {
   const {
     addApp = false,
     all = false,
@@ -55,7 +56,7 @@ export async function addAction(components: string[], options: AddActionOptions)
 
   const isHeroUIAll = !!allDependencies[HERO_UI];
 
-  if (!components.length && !all) {
+  if (!targets.length && !all) {
     const filteredComponents = store.heroUIComponents.filter(
       (component) =>
         !currentComponents.some((currentComponent) => currentComponent.name === component.name)
@@ -66,7 +67,7 @@ export async function addAction(components: string[], options: AddActionOptions)
       process.exit(0);
     }
 
-    components = await getAutocompleteMultiselect(
+    targets = await getAutocompleteMultiselect(
       'Which components would you like to add?',
       filteredComponents.map((component) => {
         return {
@@ -77,11 +78,11 @@ export async function addAction(components: string[], options: AddActionOptions)
       })
     );
   } else if (all) {
-    components = [HERO_UI];
+    targets = [HERO_UI];
   }
 
   /** ======================== Add judge whether illegal component exist ======================== */
-  if (!all && !checkIllegalComponents(components, true)) {
+  if (!all && !checkIllegalComponents(targets, true)) {
     return;
   }
 
@@ -89,7 +90,7 @@ export async function addAction(components: string[], options: AddActionOptions)
   var {allDependenciesKeys, currentComponents} = getPackageInfo(packagePath);
 
   const currentComponentsKeys = currentComponents.map((c) => c.name);
-  const filterCurrentComponents = components.filter(
+  const filterCurrentComponents = targets.filter(
     (c) => currentComponentsKeys.includes(c) || (isHeroUIAll && c === HERO_UI)
   );
 
@@ -141,8 +142,8 @@ export async function addAction(components: string[], options: AddActionOptions)
     }
   } else {
     const mergedComponents = beta
-      ? await getBetaComponents(components)
-      : components.map((c) => store.heroUIComponentsMap[c]!.package);
+      ? await getBetaComponents(targets)
+      : targets.map((c) => store.heroUIComponentsMap[c]!.package);
     const [, ..._missingDependencies] = await checkRequiredContentInstalled(
       'partial',
       allDependenciesKeys,
@@ -169,7 +170,7 @@ export async function addAction(components: string[], options: AddActionOptions)
 
   if (getStoreSync('debug')) {
     // Temporarily add the components to the package.json file
-    debugAddedPkg(components, packagePath);
+    debugAddedPkg(targets, packagePath);
   }
 
   // After install the required dependencies, get the latest package information
@@ -262,7 +263,7 @@ export async function addAction(components: string[], options: AddActionOptions)
 
   if (getStoreSync('debug')) {
     // Temporarily remove the added components from the package.json file
-    debugRemovedPkg(components, packagePath);
+    debugRemovedPkg(targets, packagePath);
   }
   process.exit(0);
 }

@@ -32,5 +32,5 @@ function syncApiRoutes() {
     }
   });
 
-  writeFileSync(targetPath, JSON.stringify(targetDocs, null, 2), 'utf-8');
+  writeFileSync(targetPath, `${JSON.stringify(targetDocs, null, 2)}\n`, 'utf-8');
 }

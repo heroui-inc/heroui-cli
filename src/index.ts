@@ -3,6 +3,7 @@ import type {CommandName, SAFE_ANY} from '@helpers/type';
 import chalk from 'chalk';
 import {Command} from 'commander';
 
+import {isAddingHeroChatCodebase} from '@helpers/actions/add/heroui-chat/add-hero-chat-codebase';
 import {Logger, gradientString} from '@helpers/logger';
 import {findMostMatchText} from '@helpers/math-diff';
 import {outputBox} from '@helpers/output-info';
@@ -91,8 +92,8 @@ heroui
 
 heroui
   .command('add')
-  .description('Adds components to your project')
-  .argument('[components...]', 'Names of components to add')
+  .description('1. Adds components to your project\n2. Adds hero chat codebase to your project')
+  .argument('[targets...]', 'Names of components, hero chat codebase url to add')
   .option('-a --all [boolean]', 'Add all components', false)
   .option('-p --packagePath [string]', 'Specify the path to the package.json file')
   .option('-tw --tailwindPath [string]', 'Specify the path to the tailwind.config.js file')
@@ -100,6 +101,7 @@ heroui
   .option('--prettier [boolean]', 'Apply Prettier formatting to the added content')
   .option('--addApp [boolean]', 'Include App.tsx file content that requires a provider', false)
   .option('-b --beta [boolean]', 'Add beta components', false)
+  .option('--directory [string]', 'Add hero chat codebase to a specific directory')
   .action(addAction);
 
 heroui
@@ -146,11 +148,16 @@ heroui
   .action(doctorAction);
 
 heroui.hook('preAction', async (command) => {
-  const args = command.args?.[0];
+  const commandName = command.args?.[0];
   const options = (command as SAFE_ANY).rawArgs.slice(2);
   const noCache = options.includes('--no-cache');
   const debug = options.includes('--debug') || options.includes('-d');
-  // const componentsArgs = command.args?.slice(1);
+  const targetsArgs = command.args?.slice(1);
+
+  if (isAddingHeroChatCodebase(targetsArgs) || !commandName) {
+    // Hero chat action don't need to init
+    return;
+  }
 
   // Init cache
   initCache(noCache);
@@ -158,7 +165,7 @@ heroui.hook('preAction', async (command) => {
   store.debug = debug;
   store.beta = options.includes('-b') || options.includes('--beta');
 
-  if (args && commandList.includes(args as CommandName)) {
+  if (commandName && commandList.includes(commandName as CommandName)) {
     // Before run the command init the components.json
     const heroUIComponents = (await getComponents()).components;
     const heroUIComponentsBeta = (await getComponents()).betaComponents;
