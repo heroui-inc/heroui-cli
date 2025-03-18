@@ -1,3 +1,9 @@
+## [1.2.1](https://github.com/heroui-inc/heroui-cli/compare/v1.2.0...v1.2.1) (2025-03-18)
+
+### Bug Fixes
+
+- missing components json ([eab7ae0](https://github.com/heroui-inc/heroui-cli/commit/eab7ae0e00c05faf242f2e0e413577f413661cd0))
+
 # [1.2.0](https://github.com/heroui-inc/heroui-cli/compare/v1.1.0...v1.2.0) (2025-03-18)
 
 ### Features
