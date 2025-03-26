@@ -35,7 +35,7 @@ export function isAddingHeroChatCodebase(targets: string[]) {
 }
 
 export async function addHeroChatCodebase(targets: string[], options: AddActionOptions) {
-  p.intro(chalk.cyan('Starting to add Hero Chat codebase'));
+  p.intro(chalk.cyan('Starting to add HeroUI Chat codebase'));
 
   const directory = resolve(process.cwd(), options.directory ?? (await getDirectoryClack()));
   const {baseStorageUrl, chatTitle, userId} = await getBaseStorageUrl(targets[0]!);
@@ -110,7 +110,7 @@ export async function addHeroChatCodebase(targets: string[], options: AddActionO
     }
   }
 
-  p.outro(chalk.green('✅ Hero Chat codebase added successfully!'));
+  p.outro(chalk.green('✅ HeroUI Chat codebase added successfully!'));
 }
 
 /** ======================== For the future init project ======================== */

@@ -48,7 +48,7 @@ Options:
 Commands:
   init [options] [projectName]       Initializes a new project
   add [options] [targets...]         1. Adds components to your project
-                                     2. Adds hero chat codebase to your project
+                                     2. Adds HeroUI Chat codebase to your project
   upgrade [options] [components...]  Upgrades project components to the latest versions
   remove [options] [components...]   Removes components from the project
   list [options]                     Lists all components, showing status, descriptions, and versions
@@ -115,14 +115,14 @@ HeroUI CLI v0.2.1
 ### Add
 
 1. Add HeroUI components to your project.
-2. Add Hero Chat codebase to your project.
+2. Add HeroUI Chat codebase to your project.
 
 #### Features
 
 > 1. Auto add the missing required `dependencies` to your project
 > 2. Auto add the required `tailwindcss.config.js` configuration to your project
 > 3. Detect whether using pnpm, if so, add the required configuration to your `.npmrc` file
-> 4. Add Hero Chat codebase to your project
+> 4. Add HeroUI Chat codebase to your project
 
 ```bash
 heroui add [targets...] [options]
@@ -137,7 +137,7 @@ heroui add [targets...] [options]
 - `--prettier` [boolean] Add prettier format in the add content which required installed prettier - (default: `false`)
 - `--addApp` [boolean] Add App.tsx file content which required provider (default: `false`)
 - `-b --beta` [boolean] Add beta components (default: `false`)
-- `--directory` [string] Add hero chat codebase to a specific directory
+- `-d --directory` [string] Add HeroUI Chat codebase to a specific directory
 
 ##### Example
 
