@@ -37,7 +37,7 @@ import {getAutocompleteMultiselect} from 'src/prompts';
 
 export async function addAction(targets: string[], options: AddActionOptions) {
   if (isAddingHeroChatCodebase(targets)) {
-    // Add hero chat codebase
+    // Add HeroUI Chat codebase
     await addHeroChatCodebase(targets, options);
     process.exit(0);
   }
