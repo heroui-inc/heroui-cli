@@ -14,7 +14,7 @@ import pkg from '../package.json';
 import {addAction} from './actions/add-action';
 import {doctorAction} from './actions/doctor-action';
 import {envAction} from './actions/env-action';
-import {initAction} from './actions/init-action';
+import {initAction, templatesMap} from './actions/init-action';
 import {listAction} from './actions/list-action';
 import {removeAction} from './actions/remove-action';
 import {upgradeAction} from './actions/upgrade-action';
@@ -86,7 +86,10 @@ heroui
   .command('init')
   .description('Initializes a new project')
   .argument('[projectName]', 'Name of the project to initialize')
-  .option('-t --template [string]', 'Specify a template for the new project, e.g., app, pages')
+  .option(
+    '-t --template [string]',
+    `Specify a template for the new project, e.g. ${Object.keys(templatesMap).join(', ')}`
+  )
   .option('-p --package [string]', 'The package manager to use for the new project', 'npm')
   .action(initAction);
 
