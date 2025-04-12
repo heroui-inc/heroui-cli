@@ -81,7 +81,7 @@ export type HeroUIComponents = (Omit<HeroUIComponent, 'status'> & {
  * isBeta --> betaHeroUIComponents
  * isStable --> heroUIComponents
  */
-export function getComponentData() {
+export function getConditionComponentData() {
   if (store.beta) {
     return {
       components: store.betaHeroUIComponents,
