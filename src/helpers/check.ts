@@ -253,8 +253,8 @@ export function checkTailwind(
     const isDarkModeCorrect =
       darkMatch.some((darkMode) => darkMode.includes('class')) ||
       /darkMode:\s*["'`]class/.test(tailwindContent);
-    const isContentCorrect = contentMatch.some((content) =>
-      content.includes(tailwindRequired.content)
+    const isContentCorrect = contentMatch.some(
+      (content) => content.includes(tailwindRequired.content.replace('{js,ts,jsx,tsx}', '')) // Remove the suffix of the content for a better match
     );
     const isPluginsCorrect = pluginsMatch.some((plugins) =>
       tailwindRequired.checkPluginsRegex.test(plugins)
@@ -272,7 +272,7 @@ export function checkTailwind(
     let isHaveAllContent = false;
     const isContentCorrect = contentMatch.some((content) => {
       // Add tailwindRequired.content check to the contentMatch, cause it is all include in the individualContent
-      if (content.includes(tailwindRequired.content)) {
+      if (content.includes(tailwindRequired.content.replace('{js,ts,jsx,tsx}', ''))) {
         isHaveAllContent = true;
 
         return true;

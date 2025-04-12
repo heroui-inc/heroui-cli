@@ -1,0 +1,24 @@
+{
+  "name": "heroui-cli-test",
+  "type": "module",
+  "private": true,
+  "version": "1.0.0",
+  "description": "test for heroui-cli",
+  "main": "index.js",
+  "scripts": {
+    "test": "vitest",
+    "test:run": "vitest run"
+  },
+  "devDependencies": {
+    "vite": "latest",
+    "vite-tsconfig-paths": "5.1.4",
+    "vitest": "latest"
+  },
+  "keywords": [
+    "heroui",
+    "cli",
+    "test"
+  ],
+  "author": "HeroUI",
+  "license": "MIT"
+}
