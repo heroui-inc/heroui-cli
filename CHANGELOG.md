@@ -1,3 +1,27 @@
+## [1.2.2](https://github.com/heroui-inc/heroui-cli/compare/v1.2.1...v1.2.2) (2025-03-18)
+
+### Reverts
+
+- Revert "chore: remove trace components.json (#153)" (#154) ([5bcab33](https://github.com/heroui-inc/heroui-cli/commit/5bcab3327904d67920f6465eeba00d3dc7e3f3b2)), closes [#153](https://github.com/heroui-inc/heroui-cli/issues/153) [#154](https://github.com/heroui-inc/heroui-cli/issues/154)
+
+## [1.2.1](https://github.com/heroui-inc/heroui-cli/compare/v1.2.0...v1.2.1) (2025-03-18)
+
+### Bug Fixes
+
+- missing components json ([eab7ae0](https://github.com/heroui-inc/heroui-cli/commit/eab7ae0e00c05faf242f2e0e413577f413661cd0))
+
+# [1.2.0](https://github.com/heroui-inc/heroui-cli/compare/v1.1.0...v1.2.0) (2025-03-18)
+
+### Features
+
+- add action support chat codebase ([#146](https://github.com/heroui-inc/heroui-cli/issues/146)) ([8aa774d](https://github.com/heroui-inc/heroui-cli/commit/8aa774d7832541c6155dadad228f8017b7f3d406))
+
+# [1.1.0](https://github.com/heroui-inc/heroui-cli/compare/v1.0.0...v1.1.0) (2025-03-12)
+
+### Bug Fixes
+
+- upgrade all should upgrade all heroui packages ([#151](https://github.com/heroui-inc/heroui-cli/issues/151)) ([ef84d5b](https://github.com/heroui-inc/heroui-cli/commit/ef84d5b4bb2e52cc5f603cef47f5bf95a0760574))
+
 # [1.0.0](https://github.com/heroui-inc/heroui-cli/compare/v0.6.0...v1.0.0) (2025-01-18)
 
 # [0.6.0](https://github.com/heroui-inc/heroui-cli/compare/v0.5.4...v0.6.0) (2025-01-18)
