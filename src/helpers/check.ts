@@ -146,7 +146,7 @@ export async function checkRequiredContentInstalled<
   if (type === 'all') {
     const hasAllComponents = dependenciesKeys.has(HERO_UI);
 
-    if (hasAllComponents && hasFramerMotion && !peerDependenciesList.length) {
+    if (hasAllComponents && hasFramerMotion && hasTailwind && !peerDependenciesList.length) {
       return [true];
     }
     !hasAllComponents && result.push(beta ? `${HERO_UI}@${store.betaVersion}` : HERO_UI);
@@ -156,7 +156,13 @@ export async function checkRequiredContentInstalled<
     const hasSystemUI = dependenciesKeys.has(SYSTEM_UI);
     const hasThemeUI = dependenciesKeys.has(THEME_UI);
 
-    if (hasFramerMotion && hasSystemUI && hasThemeUI && !peerDependenciesList.length) {
+    if (
+      hasFramerMotion &&
+      hasSystemUI &&
+      hasThemeUI &&
+      hasTailwind &&
+      !peerDependenciesList.length
+    ) {
       return [true];
     }
     const betaSystemUI = await getBetaVersionData(SYSTEM_UI);
