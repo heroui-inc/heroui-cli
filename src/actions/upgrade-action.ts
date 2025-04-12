@@ -3,8 +3,8 @@ import type {AppendKeyValue} from '@helpers/type';
 import fs from 'node:fs';
 
 import {catchPnpmExec} from '@helpers/actions/upgrade/catch-pnpm-exec';
-import {getBetaVersion} from '@helpers/beta';
 import {checkIllegalComponents} from '@helpers/check';
+import {getConditionVersion} from '@helpers/condition-value';
 import {detect} from '@helpers/detect';
 import {exec} from '@helpers/exec';
 import {Logger} from '@helpers/logger';
@@ -18,7 +18,7 @@ import {resolver} from 'src/constants/path';
 import {HERO_UI} from 'src/constants/required';
 import {store} from 'src/constants/store';
 import {getAutocompleteMultiselect, getMultiselect, getSelect} from 'src/prompts';
-import {compareVersions, getLatestVersion} from 'src/scripts/helpers';
+import {compareVersions} from 'src/scripts/helpers';
 
 interface UpgradeActionOptions {
   packagePath?: string;
@@ -68,10 +68,7 @@ export async function upgradeAction(components: string[], options: UpgradeAction
 
   await Promise.all(
     currentComponents.map(async (component) => {
-      const latestVersion =
-        store.heroUIComponentsMap[component.name]?.version ||
-        (await getLatestVersion(component.package));
-      const mergedVersion = beta ? await getBetaVersion(component.package) : latestVersion;
+      const mergedVersion = await getConditionVersion(component.package);
       const compareResult = betaCompareVersions(component.version, mergedVersion, beta);
 
       transformComponents.push({
@@ -94,10 +91,11 @@ export async function upgradeAction(components: string[], options: UpgradeAction
   } else if (!components.length) {
     // If have the main heroui then add
     if (isHeroUIAll) {
+      const latestVersion = await getConditionVersion(HERO_UI);
       const herouiData = {
         isLatest:
-          compareVersions(store.latestVersion, transformPeerVersion(allDependencies[HERO_UI])) <= 0,
-        latestVersion: store.latestVersion,
+          compareVersions(latestVersion, transformPeerVersion(allDependencies[HERO_UI])) <= 0,
+        latestVersion,
         package: HERO_UI,
         version: transformPeerVersion(allDependencies[HERO_UI])
       } as TransformComponent;
