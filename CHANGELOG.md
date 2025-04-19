@@ -1,3 +1,15 @@
+## [1.2.3](https://github.com/heroui-inc/heroui-cli/compare/v1.2.2...v1.2.3) (2025-04-19)
+
+### Bug Fixes
+
+- add action tailwindcss version always install latest verion ([#144](https://github.com/heroui-inc/heroui-cli/issues/144)) ([29936b7](https://github.com/heroui-inc/heroui-cli/commit/29936b70940dda0e8b79fd33b13cf2c844fede16))
+- upgrade beta package wont upgrade @heroui/react package ([#156](https://github.com/heroui-inc/heroui-cli/issues/156)) ([ac29f7c](https://github.com/heroui-inc/heroui-cli/commit/ac29f7cd8ff50203ff3e07e7568318c1140f2145))
+
+### Features
+
+- add remix laravel template ([#127](https://github.com/heroui-inc/heroui-cli/issues/127)) ([2d57e3b](https://github.com/heroui-inc/heroui-cli/commit/2d57e3b801e0a62914eb91a62888b913f4a4cd42))
+- init test structure ([#147](https://github.com/heroui-inc/heroui-cli/issues/147)) ([4d27f97](https://github.com/heroui-inc/heroui-cli/commit/4d27f9770d90f0e4908866e5f5f72e544e7ef139))
+
 ## [1.2.2](https://github.com/heroui-inc/heroui-cli/compare/v1.2.1...v1.2.2) (2025-03-18)
 
 ### Reverts
