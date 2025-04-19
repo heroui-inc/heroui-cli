@@ -20,24 +20,35 @@ import {
   APP_DIR,
   APP_NAME,
   APP_REPO,
+  LARAVEL_DIR,
+  LARAVEL_NAME,
+  LARAVEL_REPO,
   PAGES_DIR,
   PAGES_NAME,
   PAGES_REPO,
+  REMIX_DIR,
+  REMIX_NAME,
+  REMIX_REPO,
   VITE_DIR,
   VITE_NAME,
   VITE_REPO
 } from '../../src/constants/templates';
 
 export interface InitActionOptions {
-  template?: 'app' | 'pages' | 'vite';
+  template?: 'app' | 'pages' | 'vite' | 'remix' | 'laravel';
   package?: Agent;
 }
 
 export const templatesMap: Record<Required<InitActionOptions>['template'], string> = {
   app: APP_NAME,
+  laravel: LARAVEL_NAME,
   pages: PAGES_NAME,
+  remix: REMIX_NAME,
   vite: VITE_NAME
 };
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+declare let _exhaustiveCheck: never;
 
 export async function initAction(_projectName: string, options: InitActionOptions) {
   const {package: _package = 'npm', template: _template} = options;
@@ -72,6 +83,15 @@ export async function initAction(_projectName: string, options: InitActionOption
   } else if (template === 'vite') {
     await generateTemplate(VITE_REPO);
     renameTemplate(VITE_DIR, projectName);
+  } else if (template === 'remix') {
+    await generateTemplate(REMIX_REPO);
+    renameTemplate(REMIX_DIR, projectName);
+  } else if (template === 'laravel') {
+    await generateTemplate(LARAVEL_REPO);
+    renameTemplate(LARAVEL_DIR, projectName);
+  } else {
+    // If add new template and not update this template, it will be exhaustive check error
+    _exhaustiveCheck = template;
   }
 
   const npmrcFile = resolver(`${ROOT}/${projectName}/.npmrc`);
@@ -132,19 +152,29 @@ export type GenerateOptions<T, Last = GetUnionLastValue<T>> = [T] extends [never
 async function getTableInfo(packageName?: string, projectName?: string, template?: string) {
   const options: GenerateOptions<Exclude<InitActionOptions['template'], undefined>> = [
     {
-      hint: 'A Next.js 14 with app directory template pre-configured with HeroUI (v2) and Tailwind CSS.',
-      label: chalk.gray('App'),
+      hint: 'A Next.js 15 with app directory template pre-configured with HeroUI (v2) and Tailwind CSS.',
+      label: 'App',
       value: 'app'
     },
     {
-      hint: 'A Next.js 14 with pages directory template pre-configured with HeroUI (v2) and Tailwind CSS.',
-      label: chalk.gray('Pages'),
+      hint: 'A Next.js 15 with pages directory template pre-configured with HeroUI (v2) and Tailwind CSS.',
+      label: 'Pages',
       value: 'pages'
     },
     {
       hint: 'A Vite template pre-configured with HeroUI (v2) and Tailwind CSS.',
-      label: chalk.gray('Vite'),
+      label: 'Vite',
       value: 'vite'
+    },
+    {
+      hint: 'A Remix template pre-configured with HeroUI (v2) and Tailwind CSS.',
+      label: 'Remix',
+      value: 'remix'
+    },
+    {
+      hint: 'A Laravel template pre-configured with HeroUI (v2) and Tailwind CSS.',
+      label: 'Laravel',
+      value: 'laravel'
     }
   ];
 
@@ -186,6 +216,6 @@ async function getTableInfo(packageName?: string, projectName?: string, template
   return {
     packageName: packageName as Agent,
     projectName,
-    template
+    template: template as Exclude<InitActionOptions['template'], undefined>
   };
 }
