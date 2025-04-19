@@ -9,11 +9,11 @@ import type {SAFE_ANY} from './type';
 import chalk from 'chalk';
 
 import {HERO_UI, THEME_UI} from 'src/constants/required';
-import {store} from 'src/constants/store';
 import {getCacheExecData} from 'src/scripts/cache/cache';
 import {type Dependencies, compareVersions, getLatestVersion} from 'src/scripts/helpers';
 
 import {getLibsData} from './actions/upgrade/get-libs-data';
+import {getConditionVersion} from './condition-value';
 import {Logger} from './logger';
 import {colorMatchRegex, outputBox} from './output-info';
 import {
@@ -65,7 +65,8 @@ export async function upgrade<T extends Upgrade = Upgrade>(options: ExtractUpgra
     ...missingDepList
   ].filter(
     (upgradeOption, index, arr) =>
-      index === arr.findIndex((c) => c.package === upgradeOption.package)
+      index === arr.findIndex((c) => c.package === upgradeOption.package) &&
+      !outputList.some((c) => c.package === upgradeOption.package)
   );
 
   // Output dependencies box
@@ -252,7 +253,7 @@ export async function getAllOutputData(
     };
   }
 
-  const latestVersion = store.latestVersion;
+  const latestVersion = await getConditionVersion(HERO_UI);
 
   const {currentVersion, versionMode} = getVersionAndMode(allDependencies, HERO_UI);
   const colorVersion = getColorVersion(currentVersion, latestVersion);
