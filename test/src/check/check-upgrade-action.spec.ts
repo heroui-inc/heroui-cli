@@ -508,7 +508,7 @@ describe('Upgrade functionality with beta flag', () => {
       const missingDep = Array.from(_missingDepSet)[0];
 
       if (missingDep) {
-        // 添加非空检查
+        // Add non-empty check
         expect(missingDep.name).toBe('missing-package');
         expect(missingDep.version).toBe('^2.0.0');
       }
@@ -752,41 +752,41 @@ describe('Upgrade functionality with beta flag', () => {
         upgradeOptionList: mockUpgradeOptionList
       });
 
-      // 验证结果应该包含所有非最新的包且无重复
+      // Verify that the result should contain all non-latest packages without duplicates
       const uniquePackages = new Set(result.map((pkg) => pkg.package));
 
       expect(uniquePackages.size).toBe(result.length);
 
-      // 验证结果中应该有以下包
+      // Verify that the result should include the following packages
       expect(result.some((pkg) => pkg.package === '@heroui/react')).toBe(true);
       expect(result.some((pkg) => pkg.package === 'lib-package')).toBe(true);
       expect(result.some((pkg) => pkg.package === 'react')).toBe(true);
       expect(result.some((pkg) => pkg.package === 'missing-package')).toBe(true);
 
-      // 验证beta版本
+      // Verify beta version
       const reactPkg = result.find((pkg) => pkg.package === 'react');
 
       expect(reactPkg?.latestVersion).toContain('beta');
     });
 
     it('should correctly count major, minor, and patch updates', async () => {
-      // 对outputUpgradeCount的模拟实现
+      // Mock implementation for outputUpgradeCount
       const mockOutputUpgradeCount = vi.fn().mockImplementation(() => {
         return {major: 2, minor: 1, patch: 1};
       });
 
-      // 添加模拟函数到upgradeModule
+      // Add mock function to upgradeModule
       Object.defineProperty(upgradeModule, 'outputUpgradeCount', {
         value: mockOutputUpgradeCount,
         writable: true
       });
 
-      // 直接调用模拟的outputUpgradeCount函数，不传递参数
+      // Directly call the mock outputUpgradeCount function without passing parameters
       const result = mockOutputUpgradeCount();
 
-      expect(result.major).toBe(2); // 主要版本更新 + 缺失的依赖
-      expect(result.minor).toBe(1); // 次要版本更新
-      expect(result.patch).toBe(1); // 补丁版本更新
+      expect(result.major).toBe(2); // Major version update + missing dependencies
+      expect(result.minor).toBe(1); // Minor version update
+      expect(result.patch).toBe(1); // Patch version update
     });
 
     it('should correctly handle beta versions in outputUpgradeCount', async () => {
