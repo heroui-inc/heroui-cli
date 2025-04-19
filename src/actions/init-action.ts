@@ -173,7 +173,7 @@ async function getTableInfo(packageName?: string, projectName?: string, template
     },
     {
       hint: 'A Laravel template pre-configured with HeroUI (v2) and Tailwind CSS.',
-      label: 'laravel',
+      label: 'Laravel',
       value: 'laravel'
     }
   ];
