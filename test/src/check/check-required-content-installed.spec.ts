@@ -8,6 +8,7 @@ import {
   THEME_UI
 } from '../../../src/constants/required';
 import {store} from '../../../src/constants/store';
+import * as peerPackageVersionHelper from '../../../src/helpers/actions/add/get-peer-pakcage-version';
 import * as betaHelper from '../../../src/helpers/beta';
 import {checkRequiredContentInstalled} from '../../../src/helpers/check';
 import * as upgradeHelper from '../../../src/helpers/upgrade';
@@ -19,6 +20,9 @@ describe('checkRequiredContentInstalled', () => {
 
   // Mock getBetaVersionData
   vi.spyOn(betaHelper, 'getBetaVersionData').mockResolvedValue('0.0.0-beta.1');
+
+  // Mock getPeerPackageVersion
+  vi.spyOn(peerPackageVersionHelper, 'getPeerPackageVersion').mockReturnValue('3.3.0');
 
   describe('"all" type checks', () => {
     it('should return [true] when all required dependencies are installed', async () => {
@@ -32,7 +36,29 @@ describe('checkRequiredContentInstalled', () => {
       const dependencies = new Set([HERO_UI]); // Missing FRAMER_MOTION and TAILWINDCSS
       const result = await checkRequiredContentInstalled('all', dependencies);
 
-      expect(result).toEqual([false, FRAMER_MOTION, TAILWINDCSS]);
+      expect(result).toEqual([false, FRAMER_MOTION, `${TAILWINDCSS}@3.3.0`]);
+      expect(peerPackageVersionHelper.getPeerPackageVersion).toHaveBeenCalledWith(TAILWINDCSS);
+    });
+
+    it('should include the peer version with Tailwind when missing', async () => {
+      vi.clearAllMocks();
+      vi.spyOn(peerPackageVersionHelper, 'getPeerPackageVersion').mockReturnValue('3.4.0');
+
+      const dependencies = new Set([HERO_UI, FRAMER_MOTION, TAILWINDCSS]);
+      const result = await checkRequiredContentInstalled('all', dependencies);
+
+      expect(result).toEqual([true]);
+
+      const dependenciesNoTailwind = new Set([HERO_UI, FRAMER_MOTION]); // Missing TAILWINDCSS
+      const resultNoTailwind = await checkRequiredContentInstalled('all', dependenciesNoTailwind);
+
+      expect(resultNoTailwind).toEqual([false, `${TAILWINDCSS}@3.4.0`]);
+
+      const dependencies2 = new Set([FRAMER_MOTION]); // Missing HERO_UI and TAILWINDCSS
+      const result2 = await checkRequiredContentInstalled('all', dependencies2);
+
+      expect(result2).toEqual([false, HERO_UI, `${TAILWINDCSS}@3.4.0`]);
+      expect(peerPackageVersionHelper.getPeerPackageVersion).toHaveBeenCalledWith(TAILWINDCSS);
     });
   });
 
@@ -45,15 +71,46 @@ describe('checkRequiredContentInstalled', () => {
     });
 
     it('should return missing dependencies', async () => {
+      vi.clearAllMocks();
+      vi.spyOn(peerPackageVersionHelper, 'getPeerPackageVersion').mockReturnValue('3.3.0');
+
       const dependencies = new Set([FRAMER_MOTION]); // Missing SYSTEM_UI, THEME_UI, and TAILWINDCSS
       const result = await checkRequiredContentInstalled('partial', dependencies);
 
-      expect(result).toEqual([false, SYSTEM_UI, THEME_UI, TAILWINDCSS]);
+      expect(result).toEqual([false, SYSTEM_UI, THEME_UI, `${TAILWINDCSS}@3.3.0`]);
+      expect(peerPackageVersionHelper.getPeerPackageVersion).toHaveBeenCalledWith(TAILWINDCSS);
+    });
+
+    it('should include the peer version with Tailwind when missing in partial mode', async () => {
+      vi.clearAllMocks();
+      vi.spyOn(peerPackageVersionHelper, 'getPeerPackageVersion').mockReturnValue('3.5.0');
+
+      const dependencies = new Set([FRAMER_MOTION, SYSTEM_UI, THEME_UI, TAILWINDCSS]);
+      const result = await checkRequiredContentInstalled('partial', dependencies);
+
+      expect(result).toEqual([true]);
+
+      const dependenciesNoTailwind = new Set([FRAMER_MOTION, SYSTEM_UI, THEME_UI]); // Missing TAILWINDCSS
+      const resultNoTailwind = await checkRequiredContentInstalled(
+        'partial',
+        dependenciesNoTailwind
+      );
+
+      expect(resultNoTailwind).toEqual([false, `${TAILWINDCSS}@3.5.0`]);
+
+      const dependencies2 = new Set([FRAMER_MOTION, THEME_UI]); // Missing SYSTEM_UI and TAILWINDCSS
+      const result2 = await checkRequiredContentInstalled('partial', dependencies2);
+
+      expect(result2).toEqual([false, SYSTEM_UI, `${TAILWINDCSS}@3.5.0`]);
+      expect(peerPackageVersionHelper.getPeerPackageVersion).toHaveBeenCalledWith(TAILWINDCSS);
     });
   });
 
   describe('beta version handling', () => {
     it('should include beta versions when beta flag is true', async () => {
+      vi.clearAllMocks();
+      vi.spyOn(peerPackageVersionHelper, 'getPeerPackageVersion').mockReturnValue('3.3.0');
+
       const dependencies = new Set([]);
       const result = await checkRequiredContentInstalled('all', dependencies, {beta: true});
 
@@ -61,11 +118,15 @@ describe('checkRequiredContentInstalled', () => {
         false,
         `${HERO_UI}@${store.betaVersion}`,
         FRAMER_MOTION,
-        TAILWINDCSS
+        `${TAILWINDCSS}@3.3.0`
       ]);
+      expect(peerPackageVersionHelper.getPeerPackageVersion).toHaveBeenCalledWith(TAILWINDCSS);
     });
 
     it('should include beta versions for all dependencies in "all" type', async () => {
+      vi.clearAllMocks();
+      vi.spyOn(peerPackageVersionHelper, 'getPeerPackageVersion').mockReturnValue('3.3.0');
+
       const dependencies = new Set([FRAMER_MOTION]);
       const betaSystemUI = '0.0.0-beta.1';
       const betaThemeUI = '0.0.0-beta.1';
@@ -76,10 +137,14 @@ describe('checkRequiredContentInstalled', () => {
 
       const result = await checkRequiredContentInstalled('all', dependencies, {beta: true});
 
-      expect(result).toEqual([false, `${HERO_UI}@${store.betaVersion}`, TAILWINDCSS]);
+      expect(result).toEqual([false, `${HERO_UI}@${store.betaVersion}`, `${TAILWINDCSS}@3.3.0`]);
+      expect(peerPackageVersionHelper.getPeerPackageVersion).toHaveBeenCalledWith(TAILWINDCSS);
     });
 
     it('should include beta versions for all dependencies in "partial" type', async () => {
+      vi.clearAllMocks();
+      vi.spyOn(peerPackageVersionHelper, 'getPeerPackageVersion').mockReturnValue('3.3.0');
+
       const dependencies = new Set([FRAMER_MOTION]);
       const betaSystemUI = '0.0.0-beta.1';
       const betaThemeUI = '0.0.0-beta.1';
@@ -94,8 +159,9 @@ describe('checkRequiredContentInstalled', () => {
         false,
         `${SYSTEM_UI}@${betaSystemUI}`,
         `${THEME_UI}@${betaThemeUI}`,
-        TAILWINDCSS
+        `${TAILWINDCSS}@3.3.0`
       ]);
+      expect(peerPackageVersionHelper.getPeerPackageVersion).toHaveBeenCalledWith(TAILWINDCSS);
     });
   });
 
@@ -133,6 +199,9 @@ describe('checkRequiredContentInstalled', () => {
     });
 
     it('should handle beta versions with peer dependencies', async () => {
+      vi.clearAllMocks();
+      vi.spyOn(peerPackageVersionHelper, 'getPeerPackageVersion').mockReturnValue('3.3.0');
+
       const dependencies = new Set([FRAMER_MOTION]);
       const mockAllDependencies = {
         '@heroui/react': '1.0.0',
@@ -167,9 +236,40 @@ describe('checkRequiredContentInstalled', () => {
         false,
         `${SYSTEM_UI}@${betaSystemUI}`,
         `${THEME_UI}@${betaThemeUI}`,
-        TAILWINDCSS,
+        `${TAILWINDCSS}@3.3.0`,
         'react@18.0.0'
       ]);
+      expect(peerPackageVersionHelper.getPeerPackageVersion).toHaveBeenCalledWith(TAILWINDCSS);
+    });
+  });
+
+  describe('getPeerPackageVersion integration', () => {
+    it('should use different Tailwind versions based on getPeerPackageVersion', async () => {
+      vi.clearAllMocks();
+      vi.spyOn(peerPackageVersionHelper, 'getPeerPackageVersion').mockReturnValue('3.0.0');
+
+      const dependencies = new Set([]);
+      const result = await checkRequiredContentInstalled('all', dependencies);
+
+      expect(result).toEqual([false, HERO_UI, FRAMER_MOTION, `${TAILWINDCSS}@3.0.0`]);
+
+      vi.clearAllMocks();
+      vi.spyOn(peerPackageVersionHelper, 'getPeerPackageVersion').mockReturnValue('3.1.0');
+
+      const result2 = await checkRequiredContentInstalled('partial', dependencies);
+
+      expect(result2).toEqual([false, FRAMER_MOTION, SYSTEM_UI, THEME_UI, `${TAILWINDCSS}@3.1.0`]);
+    });
+
+    it('should handle empty version returned from getPeerPackageVersion', async () => {
+      vi.clearAllMocks();
+      vi.spyOn(peerPackageVersionHelper, 'getPeerPackageVersion').mockReturnValue('');
+
+      const dependencies = new Set([]);
+      const result = await checkRequiredContentInstalled('all', dependencies);
+
+      expect(result).toContainEqual(`${TAILWINDCSS}@`);
+      expect(peerPackageVersionHelper.getPeerPackageVersion).toHaveBeenCalledWith(TAILWINDCSS);
     });
   });
 });
