@@ -16,6 +16,7 @@ export const agents = AGENTS;
 
 // the order here matters, more specific one comes first
 export const LOCKS: Record<string, Agent> = {
+  'bun.lock': 'bun',
   'bun.lockb': 'bun',
   'npm-shrinkwrap.json': 'npm',
   'package-lock.json': 'npm',
