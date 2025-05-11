@@ -3,7 +3,7 @@
   "private": false,
   "type": "module",
   "license": "MIT",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "homepage": "https://github.com/heroui-inc/heroui-cli#readme",
   "description": "A CLI tool that unlocks seamless HeroUI integration (Previously NextUI CLI)",
   "keywords": [
