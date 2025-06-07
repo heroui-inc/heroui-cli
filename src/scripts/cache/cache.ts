@@ -31,6 +31,9 @@ export function initCache(_noCache = noCache) {
 }
 
 export function getCacheData(): CacheData {
+  if (!existsSync(CACHE_DIR)) {
+    initCache();
+  }
   const data = readFileSync(CACHE_PATH, 'utf8');
 
   return JSON.parse(data);
