@@ -117,13 +117,15 @@ export async function removeAction(components: string[], options: RemoveOptionsA
 
   const type: SAFE_ANY = isHeroUIAll ? 'all' : 'partial';
 
-  removeTailwind(type, {
-    currentComponents,
-    isHeroUIAll,
-    isPnpm: packageManager === 'pnpm',
-    prettier,
-    tailwindPath: tailwindPath!
-  });
+  if (tailwindPath) {
+    removeTailwind(type, {
+      currentComponents,
+      isHeroUIAll,
+      isPnpm: packageManager === 'pnpm',
+      prettier,
+      tailwindPath
+    });
+  }
 
   /** ======================== Step 3 Remove the pnpm ======================== */
   if (!currentComponents.length && !isHeroUIAll) {
