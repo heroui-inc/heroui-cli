@@ -374,7 +374,7 @@ heroui doctor [options]
 - `-tw` `--tailwindPath` [string] The path to the tailwind.config file file
 - `-app` `--appPath` [string] The path to the App.tsx file
 - `-ca` `--checkApp` [boolean] Open check App (default: `true`)
-- `-ct` `--checkTailwind` [boolean] Open check tailwind.config file (default: `true`)
+- `-ct` `--checkTailwind` [boolean] Open check tailwind.config file (default: `true` if tailwind.config file is found)
 - `-cp` `--checkPnpm` [boolean] Open check Pnpm (default: `true`)
 
 #### Example
