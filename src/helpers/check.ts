@@ -135,7 +135,6 @@ export async function checkRequiredContentInstalled<
   const peerDependenciesList: string[] = [];
   const hasFramerMotion = dependenciesKeys.has(FRAMER_MOTION);
   const hasTailwind = dependenciesKeys.has(TAILWINDCSS);
-  const minTailwindVersion = `${TAILWINDCSS}@${getPeerPackageVersion(TAILWINDCSS)}`;
 
   if (peerDependencies) {
     const peerDepList = await checkPeerDependencies({allDependencies, packageNames});
@@ -151,7 +150,7 @@ export async function checkRequiredContentInstalled<
     }
     !hasAllComponents && result.push(beta ? `${HERO_UI}@${store.betaVersion}` : HERO_UI);
     !hasFramerMotion && result.push(FRAMER_MOTION);
-    !hasTailwind && result.push(minTailwindVersion);
+    !hasTailwind && result.push(`${TAILWINDCSS}@${getPeerPackageVersion(TAILWINDCSS)}`);
   } else if (type === 'partial') {
     const hasSystemUI = dependenciesKeys.has(SYSTEM_UI);
     const hasThemeUI = dependenciesKeys.has(THEME_UI);
@@ -171,7 +170,7 @@ export async function checkRequiredContentInstalled<
     !hasFramerMotion && result.push(FRAMER_MOTION);
     !hasSystemUI && result.push(beta ? `${SYSTEM_UI}@${betaSystemUI}` : SYSTEM_UI);
     !hasThemeUI && result.push(beta ? `${THEME_UI}@${betaThemeUI}` : THEME_UI);
-    !hasTailwind && result.push(minTailwindVersion);
+    !hasTailwind && result.push(`${TAILWINDCSS}@${getPeerPackageVersion(TAILWINDCSS)}`);
   }
 
   return [false, ...result, ...(peerDependencies ? peerDependenciesList : [])];
