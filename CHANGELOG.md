@@ -1,3 +1,9 @@
+## [1.2.5](https://github.com/heroui-inc/heroui-cli/compare/v1.2.4...v1.2.5) (2026-01-07)
+
+### Bug Fixes
+
+- **helpers:** reduce of empty array with no initial value ([#170](https://github.com/heroui-inc/heroui-cli/issues/170)) ([d19cb3c](https://github.com/heroui-inc/heroui-cli/commit/d19cb3ceba76ca9c67ae55eb8d4fe012413824b7))
+
 ## [1.2.4](https://github.com/heroui-inc/heroui-cli/compare/v1.2.2...v1.2.4) (2026-01-07)
 
 ### Bug Fixes
