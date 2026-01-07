@@ -32,12 +32,12 @@ export interface ProblemRecord {
 
 export async function doctorAction(options: DoctorActionOptions) {
   const {
+    tailwindPath = findFiles('**/tailwind.config.(j|t)s'),
     appPath = findFiles('**/App.(j|t)sx')[0],
     checkApp: _enableCheckApp = false,
     checkPnpm: _enableCheckPnpm = true,
-    checkTailwind: _enableCheckTailwind = true,
-    packagePath = resolver('package.json'),
-    tailwindPath = findFiles('**/tailwind.config.(j|t)s')
+    checkTailwind: _enableCheckTailwind = !!tailwindPath[0],
+    packagePath = resolver('package.json')
   } = options;
   const enableCheckApp = transformOption(_enableCheckApp);
   const enableCheckPnpm = transformOption(_enableCheckPnpm);

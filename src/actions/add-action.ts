@@ -25,14 +25,8 @@ import {Logger} from '@helpers/logger';
 import {getPackageInfo} from '@helpers/package';
 import {findFiles, strip} from '@helpers/utils';
 import {resolver} from 'src/constants/path';
-import {
-  DOCS_PROVIDER_SETUP,
-  HERO_UI,
-  individualTailwindRequired,
-  pnpmRequired
-} from 'src/constants/required';
+import {DOCS_PROVIDER_SETUP, HERO_UI, pnpmRequired} from 'src/constants/required';
 import {getStoreSync, store} from 'src/constants/store';
-import {tailwindTemplate} from 'src/constants/templates';
 import {getAutocompleteMultiselect} from 'src/prompts';
 
 export async function addAction(targets: string[], options: AddActionOptions) {
@@ -181,16 +175,7 @@ export async function addAction(targets: string[], options: AddActionOptions) {
 
   const isPnpm = currentPkgManager === 'pnpm';
 
-  if (!tailwindPath) {
-    const individualContent = individualTailwindRequired.content(currentComponents, isPnpm);
-    const template = tailwindTemplate(type, individualContent);
-    const tailwindPath = resolver('tailwind.config.js');
-
-    writeFileSync(tailwindPath, template, 'utf-8');
-
-    Logger.newLine();
-    Logger.info(`Tailwind CSS configuration file created at: ${tailwindPath}`);
-  } else {
+  if (tailwindPath) {
     const [, ...errorInfoList] = checkTailwind(
       type,
       tailwindPath,

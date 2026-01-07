@@ -155,7 +155,7 @@ export async function autoUpdateComponents(latestVersion?: string, betaVersion?:
 
   const [components, betaComponents] = await Promise.all([
     downloadFile(url),
-    getStoreSync('beta') && betaVersion
+    getStoreSync('beta') && betaVersion && betaVersion[0] !== '3'
       ? downloadFile(getUnpkgUrl(betaVersion), false)
       : Promise.resolve([])
   ]);
