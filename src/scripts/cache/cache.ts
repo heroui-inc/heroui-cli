@@ -22,16 +22,17 @@ export interface CacheData {
 export function initCache(_noCache = noCache) {
   noCache = !!_noCache;
 
-  const isExistCache = existsSync(CACHE_DIR);
+  if (!existsSync(CACHE_DIR)) {
+    mkdirSync(CACHE_DIR, {recursive: true});
+  }
 
-  if (isExistCache) return;
-
-  mkdirSync(CACHE_DIR, {recursive: true});
-  writeFileSync(CACHE_PATH, JSON.stringify({}), 'utf8');
+  if (!existsSync(CACHE_PATH)) {
+    writeFileSync(CACHE_PATH, JSON.stringify({}), 'utf8');
+  }
 }
 
 export function getCacheData(): CacheData {
-  if (!existsSync(CACHE_DIR)) {
+  if (!existsSync(CACHE_DIR) || !existsSync(CACHE_PATH)) {
     initCache();
   }
   const data = readFileSync(CACHE_PATH, 'utf8');
