@@ -102,7 +102,9 @@ heroui.hook('preAction', async (command) => {
     const heroUIComponentsBeta = (await getComponents()).betaComponents;
 
     initStoreComponentsData({beta: false, heroUIComponents: heroUIComponents});
-    store.beta && initStoreComponentsData({beta: true, heroUIComponents: heroUIComponentsBeta});
+    if (store.beta) {
+      initStoreComponentsData({beta: true, heroUIComponents: heroUIComponentsBeta});
+    }
   }
 
   const [cliLatestVersion] = await Promise.all([getStore('cliLatestVersion')]);
