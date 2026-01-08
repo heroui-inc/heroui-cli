@@ -8,7 +8,7 @@ import {
   THEME_UI
 } from '../../../src/constants/required';
 import {store} from '../../../src/constants/store';
-import * as peerPackageVersionHelper from '../../../src/helpers/actions/add/get-peer-pakcage-version';
+import * as peerPackageVersionHelper from '../../../src/helpers/actions/add/get-peer-package-version';
 import * as betaHelper from '../../../src/helpers/beta';
 import {checkRequiredContentInstalled} from '../../../src/helpers/check';
 import * as upgradeHelper from '../../../src/helpers/upgrade';

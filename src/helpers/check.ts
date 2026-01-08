@@ -22,7 +22,7 @@ import {
 import {store} from 'src/constants/store';
 import {compareVersions} from 'src/scripts/helpers';
 
-import {getPeerPackageVersion} from './actions/add/get-peer-pakcage-version';
+import {getPeerPackageVersion} from './actions/add/get-peer-package-version';
 import {getBetaVersionData} from './beta';
 import {Logger} from './logger';
 import {getMatchArray, getMatchImport} from './match';
