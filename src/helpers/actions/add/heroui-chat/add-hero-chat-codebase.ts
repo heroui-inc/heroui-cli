@@ -1,3 +1,5 @@
+import type {AddOptions} from '@helpers/type';
+
 import fs from 'node:fs';
 import {join} from 'node:path';
 
@@ -16,17 +18,6 @@ import {getCodeBaseFiles} from './get-codebase-files';
 import {fetchAllRelatedFiles} from './get-related-imports';
 import {writeFilesWithMkdir} from './write-files';
 
-export interface AddActionOptions {
-  all?: boolean;
-  prettier?: boolean;
-  packagePath?: string;
-  tailwindPath?: string;
-  appPath?: string;
-  addApp?: boolean;
-  beta?: boolean;
-  directory: string;
-}
-
 const httpRegex = /^https?:\/\//;
 const APP_FILE = 'App.tsx';
 
@@ -34,7 +25,7 @@ export function isAddingHeroChatCodebase(targets: string[]) {
   return targets.some((target) => httpRegex.test(target));
 }
 
-export async function addHeroChatCodebase(targets: string[], options: AddActionOptions) {
+export async function addHeroChatCodebase(targets: string[], options: AddOptions) {
   p.intro(chalk.cyan('Starting to add HeroUI Chat codebase'));
 
   const directory = resolve(process.cwd(), options.directory ?? (await getDirectoryClack()));
