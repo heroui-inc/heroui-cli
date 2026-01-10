@@ -1,5 +1,5 @@
 import type {Agent} from '@helpers/detect';
-import type {GetUnionLastValue} from '@helpers/type';
+import type {GetUnionLastValue, InitOptions} from '@helpers/type';
 
 import {existsSync, renameSync} from 'node:fs';
 
@@ -34,12 +34,7 @@ import {
   VITE_REPO
 } from '../../src/constants/templates';
 
-export interface InitActionOptions {
-  template?: 'app' | 'pages' | 'vite' | 'remix' | 'laravel';
-  package?: Agent;
-}
-
-export const templatesMap: Record<Required<InitActionOptions>['template'], string> = {
+export const templatesMap: Record<Required<InitOptions>['template'], string> = {
   app: APP_NAME,
   laravel: LARAVEL_NAME,
   pages: PAGES_NAME,
@@ -50,7 +45,7 @@ export const templatesMap: Record<Required<InitActionOptions>['template'], strin
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 declare let _exhaustiveCheck: never;
 
-export async function initAction(_projectName: string, options: InitActionOptions) {
+export async function initAction(_projectName: string, options: InitOptions) {
   const {package: _package = 'npm', template: _template} = options;
 
   /** ======================== Check invalid options ======================== */
@@ -150,7 +145,7 @@ export type GenerateOptions<T, Last = GetUnionLastValue<T>> = [T] extends [never
     ];
 
 async function getTableInfo(packageName?: string, projectName?: string, template?: string) {
-  const options: GenerateOptions<Exclude<InitActionOptions['template'], undefined>> = [
+  const options: GenerateOptions<Exclude<InitOptions['template'], undefined>> = [
     {
       hint: 'A Next.js 15 with app directory template pre-configured with HeroUI (v2) and Tailwind CSS.',
       label: 'App',
@@ -187,7 +182,7 @@ async function getTableInfo(packageName?: string, projectName?: string, template
   projectName = (await textClack({
     initialValue: projectName ?? templatesMap[template],
     message: 'New project name (Enter to skip with default name)',
-    placeholder: projectName ?? templatesMap[template]
+    placeholder: templatesMap[template]
   })) as string;
 
   packageName = (await selectClack({
@@ -216,6 +211,6 @@ async function getTableInfo(packageName?: string, projectName?: string, template
   return {
     packageName: packageName as Agent,
     projectName,
-    template: template as Exclude<InitActionOptions['template'], undefined>
+    template: template as Exclude<InitOptions['template'], undefined>
   };
 }

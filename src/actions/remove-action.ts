@@ -1,5 +1,5 @@
 /* eslint-disable no-var */
-import type {SAFE_ANY} from '@helpers/type';
+import type {RemoveOptions, SAFE_ANY} from '@helpers/type';
 
 import {existsSync, readFileSync, writeFileSync} from 'node:fs';
 
@@ -26,14 +26,7 @@ import {
 } from 'src/constants/required';
 import {getAutocompleteMultiselect, getSelect} from 'src/prompts';
 
-interface RemoveOptionsAction {
-  packagePath: string;
-  all?: boolean;
-  tailwindPath?: string;
-  prettier?: boolean;
-}
-
-export async function removeAction(components: string[], options: RemoveOptionsAction) {
+export async function removeAction(components: string[], options: RemoveOptions) {
   const {
     all = false,
     packagePath = resolver('package.json'),
@@ -103,8 +96,8 @@ export async function removeAction(components: string[], options: RemoveOptionsA
 
   if (!filterComponents.length) {
     // Remove the selected components if not components leave then remove the theme-ui and system-ui
-    allDependencies[THEME_UI] && removeDepList.push(THEME_UI);
-    allDependencies[SYSTEM_UI] && removeDepList.push(SYSTEM_UI);
+    if (allDependencies[THEME_UI]) removeDepList.push(THEME_UI);
+    if (allDependencies[SYSTEM_UI]) removeDepList.push(SYSTEM_UI);
   }
 
   await removeDependencies(removeDepList, packageManager);

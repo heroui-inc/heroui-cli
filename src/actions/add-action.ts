@@ -1,12 +1,10 @@
-/* eslint-disable no-var */
-import type {SAFE_ANY} from '@helpers/type';
+import type {AddOptions, SAFE_ANY} from '@helpers/type';
 
 import {existsSync, writeFileSync} from 'node:fs';
 
 import chalk from 'chalk';
 
 import {
-  type AddActionOptions,
   addHeroChatCodebase,
   isAddingHeroChatCodebase
 } from '@helpers/actions/add/heroui-chat/add-hero-chat-codebase';
@@ -29,7 +27,7 @@ import {DOCS_PROVIDER_SETUP, HERO_UI, pnpmRequired} from 'src/constants/required
 import {getStoreSync, store} from 'src/constants/store';
 import {getAutocompleteMultiselect} from 'src/prompts';
 
-export async function addAction(targets: string[], options: AddActionOptions) {
+export async function addAction(targets: string[], options: AddOptions) {
   if (isAddingHeroChatCodebase(targets)) {
     // Add HeroUI Chat codebase
     await addHeroChatCodebase(targets, options);
@@ -45,7 +43,9 @@ export async function addAction(targets: string[], options: AddActionOptions) {
     tailwindPath = findFiles('**/tailwind.config.(j|t)s')[0]
   } = options;
 
-  var {allDependencies, allDependenciesKeys, currentComponents} = getPackageInfo(packagePath);
+  let packageInfo = getPackageInfo(packagePath);
+  const {allDependencies} = packageInfo;
+  let {allDependenciesKeys, currentComponents} = packageInfo;
   const prettier = options.prettier ?? allDependenciesKeys.has('prettier');
 
   const isHeroUIAll = !!allDependencies[HERO_UI];
@@ -81,7 +81,10 @@ export async function addAction(targets: string[], options: AddActionOptions) {
   }
 
   // Check whether have added the HeroUI components
-  var {allDependenciesKeys, currentComponents} = getPackageInfo(packagePath);
+  packageInfo = getPackageInfo(packagePath);
+
+  allDependenciesKeys = packageInfo.allDependenciesKeys;
+  currentComponents = packageInfo.currentComponents;
 
   const currentComponentsKeys = currentComponents.map((c) => c.name);
   const filterCurrentComponents = targets.filter(
@@ -168,7 +171,10 @@ export async function addAction(targets: string[], options: AddActionOptions) {
   }
 
   // After install the required dependencies, get the latest package information
-  var {allDependenciesKeys, currentComponents} = getPackageInfo(packagePath);
+  packageInfo = getPackageInfo(packagePath);
+
+  allDependenciesKeys = packageInfo.allDependenciesKeys;
+  currentComponents = packageInfo.currentComponents;
 
   /** ======================== Step 2 Tailwind CSS Setup ======================== */
   const type: SAFE_ANY = all ? 'all' : 'partial';
