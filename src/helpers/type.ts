@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import type {Agent} from './detect';
 import type {HeroUIComponentsMap, StoreKeys} from 'src/constants/store';
 import type {Components} from 'src/scripts/helpers';
 
@@ -11,6 +12,61 @@ export type PascalCase<T extends string> = T extends `${infer F}-${infer R}`
   : Capitalize<T>;
 
 export type SAFE_ANY = any;
+
+export interface CommandOptions {
+  packagePath?: string;
+  tailwindPath?: string;
+  appPath?: string;
+  prettier?: boolean;
+  all?: boolean;
+  beta?: boolean;
+  debug?: boolean;
+}
+
+export interface AddOptions extends CommandOptions {
+  addApp?: boolean;
+  directory?: string;
+}
+
+export interface UpgradeOptions extends CommandOptions {
+  packagePath?: string;
+  all?: boolean;
+  major?: boolean;
+  minor?: boolean;
+  patch?: boolean;
+  write?: boolean;
+  beta?: boolean;
+}
+
+export interface RemoveOptions extends CommandOptions {
+  packagePath: string;
+  all?: boolean;
+  tailwindPath?: string;
+  prettier?: boolean;
+}
+
+export interface ListOptions extends CommandOptions {
+  remote?: boolean;
+  packagePath?: string;
+}
+
+export interface EnvOptions extends CommandOptions {
+  packagePath?: string;
+}
+
+export interface DoctorCommandOptions extends CommandOptions {
+  packagePath?: string;
+  tailwindPath?: string;
+  appPath?: string;
+  checkApp?: boolean | 'false';
+  checkTailwind?: boolean | 'false';
+  checkPnpm?: boolean | 'false';
+}
+
+export interface InitOptions {
+  template?: 'app' | 'pages' | 'vite' | 'remix' | 'laravel';
+  package?: Agent;
+}
 
 export type AppendKeyValue<T extends SAFE_ANY, K extends keyof any, V extends SAFE_ANY> = {
   [P in keyof T | K]?: P extends keyof T ? T[P] : P extends K ? V : never;
