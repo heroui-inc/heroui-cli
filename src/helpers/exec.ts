@@ -1,29 +1,43 @@
-import type {AppendKeyValue} from './type';
-
 import {type CommonExecOptions, execSync} from 'node:child_process';
 
 import {Logger} from './logger';
-import {omit} from './utils';
 
 const execCache = new Map<string, string>();
 
 /**
- * Execute a command and return the output
- *
- * Recommend use `getCacheExecData` instead if you want to cache the output
+ * Options for the exec function
  */
-export async function exec(
-  cmd: string,
-  commonExecOptions?: AppendKeyValue<CommonExecOptions, 'logCmd', boolean> & {
-    cache?: boolean;
-  }
-) {
+export interface ExecOptions extends CommonExecOptions {
+  logCmd?: boolean;
+  cache?: boolean;
+}
+
+/**
+ * Execute a shell command with optional caching and logging.
+ * @param cmd - The command to execute
+ * @param options - Execution options including caching and logging preferences
+ * @returns Promise resolving to the command output
+ * @example
+ * ```ts
+ * await exec('npm install')
+ * await exec('git status', { logCmd: false })
+ * await exec('npm view react version', { cache: true })
+ * ```
+ * @remarks Prefer using `getCacheExecData` from cache module for persistent caching
+ */
+export async function exec(cmd: string, options?: ExecOptions): Promise<string> {
   return new Promise((resolve, reject) => {
     try {
-      const {cache = true, logCmd = true} = commonExecOptions || {};
+      const {cache = true, logCmd = true, ...execOptions} = options || {};
 
       if (execCache.has(cmd) && cache) {
-        resolve(execCache.get(cmd));
+        const cached = execCache.get(cmd);
+
+        if (cached) {
+          resolve(cached);
+
+          return;
+        }
       }
 
       if (logCmd) {
@@ -33,15 +47,18 @@ export async function exec(
 
       const stdout = execSync(cmd, {
         stdio: 'inherit',
-        ...(commonExecOptions ? omit(commonExecOptions, ['logCmd']) : {})
+        ...execOptions
       });
 
       if (stdout) {
         const output = stdout.toString();
 
-        resolve(output);
         execCache.set(cmd, output);
+        resolve(output);
+
+        return;
       }
+
       resolve('');
     } catch (error) {
       reject(error);
