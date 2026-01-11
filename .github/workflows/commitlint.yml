@@ -31,9 +31,9 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Run commitlint
         id: run_commitlint
-        uses: wagoid/commitlint-github-action@v5
+        uses: wagoid/commitlint-github-action@v6
         with:
-          configFile: .commitlintrc.js
+          configFile: .commitlintrc.mjs
         env:
           NODE_PATH: ${{ github.workspace }}/node_modules
       - name: Show outputs
