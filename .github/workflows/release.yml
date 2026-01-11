@@ -29,7 +29,7 @@ jobs:
         continue-on-error: true #  Don't block the release, release notes can be added manually
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v4
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
