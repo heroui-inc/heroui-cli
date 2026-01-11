@@ -18,7 +18,7 @@ The CLI offers a comprehensive suite of commands to initialize, manage, and impr
 
 ## Quick Start
 
-> **Note**: The HeroUI CLI requires [Node.js](https://nodejs.org/en) _18.17.x+_ or later
+> **Note**: The HeroUI CLI requires [Node.js](https://nodejs.org/en) _20.19.x+_ or later
 
 You can choose the following ways to start the HeroUI CLI.
 
@@ -133,8 +133,8 @@ heroui add [targets...] [options]
 
 - `-a --all` [boolean] Add all components (default: `false`)
 - `-p --packagePath` [string] The path to the package.json file
-- `-tw --tailwindPath` [string] The path to the tailwind.config file (for backward compatibility)
-- `-app --appPath` [string] The path to the App.tsx file
+- `--tw --tailwindPath` [string] The path to the tailwind.config file (for backward compatibility)
+- `--app --appPath` [string] The path to the App.tsx file
 - `--prettier` [boolean] Add prettier format in the add content which required installed prettier - (default: `false`)
 - `--addApp` [boolean] Add App.tsx file content which required provider (default: `false`)
 - `-b --beta` [boolean] Add beta components (default: `false`)
@@ -275,7 +275,7 @@ heroui remove [components...] [options]
 
 - `-p --packagePath` [string] The path to the package.json file
 - `-a --all` [boolean] Remove all the HeroUI components (default: `false`)
-- `-tw --tailwindPath` [string] The path to the tailwind.config file (for backward compatibility)
+- `--tw --tailwindPath` [string] The path to the tailwind.config file (for backward compatibility)
 - `--prettier` [boolean] Add prettier format in the add content which required installed prettier - (default: `false`)
 
 ##### Example
@@ -370,11 +370,11 @@ heroui doctor [options]
 #### Doctor Options
 
 - `-p` `--packagePath` [string] The path to the package.json file
-- `-tw` `--tailwindPath` [string] The path to the tailwind.config file (for backward compatibility)
-- `-app` `--appPath` [string] The path to the App.tsx file
-- `-ca` `--checkApp` [boolean] Open check App (default: `true`)
-- `-ct` `--checkTailwind` [boolean] Open check tailwind.config file (default: `true` if it exists)
-- `-cp` `--checkPnpm` [boolean] Open check Pnpm (default: `true`)
+- `--tw` `--tailwindPath` [string] The path to the tailwind.config file (for backward compatibility)
+- `--app` `--appPath` [string] The path to the App.tsx file
+- `--ca` `--checkApp` [boolean] Open check App (default: `true`)
+- `--ct` `--checkTailwind` [boolean] Open check tailwind.config file (default: `true` if it exists)
+- `--cp` `--checkPnpm` [boolean] Open check Pnpm (default: `true`)
 
 #### Example
 

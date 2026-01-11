@@ -14,6 +14,7 @@ import {type Dependencies, compareVersions, getLatestVersion} from 'src/scripts/
 
 import {getLibsData} from './actions/upgrade/get-libs-data';
 import {getConditionVersion} from './condition-value';
+import {VERSION_MODE_REGEX} from './constants';
 import {Logger} from './logger';
 import {colorMatchRegex, outputBox} from './output-info';
 import {
@@ -23,8 +24,7 @@ import {
   isMajorUpdate,
   isMinorUpdate,
   strip,
-  transformPeerVersion,
-  versionModeRegex
+  transformPeerVersion
 } from './utils';
 
 const DEFAULT_SPACE = ''.padEnd(7);
@@ -109,7 +109,7 @@ export function getUpgradeVersion(upgradeOptionList: UpgradeOption[], peer = fal
 
       if (key === 'version') {
         // Remove the duplicate character '^'
-        upgradeOption[key] = upgradeOption[key].replace(versionModeRegex, '');
+        upgradeOption[key] = upgradeOption[key].replace(VERSION_MODE_REGEX, '');
       }
 
       const compareLength =

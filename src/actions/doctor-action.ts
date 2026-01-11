@@ -1,3 +1,5 @@
+import type {DoctorCommandOptions} from '@helpers/type';
+
 import chalk from 'chalk';
 import {basename} from 'pathe';
 
@@ -15,22 +17,13 @@ import {findFiles, strip, transformOption} from '@helpers/utils';
 import {resolver} from 'src/constants/path';
 import {DOCS_PNPM_SETUP, DOCS_TAILWINDCSS_SETUP, HERO_UI} from 'src/constants/required';
 
-interface DoctorActionOptions {
-  packagePath?: string;
-  tailwindPath?: string;
-  appPath?: string;
-  checkApp?: boolean | 'false';
-  checkTailwind?: boolean | 'false';
-  checkPnpm?: boolean | 'false';
-}
-
 export interface ProblemRecord {
   name: string;
   level: Extract<PrefixLogType, 'error' | 'warn'>;
   outputFn: () => void;
 }
 
-export async function doctorAction(options: DoctorActionOptions) {
+export async function doctorAction(options: DoctorCommandOptions) {
   const {
     tailwindPath = findFiles('**/tailwind.config.(j|t)s'),
     appPath = findFiles('**/App.(j|t)sx')[0],

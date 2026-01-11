@@ -1,4 +1,4 @@
-import type {AppendKeyValue} from '@helpers/type';
+import type {AppendKeyValue, UpgradeOptions} from '@helpers/type';
 
 import fs from 'node:fs';
 
@@ -19,16 +19,6 @@ import {HERO_UI} from 'src/constants/required';
 import {store} from 'src/constants/store';
 import {getAutocompleteMultiselect, getMultiselect, getSelect} from 'src/prompts';
 import {compareVersions} from 'src/scripts/helpers';
-
-interface UpgradeActionOptions {
-  packagePath?: string;
-  all?: boolean;
-  major?: boolean;
-  minor?: boolean;
-  patch?: boolean;
-  write?: boolean;
-  beta?: boolean;
-}
 
 type TransformComponent = Required<
   AppendKeyValue<HeroUIComponents[0], 'latestVersion', string> & {isLatest: boolean}
@@ -52,7 +42,7 @@ function betaCompareVersions(version: string, latestVersion: string, beta: boole
   return beta && compareResult === 1 && !version.includes('beta') ? false : compareResult >= 0;
 }
 
-export async function upgradeAction(components: string[], options: UpgradeActionOptions) {
+export async function upgradeAction(components: string[], options: UpgradeOptions) {
   const {
     all = false,
     beta = false,

@@ -6,4 +6,4 @@ const commitlintConfig = {
   plugins: ['commitlint-plugin-function-rules']
 };
 
-module.exports = commitlintConfig;
+export default commitlintConfig;

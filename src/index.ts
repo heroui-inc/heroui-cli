@@ -11,16 +11,10 @@ import {getCommandDescAndLog} from '@helpers/utils';
 
 import pkg from '../package.json';
 
-import {addAction} from './actions/add-action';
-import {doctorAction} from './actions/doctor-action';
-import {envAction} from './actions/env-action';
-import {initAction, templatesMap} from './actions/init-action';
-import {listAction} from './actions/list-action';
-import {removeAction} from './actions/remove-action';
-import {upgradeAction} from './actions/upgrade-action';
+import {registerCommands} from './commands';
 import {initStoreComponentsData} from './constants/component';
 import {getStore, store} from './constants/store';
-import {getCacheExecData, initCache} from './scripts/cache/cache';
+import {initCache} from './scripts/cache/cache';
 import {compareVersions, getComponents} from './scripts/helpers';
 
 const commandList: CommandName[] = ['add', 'env', 'init', 'list', 'upgrade', 'doctor', 'remove'];
@@ -61,7 +55,7 @@ heroui
     }
 
     if (!isArgs) {
-      const helpInfo = (await getCacheExecData('heroui --help')) as string;
+      const helpInfo = heroui.helpInformation();
 
       let helpInfoArr = helpInfo.split('\n');
 
@@ -82,73 +76,7 @@ heroui
     process.exit(0);
   });
 
-heroui
-  .command('init')
-  .description('Initializes a new project')
-  .argument('[projectName]', 'Name of the project to initialize')
-  .option(
-    '-t --template [string]',
-    `Specify a template for the new project, e.g. ${Object.keys(templatesMap).join(', ')}`
-  )
-  .option('-p --package [string]', 'The package manager to use for the new project', 'npm')
-  .action(initAction);
-
-heroui
-  .command('add')
-  .description('1. Adds components to your project\n2. Adds HeroUI Chat codebase to your project')
-  .argument('[targets...]', 'Names of components, HeroUI Chat codebase url to add')
-  .option('-a --all [boolean]', 'Add all components', false)
-  .option('-p --packagePath [string]', 'Specify the path to the package.json file')
-  .option('-tw --tailwindPath [string]', 'Specify the path to the tailwind.config.js file')
-  .option('-app --appPath [string]', 'Specify the path to the App.tsx file')
-  .option('--prettier [boolean]', 'Apply Prettier formatting to the added content')
-  .option('--addApp [boolean]', 'Include App.tsx file content that requires a provider', false)
-  .option('-b --beta [boolean]', 'Add beta components', false)
-  .option('-d --directory [string]', 'Add HeroUI Chat codebase to a specific directory')
-  .action(addAction);
-
-heroui
-  .command('upgrade')
-  .description('Upgrades project components to the latest versions')
-  .argument('[components...]', 'Names of components to upgrade')
-  .option('-p --packagePath [string]', 'Specify the path to the package.json file')
-  .option('-a --all [boolean]', 'Upgrade all components', false)
-  .option('-w --write [boolean]', 'Write the upgrade version to package.json file', false)
-  .option('-b --beta [boolean]', 'Upgrade beta components', false)
-  .action(upgradeAction);
-
-heroui
-  .command('remove')
-  .description('Removes components from the project')
-  .argument('[components...]', 'Names of components to remove')
-  .option('-p --packagePath [string]', 'Specify the path to the package.json file')
-  .option('-a --all [boolean]', 'Remove all components', false)
-  .option('-tw --tailwindPath [string]', 'Specify the path to the tailwind.config.js file')
-  .option('--prettier [boolean]', 'Apply Prettier formatting to the added content')
-  .action(removeAction);
-
-heroui
-  .command('list')
-  .description('Lists all components, showing status, descriptions, and versions')
-  .option('-p --packagePath [string]', 'Specify the path to the package.json file')
-  .option('-r --remote', 'List all components available remotely')
-  .action(listAction);
-heroui
-  .command('env')
-  .description('Displays debugging information for the local environment')
-  .option('-p --packagePath [string]', 'Specify the path to the package.json file')
-  .action(envAction);
-
-heroui
-  .command('doctor')
-  .description('Checks for issues in the project')
-  .option('-p --packagePath [string]', 'Specify the path to the package.json file')
-  .option('-tw --tailwindPath [string]', 'Specify the path to the tailwind.config.js file')
-  .option('-app --appPath [string]', 'Specify the path to the App.tsx file')
-  .option('-ca --checkApp [boolean]', 'Check the App.tsx file', false)
-  .option('-ct --checkTailwind [boolean]', 'Check the tailwind.config.js file')
-  .option('-cp --checkPnpm [boolean]', 'Check for Pnpm', true)
-  .action(doctorAction);
+registerCommands(heroui);
 
 heroui.hook('preAction', async (command) => {
   const commandName = command.args?.[0];
@@ -174,7 +102,9 @@ heroui.hook('preAction', async (command) => {
     const heroUIComponentsBeta = (await getComponents()).betaComponents;
 
     initStoreComponentsData({beta: false, heroUIComponents: heroUIComponents});
-    store.beta && initStoreComponentsData({beta: true, heroUIComponents: heroUIComponentsBeta});
+    if (store.beta) {
+      initStoreComponentsData({beta: true, heroUIComponents: heroUIComponentsBeta});
+    }
   }
 
   const [cliLatestVersion] = await Promise.all([getStore('cliLatestVersion')]);
@@ -205,10 +135,13 @@ heroui.hook('preAction', async (command) => {
   }
 });
 
-heroui.parseAsync(process.argv).catch(async (reason) => {
+heroui.parseAsync(process.argv).catch(async (error: Error) => {
   Logger.newLine();
   Logger.error('Unexpected error. Please report it as a bug:');
-  Logger.log(reason);
+  Logger.log(error.message);
+  if (error.stack) {
+    Logger.grey(error.stack);
+  }
   Logger.newLine();
   process.exit(1);
 });

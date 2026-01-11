@@ -5,9 +5,19 @@ import {existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync} from 'no
 import {oraExecCmd} from '../helpers';
 import {CACHE_DIR, CACHE_PATH} from '../path';
 
-const cacheTTL = 30 * 60_000; // 30min
+/**
+ * Cache time-to-live in milliseconds (30 minutes)
+ */
+const CACHE_TTL_MS = 30 * 60_000;
+
+/**
+ * Global flag to disable caching
+ */
 let noCache = false;
 
+/**
+ * Structure of the cache data stored on disk
+ */
 export interface CacheData {
   [packageName: string]: {
     version: string;
@@ -19,8 +29,8 @@ export interface CacheData {
   };
 }
 
-export function initCache(_noCache = noCache) {
-  noCache = !!_noCache;
+export function initCache(_noCache = noCache): void {
+  noCache = Boolean(_noCache);
 
   if (!existsSync(CACHE_DIR)) {
     mkdirSync(CACHE_DIR, {recursive: true});
@@ -41,8 +51,10 @@ export function getCacheData(): CacheData {
 }
 
 /**
- * Used to cache unknown npm package expired time 30m
- * @packageName string
+ * Cache package data to disk with 30-minute expiration.
+ * @param packageName - The package or cache key
+ * @param packageData - The data to cache (version or execution result)
+ * @param existingCache - Optional existing cache to update
  */
 export function cacheData(
   packageName: string,
@@ -50,13 +62,13 @@ export function cacheData(
     version?: string;
     execResult?: SAFE_ANY;
   },
-  cacheData?: CacheData
-) {
+  existingCache?: CacheData
+): void {
   initCache();
 
-  const data = cacheData ?? getCacheData();
+  const data = existingCache ?? getCacheData();
   const now = new Date();
-  const expiredDate = +now + cacheTTL;
+  const expiredDate = +now + CACHE_TTL_MS;
 
   data[packageName] = {
     ...(packageData as SAFE_ANY),
@@ -73,32 +85,41 @@ export function removeCache() {
   unlinkSync(CACHE_DIR);
 }
 
-function now() {
-  return +new Date();
+function now(): number {
+  return Date.now();
 }
 
-function ttl(n: number) {
-  return now() - n;
-}
+/**
+ * Check if a cached entry has expired.
+ * @param packageName - The cache key to check
+ * @param existingCache - Optional existing cache data
+ * @returns True if expired or not found, false otherwise
+ */
+export function isExpired(packageName: string, existingCache?: CacheData): boolean {
+  if (noCache) {
+    return true;
+  }
 
-export function isExpired(packageName: string, cacheData?: CacheData) {
-  // If noCache then always return true
-  if (noCache) return true;
-
-  const data = cacheData ?? getCacheData();
+  const data = existingCache ?? getCacheData();
   const pkgData = data[packageName];
 
-  if (!pkgData?.expiredDate) return true;
+  if (!pkgData?.expiredDate) {
+    return true;
+  }
 
-  return ttl(pkgData.expiredDate) > 0;
+  return now() > pkgData.expiredDate;
 }
 
-export async function getPackageVersion(packageName: string) {
+/**
+ * Get package version from cache or fetch from npm registry.
+ * @param packageName - The npm package name
+ * @returns Promise resolving to an object containing the version
+ */
+export async function getPackageVersion(packageName: string): Promise<{version: string}> {
   const data = getCacheData();
-  const isExpiredPkg = isExpired(packageName, data);
+  const expired = isExpired(packageName, data);
 
-  // If expired or don't exist then init data
-  if (isExpiredPkg) {
+  if (expired) {
     const version = await oraExecCmd(
       `npm view ${packageName} version`,
       `Fetching ${packageName} latest version`
@@ -111,26 +132,30 @@ export async function getPackageVersion(packageName: string) {
     return pkgVersion;
   }
 
-  return data[packageName]!;
+  return {version: data[packageName]!.version};
 }
 
-export async function getCacheExecData<T extends SAFE_ANY>(
+/**
+ * Execute a command and cache the result, or return cached result if available.
+ * @param key - The cache key (typically the command string)
+ * @param execMessage - Optional message to display during execution
+ * @returns Promise resolving to the cached or freshly executed result
+ */
+export async function getCacheExecData<T = SAFE_ANY>(
   key: string,
   execMessage?: string
 ): Promise<T> {
   const data = getCacheData();
-  const isExpiredPkg = isExpired(key, data);
+  const expired = isExpired(key, data);
 
-  // If expired or don't exist then init data
-  if (isExpiredPkg) {
+  if (expired) {
     const execResult = await oraExecCmd(key, execMessage);
-
     const result = {execResult};
 
     cacheData(key, result, data);
 
-    return result.execResult;
+    return result.execResult as T;
   }
 
-  return data[key]!.execResult;
+  return data[key]!.execResult as T;
 }
