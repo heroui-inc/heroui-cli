@@ -11,7 +11,7 @@ The CLI provides a comprehensive suite of tools to migrate your codebase from Ne
 
 ## Quick Start
 
-> **Note**: The heroui CLI requires [Node.js](https://nodejs.org/en) _18.17.x_ or later
+> **Note**: The heroui CLI requires [Node.js](https://nodejs.org/en) _20.19.x_ or later
 >
 > **Note**: If running in monorepo, you need to run the command in the root of your monorepo
 

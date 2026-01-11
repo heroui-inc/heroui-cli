@@ -118,7 +118,7 @@ After cloning the repository, execute the following commands in the root folder:
    ## then run heroui-cli locally and test
    ```
 
-   > Note: ensure your version of Node is 18.17.x or higher to run scripts
+   > Note: ensure your version of Node is 20.19.x or higher to run scripts
 
 5. Build the CLI
 
@@ -127,7 +127,6 @@ After cloning the repository, execute the following commands in the root folder:
    ```
 
 6. Send your pull request:
-
    - Send your pull request to the `main` branch
    - Your pull request will be reviewed by the maintainers and the maintainers will decide if it is accepted or not
    - Once the pull request is accepted, the maintainers will merge it to the `main` branch

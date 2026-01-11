@@ -18,7 +18,7 @@ The CLI offers a comprehensive suite of commands to initialize, manage, and impr
 
 ## Quick Start
 
-> **Note**: The HeroUI CLI requires [Node.js](https://nodejs.org/en) _18.17.x+_ or later
+> **Note**: The HeroUI CLI requires [Node.js](https://nodejs.org/en) _20.19.x+_ or later
 
 You can choose the following ways to start the HeroUI CLI.
 
