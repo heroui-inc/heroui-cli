@@ -7,10 +7,9 @@ import fg, {type Options} from 'fast-glob';
 
 import {ROOT} from 'src/constants/path';
 
+import {DEFAULT_FILE_IGNORE_PATTERNS, VERSION_MODE_REGEX} from './constants';
 import {Logger} from './logger';
 import {colorMatchRegex} from './output-info';
-
-export const versionModeRegex = /([\^~])/;
 
 export function getCommandDescAndLog(log: string, desc: string) {
   Logger.gradient(log);
@@ -19,11 +18,16 @@ export function getCommandDescAndLog(log: string, desc: string) {
 }
 
 /**
- * Convert a string to PascalCase.
- * @example 'test-test' => 'TestTest'
- * @param str
+ * Convert a kebab-case string to PascalCase.
+ * @param str - The string to convert
+ * @returns The PascalCase version of the string
+ * @example
+ * ```ts
+ * PasCalCase('test-test') // 'TestTest'
+ * PasCalCase('my-component') // 'MyComponent'
+ * ```
  */
-export function PasCalCase<T extends string>(str: T) {
+export function PasCalCase<T extends string>(str: T): PascalCase<T> {
   return str
     .split('-')
     .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
@@ -31,21 +35,25 @@ export function PasCalCase<T extends string>(str: T) {
 }
 
 /**
- * Find files by glob pattern.
- * @param glob
- * @param options
+ * Find files by glob pattern with default ignore patterns.
+ * @param glob - The glob pattern to match files
+ * @param options - Additional fast-glob options
+ * @returns Array of absolute file paths
+ * @example
+ * ```ts
+ * findFiles('**\/*.ts')
+ * findFiles('src/**\/*.tsx', { deep: 3 })
+ * ```
  */
-export const findFiles = (glob: string, options?: Options) => {
-  const file = fg.sync(glob, {
+export const findFiles = (glob: string, options?: Options): string[] => {
+  return fg.sync(glob, {
     absolute: true,
     cwd: ROOT,
     deep: 5,
-    ignore: ['node_modules/**', 'dist/**', 'build/**', 'coverage/**', 'public/**', 'out/**'],
+    ignore: [...DEFAULT_FILE_IGNORE_PATTERNS],
     onlyFiles: true,
     ...options
   });
-
-  return file;
 };
 
 export function transformOption(options: boolean | 'false') {
@@ -54,8 +62,10 @@ export function transformOption(options: boolean | 'false') {
   return !!options;
 }
 
-export function omit(obj: Record<string, SAFE_ANY>, keys: string[]) {
-  return Object.fromEntries(Object.entries(obj).filter(([key]) => !keys.includes(key)));
+export function omit<T extends Record<string, SAFE_ANY>>(obj: T, keys: string[]): Partial<T> {
+  return Object.fromEntries(
+    Object.entries(obj).filter(([key]) => !keys.includes(key))
+  ) as Partial<T>;
 }
 
 export function getUpgradeType({
@@ -127,8 +137,8 @@ export function isPatchUpdate(currentVersion: string, latestVersion: string) {
 }
 
 export function getVersionAndMode(allDependencies: Record<string, SAFE_ANY>, packageName: string) {
-  const currentVersion = allDependencies[packageName].replace(versionModeRegex, '');
-  const versionMode = allDependencies[packageName].match(versionModeRegex)?.[1] || '';
+  const currentVersion = allDependencies[packageName].replace(VERSION_MODE_REGEX, '');
+  const versionMode = allDependencies[packageName].match(VERSION_MODE_REGEX)?.[1] || '';
 
   return {
     currentVersion,
@@ -164,25 +174,25 @@ export function getPackageManagerInfo<T extends Agent = Agent>(packageManager: T
 }
 
 /**
- * @example transformPeerVersion('>=1.0.0') // '1.0.0'
- * @example transformPeerVersion(">=11.5.6 || >=12.0.0-alpha.1") // 11.5.6
- * @param version
+ * Transform a peer dependency version string to a clean version number.
+ * Handles complex version ranges and returns the appropriate version.
+ * @param version - The version string to transform (e.g., '>=1.0.0', '>=11.5.6 || >=12.0.0-alpha.1')
+ * @param isLatest - Whether to return the latest or earliest version from ranges
+ * @returns The cleaned version string
+ * @example
+ * ```ts
+ * transformPeerVersion('>=1.0.0') // '1.0.0'
+ * transformPeerVersion('>=11.5.6 || >=12.0.0-alpha.1') // '11.5.6'
+ * transformPeerVersion('>=11.5.6 || >=12.0.0', true) // '12.0.0'
+ * ```
  */
-export function transformPeerVersion(version: string, isLatest = false) {
+export function transformPeerVersion(version: string, isLatest = false): string {
   const ranges = version.split('||').map((r) => r.trim());
   const result = ranges
-    .map((range) => {
-      return range.replace(/^[<=>^~]+\s*/, '').trim();
-    })
-    .sort((a, b) => {
-      if (isLatest) {
-        return compareVersions(b, a);
-      }
+    .map((range) => range.replace(/^[<=>^~]+\s*/, '').trim())
+    .sort((a, b) => (isLatest ? compareVersions(b, a) : compareVersions(a, b)));
 
-      return compareVersions(a, b);
-    });
-
-  return result[0]!;
+  return result[0] ?? version;
 }
 
 export function fillAnsiLength(str: string, length: number) {
