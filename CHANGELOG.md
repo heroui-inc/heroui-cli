@@ -1,3 +1,9 @@
+# [1.3.0](https://github.com/heroui-inc/heroui-cli/compare/v1.2.5...v1.3.0) (2026-01-11)
+
+### Bug Fixes
+
+- **cache:** handle missing data.json ([#171](https://github.com/heroui-inc/heroui-cli/issues/171)) ([4b44fa7](https://github.com/heroui-inc/heroui-cli/commit/4b44fa7bd364db9038ffe02e3f0269f3387faba7))
+
 ## [1.2.5](https://github.com/heroui-inc/heroui-cli/compare/v1.2.4...v1.2.5) (2026-01-07)
 
 ### Bug Fixes
