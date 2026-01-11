@@ -14,7 +14,7 @@ import pkg from '../package.json';
 import {registerCommands} from './commands';
 import {initStoreComponentsData} from './constants/component';
 import {getStore, store} from './constants/store';
-import {getCacheExecData, initCache} from './scripts/cache/cache';
+import {initCache} from './scripts/cache/cache';
 import {compareVersions, getComponents} from './scripts/helpers';
 
 const commandList: CommandName[] = ['add', 'env', 'init', 'list', 'upgrade', 'doctor', 'remove'];
@@ -55,7 +55,7 @@ heroui
     }
 
     if (!isArgs) {
-      const helpInfo = (await getCacheExecData('heroui --help')) as string;
+      const helpInfo = heroui.helpInformation();
 
       let helpInfoArr = helpInfo.split('\n');
 
@@ -135,10 +135,13 @@ heroui.hook('preAction', async (command) => {
   }
 });
 
-heroui.parseAsync(process.argv).catch(async (reason) => {
+heroui.parseAsync(process.argv).catch(async (error: Error) => {
   Logger.newLine();
   Logger.error('Unexpected error. Please report it as a bug:');
-  Logger.log(reason);
+  Logger.log(error.message);
+  if (error.stack) {
+    Logger.grey(error.stack);
+  }
   Logger.newLine();
   process.exit(1);
 });
