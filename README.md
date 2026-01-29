@@ -54,6 +54,7 @@ Commands:
   list [options]                     Lists all components, showing status, descriptions, and versions
   env [options]                      Displays debugging information for the local environment
   doctor [options]                   Checks for issues in the project
+  agents-md [options]                Downloads HeroUI documentation for AI coding agents
   help [command]                     Display help for command
 ```
 
@@ -452,6 +453,110 @@ Environment Info:
   Binaries:
     Node: v18.18.2
 ```
+
+### Agents-md
+
+Download HeroUI documentation for AI coding agents (Claude, Cursor, etc.). This command downloads the latest documentation from the HeroUI repository and generates an index file that can be injected into markdown files like `AGENTS.md` or `CLAUDE.md` to help AI assistants understand your project's HeroUI setup.
+
+```bash
+heroui agents-md [options]
+```
+
+#### Features
+
+> 1. Downloads latest HeroUI documentation from the `v3` branch
+> 2. Supports both React and Native documentation
+> 3. Generates separate sections for React or Native in the markdown file
+> 4. Automatically adds `.heroui-docs/` to `.gitignore`
+
+#### Agents-md Options
+
+- `--react` [boolean] Include only React docs
+- `--native` [boolean] Include only Native docs
+- `--output <file>` [string] Target file path (e.g., `AGENTS.md`, `CLAUDE.md`)
+- `--ssh` [boolean] Use SSH instead of HTTPS for git clone
+
+#### Example
+
+Run the command without any flags to enter interactive mode:
+
+```bash
+heroui agents-md
+```
+
+Output:
+
+```bash
+heroui agents-md - HeroUI Documentation for AI Agents
+
+Note: Only the latest docs will be downloaded
+
+? Select docs to include › - Use arrow-keys. Return to submit
+❯ React
+  Native
+  Both
+
+? Target markdown file › - Use arrow-keys. Return to submit
+❯ AGENTS.md
+  CLAUDE.md
+  Custom...
+
+Downloading HeroUI React documentation to .heroui-docs...
+
+✓ Updated AGENTS.md (2.5 KB → 15.3 KB)
+✓ Added .heroui-docs to .gitignore
+```
+
+Download React docs to a specific file:
+
+```bash
+heroui agents-md --react --output AGENTS.md
+```
+
+Download Native docs:
+
+```bash
+heroui agents-md --native --output CLAUDE.md
+```
+
+Download both React and Native docs:
+
+```bash
+heroui agents-md --react --native --output AGENTS.md
+```
+
+Use SSH for cloning (useful if HTTPS fails):
+
+```bash
+heroui agents-md --react --ssh --output AGENTS.md
+```
+
+#### How It Works
+
+1. **Downloads Documentation**: Clones the HeroUI repository using git sparse-checkout to download only the documentation files
+2. **Generates Index**: Creates a compact index of all documentation files organized by directory
+3. **Injects into Markdown**: Injects the index into your specified markdown file (e.g., `AGENTS.md`) with special markers:
+   - `<!-- HEROUI-REACT-AGENTS-MD-START -->` / `<!-- HEROUI-REACT-AGENTS-MD-END -->` for React docs
+   - `<!-- HEROUI-NATIVE-AGENTS-MD-START -->` / `<!-- HEROUI-NATIVE-AGENTS-MD-END -->` for Native docs
+4. **Preserves Sections**: When updating one library, the other library's section is preserved
+
+#### File Structure
+
+After running the command, you'll have:
+
+```
+your-project/
+├── .heroui-docs/          # Downloaded documentation (gitignored)
+│   ├── react/            # React documentation files
+│   └── native/           # Native documentation files (if selected)
+├── AGENTS.md             # Your markdown file with injected index
+└── .gitignore            # Updated to include .heroui-docs/
+```
+
+#### Notes
+
+- The command always downloads the latest documentation from the `v3` branch
+- Documentation is stored in `.heroui-docs/` which is automatically added to `.gitignore`
 
 ## Documentation
 
