@@ -8,6 +8,7 @@ import chalk from 'chalk';
 
 import {
   buildDocTree,
+  collectDemoFiles,
   collectDocFiles,
   ensureGitignoreEntry,
   generateHerouiMdIndex,
@@ -109,6 +110,7 @@ export async function docsAction(options: DocsOptions) {
   // Collect and build trees for selected docs
   let reactSections: ReturnType<typeof buildDocTree> | undefined;
   let nativeSections: ReturnType<typeof buildDocTree> | undefined;
+  let reactDemoFiles: {relativePath: string}[] | undefined;
 
   if (selection === 'react' || selection === 'both') {
     const reactDocsPath = path.join(docsPath, 'react');
@@ -117,6 +119,13 @@ export async function docsAction(options: DocsOptions) {
       const reactDocFiles = collectDocFiles(reactDocsPath);
 
       reactSections = buildDocTree(reactDocFiles);
+    }
+
+    // Collect demo files
+    const reactDemosPath = path.join(docsPath, 'react', 'demos');
+
+    if (fs.existsSync(reactDemosPath)) {
+      reactDemoFiles = collectDemoFiles(reactDemosPath);
     }
   }
 
@@ -144,6 +153,7 @@ export async function docsAction(options: DocsOptions) {
   if (nativeSections) indexData.nativeSections = nativeSections;
   if (reactDocsLinkPath) indexData.reactDocsPath = reactDocsLinkPath;
   if (reactSections) indexData.reactSections = reactSections;
+  if (reactDemoFiles) indexData.reactDemoFiles = reactDemoFiles;
 
   // Generate separate index content for React and Native
   const reactIndexContent =

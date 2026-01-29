@@ -168,6 +168,7 @@ async function cloneDocsFolder(
 
     if (selection === 'react' || selection === 'both') {
       sparsePaths.push('apps/docs/content/docs/react');
+      sparsePaths.push('apps/docs/src/demos');
     }
     if (selection === 'native' || selection === 'both') {
       sparsePaths.push('apps/docs/content/docs/native');
@@ -191,6 +192,20 @@ async function cloneDocsFolder(
         }
         fs.mkdirSync(destReactDir, {recursive: true});
         fs.cpSync(sourceReactDir, destReactDir, {recursive: true});
+      }
+
+      // Copy demo files
+      const sourceDemosDir = path.join(tempDir, 'apps', 'docs', 'src', 'demos');
+
+      if (fs.existsSync(sourceDemosDir)) {
+        const destDemosDir = path.join(destDir, 'react', 'demos');
+
+        // Remove existing demos directory to ensure clean update
+        if (fs.existsSync(destDemosDir)) {
+          fs.rmSync(destDemosDir, {recursive: true});
+        }
+        fs.mkdirSync(destDemosDir, {recursive: true});
+        fs.cpSync(sourceDemosDir, destDemosDir, {recursive: true});
       }
     }
 
@@ -224,6 +239,17 @@ export function collectDocFiles(dir: string): {relativePath: string}[] {
         !f.endsWith('/index.md') &&
         !f.startsWith('index.')
     )
+    .sort()
+    .map((f) => ({relativePath: f}));
+}
+
+export function collectDemoFiles(dir: string): {relativePath: string}[] {
+  if (!fs.existsSync(dir)) {
+    return [];
+  }
+
+  return (fs.readdirSync(dir, {recursive: true}) as string[])
+    .filter((f) => f.endsWith('.tsx') && !f.endsWith('/index.tsx'))
     .sort()
     .map((f) => ({relativePath: f}));
 }
@@ -310,6 +336,7 @@ interface HerouiMdIndexData {
   nativeDocsPath?: string | undefined;
   reactSections?: DocSection[] | undefined;
   nativeSections?: DocSection[] | undefined;
+  reactDemoFiles?: {relativePath: string}[] | undefined;
   outputFile?: string | undefined;
   selection: DocSelection;
 }
@@ -318,7 +345,8 @@ export function generateHerouiMdIndex(
   data: HerouiMdIndexData,
   library: 'react' | 'native'
 ): string {
-  const {nativeDocsPath, nativeSections, outputFile, reactDocsPath, reactSections} = data;
+  const {nativeDocsPath, nativeSections, outputFile, reactDemoFiles, reactDocsPath, reactSections} =
+    data;
 
   const parts: string[] = [];
 
@@ -340,6 +368,15 @@ export function generateHerouiMdIndex(
       const reactGrouped = groupByDirectory(reactFiles);
 
       for (const [dir, files] of reactGrouped) {
+        parts.push(`${dir}:{${files.join(',')}}`);
+      }
+    }
+
+    if (reactDemoFiles && reactDemoFiles.length > 0) {
+      const demoFilePaths = reactDemoFiles.map((f) => f.relativePath);
+      const demoGrouped = groupByDirectory(demoFilePaths, 'demos');
+
+      for (const [dir, files] of demoGrouped) {
         parts.push(`${dir}:{${files.join(',')}}`);
       }
     }
