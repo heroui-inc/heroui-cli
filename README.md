@@ -484,29 +484,6 @@ Run the command without any flags to enter interactive mode:
 heroui agents-md
 ```
 
-Output:
-
-```bash
-heroui agents-md - HeroUI Documentation for AI Agents
-
-Note: Only the latest docs will be downloaded
-
-? Select docs to include › - Use arrow-keys. Return to submit
-❯ React
-  Native
-  Both
-
-? Target markdown file › - Use arrow-keys. Return to submit
-❯ AGENTS.md
-  CLAUDE.md
-  Custom...
-
-Downloading HeroUI React documentation to .heroui-docs...
-
-✓ Updated AGENTS.md (2.5 KB → 15.3 KB)
-✓ Added .heroui-docs to .gitignore
-```
-
 Download React docs to a specific file:
 
 ```bash

@@ -206,8 +206,8 @@ async function promptForOptions(): Promise<{
   selection: DocSelection;
   targetFile: string;
 }> {
-  Logger.log(chalk.cyan('\nheroui agents-md - HeroUI Documentation for AI Agents\n'));
-  Logger.grey(`Note: Only the latest docs will be downloaded\n`);
+  Logger.log(chalk.cyan('HeroUI Documentation for AI Agents'));
+  Logger.info('Download the latest HeroUI documentation for AI agents to the current project\n');
 
   const selection = await promptForLibrarySelection();
   const targetFile = await promptForOutputFile();
