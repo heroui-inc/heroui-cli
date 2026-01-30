@@ -68,6 +68,13 @@ export interface InitOptions {
   package?: Agent;
 }
 
+export interface DocsOptions extends CommandOptions {
+  react?: boolean;
+  native?: boolean;
+  output?: string;
+  ssh?: boolean;
+}
+
 export type AppendKeyValue<T extends SAFE_ANY, K extends keyof any, V extends SAFE_ANY> = {
   [P in keyof T | K]?: P extends keyof T ? T[P] : P extends K ? V : never;
 };
@@ -80,7 +87,7 @@ export type CommandName =
   | 'remove'
   | 'add'
   | 'doctor'
-  | 'remove';
+  | 'agents-md';
 
 /**
  * @example RequiredKey<{a?: 1, b?: 2}, a> => {a: 1, b?: 2}
