@@ -18,7 +18,8 @@ import {
 } from '@helpers/agents-docs/heroui-agents-md';
 import {ValidationError} from '@helpers/errors';
 import {Logger} from '@helpers/logger';
-import {getSelect, getText} from 'src/prompts';
+import {getConfirm, getSelect, getText} from 'src/prompts';
+import {compareVersions} from 'src/scripts/helpers';
 
 const DOCS_DIR_NAME = '.heroui-docs';
 
@@ -42,6 +43,114 @@ function detectInstalledPackages(cwd: string): {
     hasNative: !!versions.native,
     hasReact: !!versions.react
   };
+}
+
+interface ValidationResult {
+  isValid: boolean;
+  warnings: string[];
+}
+
+function validateRequirements(cwd: string, selection: DocSelection): ValidationResult {
+  const packageJsonPath = path.join(cwd, 'package.json');
+
+  if (!fs.existsSync(packageJsonPath)) {
+    // No package.json, skip validation
+    return {isValid: true, warnings: []};
+  }
+
+  try {
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
+    const dependencies = packageJson.dependencies || {};
+    const devDependencies = packageJson.devDependencies || {};
+    const allDeps = {...dependencies, ...devDependencies};
+
+    const warnings: string[] = [];
+
+    // Check Tailwind CSS >= v4
+    const tailwindVersion = allDeps.tailwindcss || allDeps['@tailwindcss/vite'];
+
+    if (tailwindVersion) {
+      const cleanVersion = tailwindVersion.replace(/^[<=>^~]+/, '');
+      // Extract major version number
+      const majorVersion = parseInt(cleanVersion.split('.')[0] || '0', 10);
+
+      if (majorVersion < 4) {
+        warnings.push(
+          `Tailwind CSS version ${tailwindVersion} is installed, but HeroUI v3 requires Tailwind CSS v4+.`
+        );
+      }
+    } else {
+      warnings.push('Tailwind CSS is not installed. HeroUI v3 requires Tailwind CSS v4+.');
+    }
+
+    // For React docs: Check React >= 19.0.0
+    if (selection === 'react' || selection === 'both') {
+      const reactVersion = allDeps.react;
+
+      if (reactVersion) {
+        const cleanVersion = reactVersion.replace(/^[<=>^~]+/, '');
+        // Compare with 19.0.0 - returns -1 if cleanVersion < 19.0.0, 0 if equal, 1 if greater
+        const comparison = compareVersions(cleanVersion, '19.0.0');
+
+        if (comparison < 0) {
+          warnings.push(
+            `React version ${reactVersion} is installed, but HeroUI v3 requires React 19+.`
+          );
+        }
+      } else {
+        warnings.push('React is not installed. HeroUI v3 requires React 19+.');
+      }
+
+      // Check @heroui/react >= 2.8.0 (version that supports Tailwind v4)
+      const herouiReactVersion = allDeps['@heroui/react'];
+
+      if (herouiReactVersion) {
+        const cleanVersion = herouiReactVersion.replace(/^[<=>^~]+/, '');
+        // Compare with 2.8.0 - returns -1 if cleanVersion < 2.8.0, 0 if equal, 1 if greater
+        const comparison = compareVersions(cleanVersion, '2.8.0');
+
+        if (comparison < 0) {
+          warnings.push(
+            `@heroui/react version ${herouiReactVersion} is installed, but HeroUI v3 requires version >= 2.8.0 (which supports Tailwind CSS v4).`
+          );
+        }
+      } else {
+        warnings.push(
+          '@heroui/react is not installed. HeroUI v3 requires @heroui/react >= 2.8.0 (which supports Tailwind CSS v4).'
+        );
+      }
+    }
+
+    return {
+      isValid: warnings.length === 0,
+      warnings
+    };
+  } catch (err) {
+    // If we can't parse package.json, skip validation
+    return {isValid: true, warnings: []};
+  }
+}
+
+async function confirmRequirements(cwd: string, selection: DocSelection): Promise<boolean> {
+  const validation = validateRequirements(cwd, selection);
+
+  if (validation.isValid) {
+    return true;
+  }
+
+  Logger.warn('\n⚠️  HeroUI v3 requirements not met:');
+  for (const warning of validation.warnings) {
+    Logger.warn(`  • ${warning}`);
+  }
+  Logger.newLine();
+  Logger.log(
+    'The downloaded documentation is for HeroUI v3 and may not be compatible with your current setup.'
+  );
+  Logger.newLine();
+
+  const confirmed = await getConfirm('Do you want to continue anyway?');
+
+  return confirmed;
 }
 
 export async function docsAction(options: DocsOptions) {
@@ -111,6 +220,14 @@ export async function docsAction(options: DocsOptions) {
         outputFiles = ['AGENTS.md'];
       }
     }
+  }
+
+  // Validate requirements before downloading (only for React docs)
+  const canContinue = await confirmRequirements(cwd, selection);
+
+  if (!canContinue) {
+    Logger.warn('\nCancelled.');
+    process.exit(0);
   }
 
   const docsPath = path.join(cwd, DOCS_DIR_NAME);
