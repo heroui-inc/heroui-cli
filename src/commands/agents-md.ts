@@ -10,7 +10,10 @@ export function registerAgentsMdCommand(cmd: Command) {
     )
     .option('--react', 'Include only React docs')
     .option('--native', 'Include only Native docs')
-    .option('--output <file>', 'Target file path (e.g., CLAUDE.md, AGENTS.md)')
+    .option(
+      '--output <files...>',
+      'Target file path(s) (e.g., AGENTS.md, or AGENTS.md CLAUDE.md for multiple)'
+    )
     .option('--ssh', 'Use SSH instead of HTTPS for git clone')
     .action(docsAction);
 }

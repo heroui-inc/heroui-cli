@@ -53,7 +53,7 @@ export async function docsAction(options: DocsOptions) {
   // 3. --output alone → autodetect package, use provided output file
 
   let selection: DocSelection;
-  let targetFile: string | undefined;
+  let outputFiles: string[] | undefined;
 
   // Determine selection from flags
   if (options.react && options.native) {
@@ -74,7 +74,7 @@ export async function docsAction(options: DocsOptions) {
         const promptedOptions = await promptForOptions();
 
         selection = promptedOptions.selection;
-        targetFile = promptedOptions.targetFile;
+        outputFiles = promptedOptions.targetFiles;
       }
     } else if (hasReact) {
       // Only React found - use it automatically
@@ -92,39 +92,28 @@ export async function docsAction(options: DocsOptions) {
         const promptedOptions = await promptForOptions();
 
         selection = promptedOptions.selection;
-        targetFile = promptedOptions.targetFile;
+        outputFiles = promptedOptions.targetFiles;
       }
     }
   }
 
-  // Set targetFile from options.output if provided
-  if (options.output) {
-    targetFile = options.output;
-  }
-
-  // If output file not provided, prompt for it
-  if (!targetFile) {
-    const promptedFile = await promptForOutputFile();
-
-    if (promptedFile) {
-      targetFile = promptedFile;
+  // Normalize output files to array (if not already set from prompt)
+  if (!outputFiles) {
+    if (options.output) {
+      outputFiles = Array.isArray(options.output) ? options.output : [options.output];
     } else {
-      targetFile = 'AGENTS.md';
+      // If output file not provided, prompt for it
+      const promptedFile = await promptForOutputFile();
+
+      if (promptedFile) {
+        outputFiles = Array.isArray(promptedFile) ? promptedFile : [promptedFile];
+      } else {
+        outputFiles = ['AGENTS.md'];
+      }
     }
   }
 
-  const claudeMdPath = path.join(cwd, targetFile);
   const docsPath = path.join(cwd, DOCS_DIR_NAME);
-
-  let sizeBefore = 0;
-  let isNewFile = true;
-  let existingContent = '';
-
-  if (fs.existsSync(claudeMdPath)) {
-    existingContent = fs.readFileSync(claudeMdPath, 'utf-8');
-    sizeBefore = Buffer.byteLength(existingContent, 'utf-8');
-    isNewFile = false;
-  }
 
   const selectionText =
     selection === 'both' ? 'React and Native' : selection === 'react' ? 'React' : 'Native';
@@ -181,8 +170,9 @@ export async function docsAction(options: DocsOptions) {
   const nativeDocsLinkPath =
     selection === 'native' || selection === 'both' ? `./${DOCS_DIR_NAME}/native` : undefined;
 
+  // Generate index content once (reused for all output files)
   const indexData: Parameters<typeof generateHerouiMdIndex>[0] = {
-    outputFile: targetFile,
+    outputFile: outputFiles[0], // Use first file for index generation (for display purposes)
     selection
   };
 
@@ -202,20 +192,35 @@ export async function docsAction(options: DocsOptions) {
       ? generateHerouiMdIndex(indexData, 'native')
       : undefined;
 
-  const newContent = injectIntoClaudeMd(existingContent, reactIndexContent, nativeIndexContent);
-
-  fs.writeFileSync(claudeMdPath, newContent, 'utf-8');
-
-  const sizeAfter = Buffer.byteLength(newContent, 'utf-8');
-
+  // Write to all output files
   const gitignoreResult = ensureGitignoreEntry(cwd);
 
-  const action = isNewFile ? 'Created' : 'Updated';
-  const sizeInfo = isNewFile
-    ? formatSize(sizeAfter)
-    : `${formatSize(sizeBefore)} → ${formatSize(sizeAfter)}`;
+  for (const outputFile of outputFiles) {
+    const filePath = path.join(cwd, outputFile);
+    let sizeBefore = 0;
+    let isNewFile = true;
+    let existingContent = '';
 
-  Logger.success(`✓ ${action} ${chalk.bold(targetFile)} (${sizeInfo})`);
+    if (fs.existsSync(filePath)) {
+      existingContent = fs.readFileSync(filePath, 'utf-8');
+      sizeBefore = Buffer.byteLength(existingContent, 'utf-8');
+      isNewFile = false;
+    }
+
+    const newContent = injectIntoClaudeMd(existingContent, reactIndexContent, nativeIndexContent);
+
+    fs.writeFileSync(filePath, newContent, 'utf-8');
+
+    const sizeAfter = Buffer.byteLength(newContent, 'utf-8');
+
+    const action = isNewFile ? 'Created' : 'Updated';
+    const sizeInfo = isNewFile
+      ? formatSize(sizeAfter)
+      : `${formatSize(sizeBefore)} → ${formatSize(sizeAfter)}`;
+
+    Logger.success(`✓ ${action} ${chalk.bold(outputFile)} (${sizeInfo})`);
+  }
+
   if (gitignoreResult.updated) {
     Logger.success(`✓ Added ${chalk.bold(DOCS_DIR_NAME)} to .gitignore`);
   }
@@ -241,30 +246,36 @@ async function promptForLibrarySelection(): Promise<DocSelection> {
 
 async function promptForOptions(): Promise<{
   selection: DocSelection;
-  targetFile: string;
+  targetFiles: string[];
 }> {
   Logger.log(chalk.cyan('HeroUI Documentation for AI Agents'));
   Logger.info('Download the latest HeroUI documentation for AI agents to the current project\n');
 
   const selection = await promptForLibrarySelection();
   const targetFile = await promptForOutputFile();
+  const targetFiles = Array.isArray(targetFile) ? targetFile : [targetFile];
 
   return {
     selection,
-    targetFile
+    targetFiles
   };
 }
 
-async function promptForOutputFile(): Promise<string> {
+async function promptForOutputFile(): Promise<string | string[]> {
   const targetFileSelect = await getSelect('Target markdown file', [
     {title: 'AGENTS.md', value: 'AGENTS.md'},
     {title: 'CLAUDE.md', value: 'CLAUDE.md'},
+    {title: 'Both', value: '__both__'},
     {title: 'Custom...', value: '__custom__'}
   ]);
 
   if (targetFileSelect === undefined) {
     Logger.warn('\nCancelled.');
     process.exit(0);
+  }
+
+  if (targetFileSelect === '__both__') {
+    return ['AGENTS.md', 'CLAUDE.md'];
   }
 
   let targetFile = targetFileSelect;
