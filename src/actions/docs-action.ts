@@ -343,6 +343,24 @@ export async function docsAction(options: DocsOptions) {
   }
   Logger.newLine();
 
+  // Show description of what was installed
+  Logger.log(chalk.cyan('📚 What was installed:'));
+  Logger.log(`  • Documentation files downloaded to ${chalk.bold(`.${DOCS_DIR_NAME}/`)}`);
+  Logger.log(`  • Index generated in ${chalk.bold(outputFiles.join(', '))}`);
+  if (selection === 'react' || selection === 'both') {
+    Logger.log(`  • Demo files included for React code examples`);
+  }
+  Logger.newLine();
+  Logger.log(chalk.cyan('💡 How it works:'));
+  Logger.log(
+    `  • AI assistants (like Claude, Cursor) can now reference HeroUI ${selectionText} docs directly`
+  );
+  Logger.log(
+    `  • The index in ${chalk.bold(outputFiles[0])} helps assistants find relevant documentation`
+  );
+  Logger.log(`  • Run ${chalk.bold('heroui agents-md')} again to update docs`);
+  Logger.newLine();
+
   process.exit(0);
 }
 
