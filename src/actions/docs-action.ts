@@ -12,6 +12,7 @@ import {
   collectDocFiles,
   ensureGitignoreEntry,
   generateHerouiMdIndex,
+  getHerouiVersions,
   injectIntoClaudeMd,
   pullDocs
 } from '@helpers/agents-docs/heroui-agents-md';
@@ -31,13 +32,25 @@ function formatSize(bytes: number): string {
   return `${mb.toFixed(1)} MB`;
 }
 
+function detectInstalledPackages(cwd: string): {
+  hasReact: boolean;
+  hasNative: boolean;
+} {
+  const versions = getHerouiVersions(cwd);
+
+  return {
+    hasNative: !!versions.native,
+    hasReact: !!versions.react
+  };
+}
+
 export async function docsAction(options: DocsOptions) {
   const cwd = process.cwd();
 
   // Mode logic:
-  // 1. No flags → interactive mode (prompts for selection + target file)
-  // 2. Library flags (--react, --native, --both) → use that selection, prompt for output file if --output not provided
-  // 3. --output alone → prompt for library selection, use provided output file
+  // 1. No flags → autodetect package, prompt only if neither found (or if both found)
+  // 2. Library flags (--react, --native) → use that selection, prompt for output file if --output not provided
+  // 3. --output alone → autodetect package, use provided output file
 
   let selection: DocSelection;
   let targetFile: string | undefined;
@@ -49,15 +62,39 @@ export async function docsAction(options: DocsOptions) {
     selection = 'react';
   } else if (options.native) {
     selection = 'native';
-  } else if (options.output) {
-    // If only --output provided, prompt for library selection
-    selection = await promptForLibrarySelection();
   } else {
-    // Full interactive mode - prompts for both selection and target file
-    const promptedOptions = await promptForOptions();
+    // Autodetect installed packages
+    const {hasNative, hasReact} = detectInstalledPackages(cwd);
 
-    selection = promptedOptions.selection;
-    targetFile = promptedOptions.targetFile;
+    if (hasReact && hasNative) {
+      // Both found - prompt for selection
+      if (options.output) {
+        selection = await promptForLibrarySelection();
+      } else {
+        const promptedOptions = await promptForOptions();
+
+        selection = promptedOptions.selection;
+        targetFile = promptedOptions.targetFile;
+      }
+    } else if (hasReact) {
+      // Only React found - use it automatically
+      selection = 'react';
+      Logger.log(chalk.dim('Detected @heroui/react, using React docs'));
+    } else if (hasNative) {
+      // Only Native found - use it automatically
+      selection = 'native';
+      Logger.log(chalk.dim('Detected heroui-native, using Native docs'));
+    } else {
+      // Neither found - prompt for selection
+      if (options.output) {
+        selection = await promptForLibrarySelection();
+      } else {
+        const promptedOptions = await promptForOptions();
+
+        selection = promptedOptions.selection;
+        targetFile = promptedOptions.targetFile;
+      }
+    }
   }
 
   // Set targetFile from options.output if provided
