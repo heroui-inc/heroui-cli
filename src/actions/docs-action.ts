@@ -101,22 +101,27 @@ function validateRequirements(cwd: string, selection: DocSelection): ValidationR
         warnings.push('React is not installed. HeroUI v3 requires React 19+.');
       }
 
-      // Check @heroui/react >= 2.8.0 (version that supports Tailwind v4)
+      // Check @heroui/react >= 2.8.0 or @beta (version that supports Tailwind v4)
       const herouiReactVersion = allDeps['@heroui/react'];
 
       if (herouiReactVersion) {
-        const cleanVersion = herouiReactVersion.replace(/^[<=>^~]+/, '');
-        // Compare with 2.8.0 - returns -1 if cleanVersion < 2.8.0, 0 if equal, 1 if greater
-        const comparison = compareVersions(cleanVersion, '2.8.0');
+        // Allow @beta versions
+        if (herouiReactVersion.includes('@beta') || herouiReactVersion === 'beta') {
+          // Beta versions are allowed, skip version check
+        } else {
+          const cleanVersion = herouiReactVersion.replace(/^[<=>^~]+/, '');
+          // Compare with 2.8.0 - returns -1 if cleanVersion < 2.8.0, 0 if equal, 1 if greater
+          const comparison = compareVersions(cleanVersion, '2.8.0');
 
-        if (comparison < 0) {
-          warnings.push(
-            `@heroui/react version ${herouiReactVersion} is installed, but HeroUI v3 requires version >= 2.8.0 (which supports Tailwind CSS v4).`
-          );
+          if (comparison < 0) {
+            warnings.push(
+              `@heroui/react version ${herouiReactVersion} is installed, but these docs are recommended for version >= 2.8.0 or @beta (which supports Tailwind CSS v4).`
+            );
+          }
         }
       } else {
         warnings.push(
-          '@heroui/react is not installed. HeroUI v3 requires @heroui/react >= 2.8.0 (which supports Tailwind CSS v4).'
+          '@heroui/react is not installed. These docs are recommended for @heroui/react >= 2.8.0 or @beta (which supports Tailwind CSS v4).'
         );
       }
     }
