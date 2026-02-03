@@ -66,7 +66,7 @@ function validateRequirements(cwd: string, selection: DocSelection): ValidationR
 
     const warnings: string[] = [];
 
-    // Check Tailwind CSS >= v4
+    // Check Tailwind CSS >= v4 (only warn if installed with wrong version)
     const tailwindVersion = allDeps.tailwindcss || allDeps['@tailwindcss/vite'];
 
     if (tailwindVersion) {
@@ -79,8 +79,6 @@ function validateRequirements(cwd: string, selection: DocSelection): ValidationR
           `Tailwind CSS version ${tailwindVersion} is installed, but HeroUI v3 requires Tailwind CSS v4+.`
         );
       }
-    } else {
-      warnings.push('Tailwind CSS is not installed. HeroUI v3 requires Tailwind CSS v4+.');
     }
 
     // For React docs: Check React >= 19.0.0
@@ -185,7 +183,7 @@ export async function docsAction(options: DocsOptions) {
     if (hasReact && hasNative) {
       // Both found - prompt for selection
       if (options.output) {
-        selection = await promptForLibrarySelection();
+        selection = await promptForLibrarySelection(false);
       } else {
         const promptedOptions = await promptForOptions();
 
@@ -201,11 +199,11 @@ export async function docsAction(options: DocsOptions) {
       selection = 'native';
       Logger.log(chalk.dim('Detected heroui-native, using Native docs'));
     } else {
-      // Neither found - prompt for selection
+      // Neither found - prompt for selection with warning
       if (options.output) {
-        selection = await promptForLibrarySelection();
+        selection = await promptForLibrarySelection(true);
       } else {
-        const promptedOptions = await promptForOptions();
+        const promptedOptions = await promptForOptions(true);
 
         selection = promptedOptions.selection;
         outputFiles = promptedOptions.targetFiles;
@@ -371,7 +369,12 @@ export async function docsAction(options: DocsOptions) {
   process.exit(0);
 }
 
-async function promptForLibrarySelection(): Promise<DocSelection> {
+async function promptForLibrarySelection(neitherFound: boolean = false): Promise<DocSelection> {
+  if (neitherFound) {
+    Logger.warn('Neither @heroui/react nor heroui-native is installed in this project.');
+    Logger.newLine();
+  }
+
   const selection = await getSelect('Select docs to include', [
     {title: 'React', value: 'react'},
     {title: 'Native', value: 'native'},
@@ -386,14 +389,14 @@ async function promptForLibrarySelection(): Promise<DocSelection> {
   return selection as DocSelection;
 }
 
-async function promptForOptions(): Promise<{
+async function promptForOptions(neitherFound: boolean = false): Promise<{
   selection: DocSelection;
   targetFiles: string[];
 }> {
   Logger.log(chalk.cyan('HeroUI Documentation for AI Agents'));
   Logger.info('Download the latest HeroUI documentation for AI agents to the current project\n');
 
-  const selection = await promptForLibrarySelection();
+  const selection = await promptForLibrarySelection(neitherFound);
   const targetFile = await promptForOutputFile();
   const targetFiles = Array.isArray(targetFile) ? targetFile : [targetFile];
 
