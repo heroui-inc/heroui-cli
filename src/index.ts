@@ -17,7 +17,16 @@ import {getStore, store} from './constants/store';
 import {initCache} from './scripts/cache/cache';
 import {compareVersions, getComponents} from './scripts/helpers';
 
-const commandList: CommandName[] = ['add', 'env', 'init', 'list', 'upgrade', 'doctor', 'remove'];
+const commandList: CommandName[] = [
+  'add',
+  'agents-md',
+  'env',
+  'init',
+  'list',
+  'upgrade',
+  'doctor',
+  'remove'
+];
 
 const heroui = new Command();
 
