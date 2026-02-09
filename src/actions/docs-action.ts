@@ -193,11 +193,11 @@ export async function docsAction(options: DocsOptions) {
     } else if (hasReact) {
       // Only React found - use it automatically
       selection = 'react';
-      Logger.log(chalk.dim('Detected @heroui/react, using React docs'));
+      Logger.log(chalk.dim('Detected @heroui/react, using HeroUI React v3 docs'));
     } else if (hasNative) {
       // Only Native found - use it automatically
       selection = 'native';
-      Logger.log(chalk.dim('Detected heroui-native, using Native docs'));
+      Logger.log(chalk.dim('Detected heroui-native, using HeroUI Native docs'));
     } else {
       // Neither found - prompt for selection with warning
       if (options.output) {
@@ -238,11 +238,13 @@ export async function docsAction(options: DocsOptions) {
   const docsPath = path.join(cwd, DOCS_DIR_NAME);
 
   const selectionText =
-    selection === 'both' ? 'React and Native' : selection === 'react' ? 'React' : 'Native';
+    selection === 'both'
+      ? 'HeroUI React v3 and HeroUI Native'
+      : selection === 'react'
+        ? 'HeroUI React v3'
+        : 'HeroUI Native';
 
-  Logger.log(
-    `\nDownloading HeroUI ${selectionText} documentation to ${chalk.cyan(DOCS_DIR_NAME)}...`
-  );
+  Logger.log(`\nDownloading ${selectionText} documentation to ${chalk.cyan(DOCS_DIR_NAME)}...`);
 
   const pullResult = await pullDocs({
     cwd,
@@ -358,7 +360,7 @@ export async function docsAction(options: DocsOptions) {
   Logger.newLine();
   Logger.log(chalk.cyan('💡 How it works:'));
   Logger.log(
-    `  • AI assistants (like Claude, Cursor) can now reference HeroUI ${selectionText} docs directly`
+    `  • AI assistants (like Claude, Cursor) can now reference ${selectionText} docs directly`
   );
   Logger.log(
     `  • The index in ${chalk.bold(outputFiles[0])} helps assistants find relevant documentation`
@@ -376,8 +378,8 @@ async function promptForLibrarySelection(neitherFound: boolean = false): Promise
   }
 
   const selection = await getSelect('Select docs to include', [
-    {title: 'React', value: 'react'},
-    {title: 'Native', value: 'native'},
+    {title: 'HeroUI React v3', value: 'react'},
+    {title: 'HeroUI Native', value: 'native'},
     {title: 'Both', value: 'both'}
   ]);
 

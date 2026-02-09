@@ -351,10 +351,10 @@ export function generateHerouiMdIndex(
   const parts: string[] = [];
 
   if (library === 'react') {
-    parts.push('[HeroUI React Docs Index]');
+    parts.push('[HeroUI React v3 Docs Index]');
     if (reactDocsPath) parts.push(`root: ${reactDocsPath}`);
     parts.push(
-      'STOP. What you remember about HeroUI React is WRONG for this project. Always search docs and read before any task.'
+      'STOP. What you remember about HeroUI React v3 is WRONG for this project. Always search docs and read before any task.'
     );
 
     const targetFile = outputFile || 'AGENTS.md';
