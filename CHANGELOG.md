@@ -1,3 +1,22 @@
+# [1.4.0](https://github.com/heroui-inc/heroui-cli/compare/v1.3.0...v1.4.0) (2026-02-10)
+
+### Bug Fixes
+
+- **agents-md:** adjust command description ([60897e0](https://github.com/heroui-inc/heroui-cli/commit/60897e0e170ad85647773a92e10d922b2c8d53d0))
+- **agents-md:** adjust version check msg ([6bf0fcb](https://github.com/heroui-inc/heroui-cli/commit/6bf0fcb5c28aa17d1c2e039802580190abd08fe7))
+- **agents-md:** adjust version check msg ([3b30c87](https://github.com/heroui-inc/heroui-cli/commit/3b30c87710c791783d7e440ef6d8807b51aa8375))
+- **agents-md:** support latest version tag ([55b7f66](https://github.com/heroui-inc/heroui-cli/commit/55b7f6665ea09db1bd5f0a379c9bd78f4f893798))
+- **agents-md:** update description to mention v3 ([a60b6ad](https://github.com/heroui-inc/heroui-cli/commit/a60b6ad4b0d4ac84d5b03f74607e71394b9494e6))
+
+### Features
+
+- **agents-md:** detect heroui packages to download ([621c293](https://github.com/heroui-inc/heroui-cli/commit/621c2935c14e45616cb8a4e0d33f153fe0f96fb3))
+- **agents-md:** download heroui react demo files ([5b03c16](https://github.com/heroui-inc/heroui-cli/commit/5b03c16f4cbff903ef71a5c008642537d3f9f3c7))
+- **agents-md:** improve output text ([1f80d4c](https://github.com/heroui-inc/heroui-cli/commit/1f80d4cc20f2f22f56d04d979fcfd596b1ed3f95))
+- **agents-md:** multiple output files ([4dc198d](https://github.com/heroui-inc/heroui-cli/commit/4dc198d99eddcca66b26ec6ddab930571052ebe5))
+- **agents-md:** new command for downloading agent docs ([72d6c9f](https://github.com/heroui-inc/heroui-cli/commit/72d6c9f7a658733406d62d67d1e84bd4d8901ac5))
+- **agents-md:** required packages check ([5a9b5a1](https://github.com/heroui-inc/heroui-cli/commit/5a9b5a10c82bcbf3672c537dee869f1d7443eaab))
+
 # [1.3.0](https://github.com/heroui-inc/heroui-cli/compare/v1.2.5...v1.3.0) (2026-01-11)
 
 ### Bug Fixes
