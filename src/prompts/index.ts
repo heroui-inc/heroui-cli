@@ -83,3 +83,16 @@ export async function getMultiselect(message: string, choices?: prompts.Choice[]
 
   return result.value;
 }
+
+export async function getConfirm(message: string): Promise<boolean> {
+  const result = await prompts(
+    {
+      message,
+      name: 'value',
+      type: 'confirm'
+    },
+    defaultPromptOptions
+  );
+
+  return result.value === true;
+}
