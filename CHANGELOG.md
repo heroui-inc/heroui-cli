@@ -1,3 +1,9 @@
+## [1.4.1](https://github.com/heroui-inc/heroui-cli/compare/v1.3.0...v1.4.1) (2026-02-10)
+
+### Features
+
+- agents md ([#173](https://github.com/heroui-inc/heroui-cli/issues/173)) ([387c741](https://github.com/heroui-inc/heroui-cli/commit/387c741544c2190594f9d86418c13adc36e0923d))
+
 # [1.4.0](https://github.com/heroui-inc/heroui-cli/compare/v1.3.0...v1.4.0) (2026-02-10)
 
 ### Features
