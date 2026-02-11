@@ -11,6 +11,7 @@ import {getCommandDescAndLog} from '@helpers/utils';
 
 import pkg from '../package.json';
 
+import {getAnalytics, shutdown} from './analytics';
 import {registerCommands} from './commands';
 import {initStoreComponentsData} from './constants/component';
 import {getStore, store} from './constants/store';
@@ -145,6 +146,20 @@ heroui.hook('preAction', async (command) => {
 });
 
 heroui.parseAsync(process.argv).catch(async (error: Error) => {
+  const isAgentsMd = process.argv.includes('agents-md');
+
+  if (isAgentsMd) {
+    const analytics = getAnalytics();
+
+    analytics?.trackError({
+      error,
+      errorEvent: 'AGENTS_MD_ERROR',
+      fallbackMessage: 'Unexpected error in agents-md',
+      properties: {}
+    });
+    await shutdown();
+  }
+
   Logger.newLine();
   Logger.error('Unexpected error. Please report it as a bug:');
   Logger.log(error.message);
