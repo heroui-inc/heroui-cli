@@ -10,6 +10,7 @@ import {
   buildDocTree,
   collectDemoFiles,
   collectDocFiles,
+  collectMigrationDocFiles,
   ensureGitignoreEntry,
   generateHerouiMdIndex,
   getHerouiVersions,
@@ -22,6 +23,13 @@ import {getConfirm, getSelect, getText} from 'src/prompts';
 import {compareVersions} from 'src/scripts/helpers';
 
 const DOCS_DIR_NAME = '.heroui-docs';
+
+function formatSelectionText(selection: DocSelection): string {
+  if (selection === 'react') return 'HeroUI React v3';
+  if (selection === 'native') return 'HeroUI Native';
+
+  return 'HeroUI Migration (v2→v3)';
+}
 
 function formatSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
@@ -82,7 +90,7 @@ function validateRequirements(cwd: string, selection: DocSelection): ValidationR
     }
 
     // For React docs: Check React >= 19.0.0
-    if (selection === 'react' || selection === 'both') {
+    if (selection === 'react') {
       const reactVersion = allDeps.react;
 
       if (reactVersion) {
@@ -169,13 +177,17 @@ export async function docsAction(options: DocsOptions) {
   let selection: DocSelection;
   let outputFiles: string[] | undefined;
 
-  // Determine selection from flags
-  if (options.react && options.native) {
-    selection = 'both';
-  } else if (options.react) {
-    selection = 'react';
-  } else if (options.native) {
-    selection = 'native';
+  // Determine selection from flags (only one library at a time)
+  const flagCount = [options.react, options.native, options.migration].filter(Boolean).length;
+
+  if (flagCount > 1) {
+    throw new ValidationError(
+      'Only one library option is supported at a time. Use --react, --native, or --migration (not in combination).'
+    );
+  }
+
+  if (options.react || options.native || options.migration) {
+    selection = options.migration ? 'migration' : options.native ? 'native' : 'react';
   } else {
     // Autodetect installed packages
     const {hasNative, hasReact} = detectInstalledPackages(cwd);
@@ -185,7 +197,7 @@ export async function docsAction(options: DocsOptions) {
       if (options.output) {
         selection = await promptForLibrarySelection(false);
       } else {
-        const promptedOptions = await promptForOptions();
+        const promptedOptions = await promptForOptions(false);
 
         selection = promptedOptions.selection;
         outputFiles = promptedOptions.targetFiles;
@@ -237,12 +249,7 @@ export async function docsAction(options: DocsOptions) {
 
   const docsPath = path.join(cwd, DOCS_DIR_NAME);
 
-  const selectionText =
-    selection === 'both'
-      ? 'HeroUI React v3 and HeroUI Native'
-      : selection === 'react'
-        ? 'HeroUI React v3'
-        : 'HeroUI Native';
+  const selectionText = formatSelectionText(selection);
 
   Logger.log(`\nDownloading ${selectionText} documentation to ${chalk.cyan(DOCS_DIR_NAME)}...`);
 
@@ -260,9 +267,10 @@ export async function docsAction(options: DocsOptions) {
   // Collect and build trees for selected docs
   let reactSections: ReturnType<typeof buildDocTree> | undefined;
   let nativeSections: ReturnType<typeof buildDocTree> | undefined;
+  let migrationSections: ReturnType<typeof buildDocTree> | undefined;
   let reactDemoFiles: {relativePath: string}[] | undefined;
 
-  if (selection === 'react' || selection === 'both') {
+  if (selection === 'react') {
     const reactDocsPath = path.join(docsPath, 'react');
 
     if (fs.existsSync(reactDocsPath)) {
@@ -271,7 +279,6 @@ export async function docsAction(options: DocsOptions) {
       reactSections = buildDocTree(reactDocFiles);
     }
 
-    // Collect demo files
     const reactDemosPath = path.join(docsPath, 'react', 'demos');
 
     if (fs.existsSync(reactDemosPath)) {
@@ -279,7 +286,7 @@ export async function docsAction(options: DocsOptions) {
     }
   }
 
-  if (selection === 'native' || selection === 'both') {
+  if (selection === 'native') {
     const nativeDocsPath = path.join(docsPath, 'native');
 
     if (fs.existsSync(nativeDocsPath)) {
@@ -289,10 +296,20 @@ export async function docsAction(options: DocsOptions) {
     }
   }
 
-  const reactDocsLinkPath =
-    selection === 'react' || selection === 'both' ? `./${DOCS_DIR_NAME}/react` : undefined;
-  const nativeDocsLinkPath =
-    selection === 'native' || selection === 'both' ? `./${DOCS_DIR_NAME}/native` : undefined;
+  if (selection === 'migration') {
+    const migrationDocsPath = path.join(docsPath, 'migration');
+
+    if (fs.existsSync(migrationDocsPath)) {
+      const migrationDocFiles = collectMigrationDocFiles(migrationDocsPath);
+
+      migrationSections = buildDocTree(migrationDocFiles);
+    }
+  }
+
+  const reactDocsLinkPath = selection === 'react' ? `./${DOCS_DIR_NAME}/react` : undefined;
+  const nativeDocsLinkPath = selection === 'native' ? `./${DOCS_DIR_NAME}/native` : undefined;
+  const migrationDocsLinkPath =
+    selection === 'migration' ? `./${DOCS_DIR_NAME}/migration` : undefined;
 
   // Generate index content once (reused for all output files)
   const indexData: Parameters<typeof generateHerouiMdIndex>[0] = {
@@ -302,19 +319,19 @@ export async function docsAction(options: DocsOptions) {
 
   if (nativeDocsLinkPath) indexData.nativeDocsPath = nativeDocsLinkPath;
   if (nativeSections) indexData.nativeSections = nativeSections;
+  if (migrationDocsLinkPath) indexData.migrationDocsPath = migrationDocsLinkPath;
+  if (migrationSections) indexData.migrationSections = migrationSections;
   if (reactDocsLinkPath) indexData.reactDocsPath = reactDocsLinkPath;
   if (reactSections) indexData.reactSections = reactSections;
   if (reactDemoFiles) indexData.reactDemoFiles = reactDemoFiles;
 
-  // Generate separate index content for React and Native
+  // Generate index content for the selected library only
   const reactIndexContent =
-    selection === 'react' || selection === 'both'
-      ? generateHerouiMdIndex(indexData, 'react')
-      : undefined;
+    selection === 'react' ? generateHerouiMdIndex(indexData, 'react') : undefined;
   const nativeIndexContent =
-    selection === 'native' || selection === 'both'
-      ? generateHerouiMdIndex(indexData, 'native')
-      : undefined;
+    selection === 'native' ? generateHerouiMdIndex(indexData, 'native') : undefined;
+  const migrationIndexContent =
+    selection === 'migration' ? generateHerouiMdIndex(indexData, 'migration') : undefined;
 
   // Write to all output files
   const gitignoreResult = ensureGitignoreEntry(cwd);
@@ -331,7 +348,12 @@ export async function docsAction(options: DocsOptions) {
       isNewFile = false;
     }
 
-    const newContent = injectIntoClaudeMd(existingContent, reactIndexContent, nativeIndexContent);
+    const newContent = injectIntoClaudeMd(
+      existingContent,
+      reactIndexContent,
+      nativeIndexContent,
+      migrationIndexContent
+    );
 
     fs.writeFileSync(filePath, newContent, 'utf-8');
 
@@ -354,7 +376,7 @@ export async function docsAction(options: DocsOptions) {
   Logger.log(chalk.cyan('📚 What was installed:'));
   Logger.log(`  • Documentation files downloaded to ${chalk.bold(`.${DOCS_DIR_NAME}/`)}`);
   Logger.log(`  • Index generated in ${chalk.bold(outputFiles.join(', '))}`);
-  if (selection === 'react' || selection === 'both') {
+  if (selection === 'react') {
     Logger.log(`  • Demo files included for React code examples`);
   }
   Logger.newLine();
@@ -380,7 +402,7 @@ async function promptForLibrarySelection(neitherFound: boolean = false): Promise
   const selection = await getSelect('Select docs to include', [
     {title: 'HeroUI React v3', value: 'react'},
     {title: 'HeroUI Native', value: 'native'},
-    {title: 'Both', value: 'both'}
+    {title: 'HeroUI Migration (v2→v3)', value: 'migration'}
   ]);
 
   if (selection === undefined) {

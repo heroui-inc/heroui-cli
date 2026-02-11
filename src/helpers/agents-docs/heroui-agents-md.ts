@@ -16,7 +16,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
-export type DocSelection = 'react' | 'native' | 'both';
+export type DocSelection = 'react' | 'native' | 'migration';
 
 interface HerouiVersionsResult {
   react?: string;
@@ -88,9 +88,10 @@ export function getHerouiVersions(cwd: string): HerouiVersionsResult {
 
 /**
  * Default branch to use for docs.
- * Always uses the latest docs from the v3 branch.
+ * React and Native use v3; migration uses docs/migration (WIP, not in v3 yet).
  */
 const DEFAULT_DOCS_BRANCH = 'v3';
+const MIGRATION_DOCS_BRANCH = 'docs/migration';
 
 interface PullOptions {
   cwd: string;
@@ -108,8 +109,7 @@ interface PullResult {
 export async function pullDocs(options: PullOptions): Promise<PullResult> {
   const {cwd, docsDir, selection, useSsh} = options;
 
-  // Always use the latest docs from the default branch
-  const gitRef = DEFAULT_DOCS_BRANCH;
+  const gitRef = selection === 'migration' ? MIGRATION_DOCS_BRANCH : DEFAULT_DOCS_BRANCH;
 
   const docsPath = docsDir ?? path.join(cwd, '.heroui-docs');
 
@@ -163,30 +163,41 @@ async function cloneDocsFolder(
       throw error;
     }
 
-    // Build sparse-checkout paths based on selection
-    const sparsePaths: string[] = [];
+    // Build sparse-checkout patterns. For React: include full folder but exclude migration.
+    if (selection === 'react') {
+      const patterns = [
+        'apps/docs/content/docs/react',
+        '!apps/docs/content/docs/react/migration',
+        'apps/docs/src/demos'
+      ].join('\n');
 
-    if (selection === 'react' || selection === 'both') {
-      sparsePaths.push('apps/docs/content/docs/react');
-      sparsePaths.push('apps/docs/src/demos');
+      execSync('git sparse-checkout set --no-cone --stdin', {
+        cwd: tempDir,
+        input: patterns,
+        stdio: ['pipe', 'pipe', 'pipe']
+      });
+    } else if (selection === 'native') {
+      execSync('git sparse-checkout set apps/docs/content/docs/native', {
+        cwd: tempDir,
+        stdio: 'pipe'
+      });
+    } else {
+      execSync('git sparse-checkout set apps/docs/content/docs/react/migration', {
+        cwd: tempDir,
+        stdio: 'pipe'
+      });
     }
-    if (selection === 'native' || selection === 'both') {
-      sparsePaths.push('apps/docs/content/docs/native');
-    }
-
-    execSync(`git sparse-checkout set ${sparsePaths.join(' ')}`, {cwd: tempDir, stdio: 'pipe'});
 
     // Ensure destination directory exists (but don't remove it - preserve other libraries)
     fs.mkdirSync(destDir, {recursive: true});
 
-    // Copy docs to destination - only update the selected library(ies)
-    if (selection === 'react' || selection === 'both') {
+    // Copy docs to destination - only the selected library
+    if (selection === 'react') {
       const sourceReactDir = path.join(tempDir, 'apps', 'docs', 'content', 'docs', 'react');
 
       if (fs.existsSync(sourceReactDir)) {
         const destReactDir = path.join(destDir, 'react');
 
-        // Remove existing react docs directory to ensure clean update
         if (fs.existsSync(destReactDir)) {
           fs.rmSync(destReactDir, {recursive: true});
         }
@@ -194,33 +205,48 @@ async function cloneDocsFolder(
         fs.cpSync(sourceReactDir, destReactDir, {recursive: true});
       }
 
-      // Copy demo files
       const sourceDemosDir = path.join(tempDir, 'apps', 'docs', 'src', 'demos');
 
       if (fs.existsSync(sourceDemosDir)) {
         const destDemosDir = path.join(destDir, 'react', 'demos');
 
-        // Remove existing demos directory to ensure clean update
         if (fs.existsSync(destDemosDir)) {
           fs.rmSync(destDemosDir, {recursive: true});
         }
         fs.mkdirSync(destDemosDir, {recursive: true});
         fs.cpSync(sourceDemosDir, destDemosDir, {recursive: true});
       }
-    }
-
-    if (selection === 'native' || selection === 'both') {
+    } else if (selection === 'native') {
       const sourceNativeDir = path.join(tempDir, 'apps', 'docs', 'content', 'docs', 'native');
 
       if (fs.existsSync(sourceNativeDir)) {
         const destNativeDir = path.join(destDir, 'native');
 
-        // Remove existing native docs directory to ensure clean update
         if (fs.existsSync(destNativeDir)) {
           fs.rmSync(destNativeDir, {recursive: true});
         }
         fs.mkdirSync(destNativeDir, {recursive: true});
         fs.cpSync(sourceNativeDir, destNativeDir, {recursive: true});
+      }
+    } else {
+      const sourceMigrationDir = path.join(
+        tempDir,
+        'apps',
+        'docs',
+        'content',
+        'docs',
+        'react',
+        'migration'
+      );
+
+      if (fs.existsSync(sourceMigrationDir)) {
+        const destMigrationDir = path.join(destDir, 'migration');
+
+        if (fs.existsSync(destMigrationDir)) {
+          fs.rmSync(destMigrationDir, {recursive: true});
+        }
+        fs.mkdirSync(destMigrationDir, {recursive: true});
+        fs.cpSync(sourceMigrationDir, destMigrationDir, {recursive: true});
       }
     }
   } finally {
@@ -243,6 +269,13 @@ export function collectDocFiles(dir: string): {relativePath: string}[] {
     .map((f) => ({relativePath: f}));
 }
 
+export function collectMigrationDocFiles(dir: string): {relativePath: string}[] {
+  return (fs.readdirSync(dir, {recursive: true}) as string[])
+    .filter((f) => f.endsWith('.mdx') || f.endsWith('.md'))
+    .sort()
+    .map((f) => ({relativePath: f}));
+}
+
 export function collectDemoFiles(dir: string): {relativePath: string}[] {
   if (!fs.existsSync(dir)) {
     return [];
@@ -261,81 +294,36 @@ interface DocSection {
 }
 
 export function buildDocTree(files: {relativePath: string}[]): DocSection[] {
-  const sections: Map<string, DocSection> = new Map();
+  const byDir = new Map<string, DocSection>();
 
   for (const file of files) {
-    const parts = file.relativePath.split('/');
+    const dir = file.relativePath.includes('/')
+      ? file.relativePath.slice(0, file.relativePath.lastIndexOf('/'))
+      : '.';
 
-    if (parts.length < 2) continue;
-
-    const topLevelDir = parts[0];
-
-    if (!topLevelDir) continue;
-
-    if (!sections.has(topLevelDir)) {
-      sections.set(topLevelDir, {
-        files: [],
-        name: topLevelDir,
-        subsections: []
-      });
+    if (!byDir.has(dir)) {
+      byDir.set(dir, {files: [], name: dir, subsections: []});
     }
 
-    const section = sections.get(topLevelDir);
-
-    if (!section) continue;
-
-    if (parts.length === 2) {
-      section.files.push({relativePath: file.relativePath});
-    } else {
-      const subsectionDir = parts[1];
-
-      if (!subsectionDir) continue;
-
-      let subsection = section.subsections.find((s) => s.name === subsectionDir);
-
-      if (!subsection) {
-        subsection = {files: [], name: subsectionDir, subsections: []};
-        section.subsections.push(subsection);
-      }
-
-      if (parts.length === 3) {
-        subsection.files.push({relativePath: file.relativePath});
-      } else {
-        const subSubDir = parts[2];
-
-        if (!subSubDir) continue;
-
-        let subSubsection = subsection.subsections.find((s) => s.name === subSubDir);
-
-        if (!subSubsection) {
-          subSubsection = {files: [], name: subSubDir, subsections: []};
-          subsection.subsections.push(subSubsection);
-        }
-
-        subSubsection.files.push({relativePath: file.relativePath});
-      }
-    }
+    byDir.get(dir)!.files.push(file);
   }
 
-  const sortedSections = Array.from(sections.values()).sort((a, b) => a.name.localeCompare(b.name));
+  const sections = Array.from(byDir.values()).sort((a, b) => a.name.localeCompare(b.name));
 
-  for (const section of sortedSections) {
+  for (const section of sections) {
     section.files.sort((a, b) => a.relativePath.localeCompare(b.relativePath));
-    section.subsections.sort((a, b) => a.name.localeCompare(b.name));
-    for (const subsection of section.subsections) {
-      subsection.files.sort((a, b) => a.relativePath.localeCompare(b.relativePath));
-      subsection.subsections.sort((a, b) => a.name.localeCompare(b.name));
-    }
   }
 
-  return sortedSections;
+  return sections;
 }
 
 interface HerouiMdIndexData {
   reactDocsPath?: string | undefined;
   nativeDocsPath?: string | undefined;
+  migrationDocsPath?: string | undefined;
   reactSections?: DocSection[] | undefined;
   nativeSections?: DocSection[] | undefined;
+  migrationSections?: DocSection[] | undefined;
   reactDemoFiles?: {relativePath: string}[] | undefined;
   outputFile?: string | undefined;
   selection: DocSelection;
@@ -343,10 +331,18 @@ interface HerouiMdIndexData {
 
 export function generateHerouiMdIndex(
   data: HerouiMdIndexData,
-  library: 'react' | 'native'
+  library: 'react' | 'native' | 'migration'
 ): string {
-  const {nativeDocsPath, nativeSections, outputFile, reactDemoFiles, reactDocsPath, reactSections} =
-    data;
+  const {
+    migrationDocsPath,
+    migrationSections,
+    nativeDocsPath,
+    nativeSections,
+    outputFile,
+    reactDemoFiles,
+    reactDocsPath,
+    reactSections
+  } = data;
 
   const parts: string[] = [];
 
@@ -380,7 +376,7 @@ export function generateHerouiMdIndex(
         parts.push(`${dir}:{${files.join(',')}}`);
       }
     }
-  } else {
+  } else if (library === 'native') {
     parts.push('[HeroUI Native Docs Index]');
     if (nativeDocsPath) parts.push(`root: ${nativeDocsPath}`);
     parts.push(
@@ -398,6 +394,27 @@ export function generateHerouiMdIndex(
       const nativeGrouped = groupByDirectory(nativeFiles);
 
       for (const [dir, files] of nativeGrouped) {
+        parts.push(`${dir}:{${files.join(',')}}`);
+      }
+    }
+  } else {
+    parts.push('[HeroUI Migration Docs Index]');
+    if (migrationDocsPath) parts.push(`root: ${migrationDocsPath}`);
+    parts.push(
+      'STOP. Always search migration docs before migrating components from HeroUI v2 to v3.'
+    );
+
+    const targetFile = outputFile || 'AGENTS.md';
+
+    parts.push(
+      `If docs missing, run this command first: heroui agents-md --migration --output ${targetFile}`
+    );
+
+    if (migrationSections) {
+      const migrationFiles = collectAllFilesFromSections(migrationSections);
+      const migrationGrouped = groupByDirectory(migrationFiles);
+
+      for (const [dir, files] of migrationGrouped) {
         parts.push(`${dir}:{${files.join(',')}}`);
       }
     }
@@ -445,22 +462,27 @@ const REACT_START_MARKER = '<!-- HEROUI-REACT-AGENTS-MD-START -->';
 const REACT_END_MARKER = '<!-- HEROUI-REACT-AGENTS-MD-END -->';
 const NATIVE_START_MARKER = '<!-- HEROUI-NATIVE-AGENTS-MD-START -->';
 const NATIVE_END_MARKER = '<!-- HEROUI-NATIVE-AGENTS-MD-END -->';
+const MIGRATION_START_MARKER = '<!-- HEROUI-MIGRATION-AGENTS-MD-START -->';
+const MIGRATION_END_MARKER = '<!-- HEROUI-MIGRATION-AGENTS-MD-END -->';
 
-function getMarkers(library: 'react' | 'native'): {start: string; end: string} {
+function getMarkers(library: 'react' | 'native' | 'migration'): {start: string; end: string} {
   if (library === 'react') {
     return {end: REACT_END_MARKER, start: REACT_START_MARKER};
   }
+  if (library === 'native') {
+    return {end: NATIVE_END_MARKER, start: NATIVE_START_MARKER};
+  }
 
-  return {end: NATIVE_END_MARKER, start: NATIVE_START_MARKER};
+  return {end: MIGRATION_END_MARKER, start: MIGRATION_START_MARKER};
 }
 
-function hasExistingIndex(content: string, library: 'react' | 'native'): boolean {
+function hasExistingIndex(content: string, library: 'react' | 'native' | 'migration'): boolean {
   const {start} = getMarkers(library);
 
   return content.includes(start);
 }
 
-function wrapWithMarkers(content: string, library: 'react' | 'native'): string {
+function wrapWithMarkers(content: string, library: 'react' | 'native' | 'migration'): string {
   const {end, start} = getMarkers(library);
 
   return `${start}\n${content}\n${end}`;
@@ -469,7 +491,7 @@ function wrapWithMarkers(content: string, library: 'react' | 'native'): string {
 function injectSection(
   content: string,
   sectionContent: string,
-  library: 'react' | 'native'
+  library: 'react' | 'native' | 'migration'
 ): string {
   const {end, start} = getMarkers(library);
   const wrappedContent = wrapWithMarkers(sectionContent, library);
@@ -490,7 +512,8 @@ function injectSection(
 export function injectIntoClaudeMd(
   claudeMdContent: string,
   reactIndexContent: string | undefined,
-  nativeIndexContent: string | undefined
+  nativeIndexContent: string | undefined,
+  migrationIndexContent?: string | undefined
 ): string {
   let result = claudeMdContent;
 
@@ -502,6 +525,11 @@ export function injectIntoClaudeMd(
   // Inject Native section if provided
   if (nativeIndexContent !== undefined) {
     result = injectSection(result, nativeIndexContent, 'native');
+  }
+
+  // Inject Migration section if provided
+  if (migrationIndexContent !== undefined) {
+    result = injectSection(result, migrationIndexContent, 'migration');
   }
 
   return result;

@@ -465,14 +465,15 @@ heroui agents-md [options]
 #### Features
 
 > 1. Downloads latest HeroUI documentation from the `v3` branch
-> 2. Supports both React and Native documentation
-> 3. Generates separate sections for React or Native in the markdown file
+> 2. Supports React, Native, and Migration (v2→v3) documentation
+> 3. Generates a section for the selected library (React, Native, or Migration) in the markdown file
 > 4. Automatically adds `.heroui-docs/` to `.gitignore`
 
 #### Agents-md Options
 
-- `--react` [boolean] Include only React docs
-- `--native` [boolean] Include only Native docs
+- `--react` [boolean] Include React docs only (one library at a time)
+- `--native` [boolean] Include Native docs only
+- `--migration` [boolean] Include HeroUI v2 to v3 migration docs only
 - `--output <file>` [string] Target file path (e.g., `AGENTS.md`, `CLAUDE.md`)
 - `--ssh` [boolean] Use SSH instead of HTTPS for git clone
 
@@ -496,10 +497,10 @@ Download Native docs:
 heroui agents-md --native --output CLAUDE.md
 ```
 
-Download both React and Native docs:
+Download migration docs (v2→v3):
 
 ```bash
-heroui agents-md --react --native --output AGENTS.md
+heroui agents-md --migration --output AGENTS.md
 ```
 
 Use SSH for cloning (useful if HTTPS fails):
@@ -515,7 +516,8 @@ heroui agents-md --react --ssh --output AGENTS.md
 3. **Injects into Markdown**: Injects the index into your specified markdown file (e.g., `AGENTS.md`) with special markers:
    - `<!-- HEROUI-REACT-AGENTS-MD-START -->` / `<!-- HEROUI-REACT-AGENTS-MD-END -->` for React docs
    - `<!-- HEROUI-NATIVE-AGENTS-MD-START -->` / `<!-- HEROUI-NATIVE-AGENTS-MD-END -->` for Native docs
-4. **Preserves Sections**: When updating one library, the other library's section is preserved
+   - `<!-- HEROUI-MIGRATION-AGENTS-MD-START -->` / `<!-- HEROUI-MIGRATION-AGENTS-MD-END -->` for Migration docs
+4. **Single library**: Only one of React, Native, or Migration can be selected at a time
 
 #### File Structure
 
@@ -524,8 +526,9 @@ After running the command, you'll have:
 ```
 your-project/
 ├── .heroui-docs/          # Downloaded documentation (gitignored)
-│   ├── react/            # React documentation files
-│   └── native/           # Native documentation files (if selected)
+│   ├── react/            # React documentation files (if selected)
+│   ├── native/           # Native documentation files (if selected)
+│   └── migration/        # Migration docs (v2→v3, if selected)
 ├── AGENTS.md             # Your markdown file with injected index
 └── .gitignore            # Updated to include .heroui-docs/
 ```
