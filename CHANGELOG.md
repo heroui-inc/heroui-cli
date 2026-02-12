@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/heroui-inc/heroui-cli/compare/v1.3.0...v1.5.0) (2026-02-12)
+
+### Features
+
+- agents md ([#173](https://github.com/heroui-inc/heroui-cli/issues/173)) ([387c741](https://github.com/heroui-inc/heroui-cli/commit/387c741544c2190594f9d86418c13adc36e0923d))
+- **agents-md:** add posthog analytics ([#176](https://github.com/heroui-inc/heroui-cli/issues/176)) ([3497544](https://github.com/heroui-inc/heroui-cli/commit/3497544cfcbe450879b73a5306876d58904f617b))
+
 ## [1.4.1](https://github.com/heroui-inc/heroui-cli/compare/v1.3.0...v1.4.1) (2026-02-10)
 
 ### Features
