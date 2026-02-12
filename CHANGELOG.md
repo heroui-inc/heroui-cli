@@ -1,3 +1,9 @@
+## [1.6.1](https://github.com/heroui-inc/heroui-cli/compare/v1.6.0...v1.6.1) (2026-02-12)
+
+### Bug Fixes
+
+- **agents-md:** migration doc confirmation ([#178](https://github.com/heroui-inc/heroui-cli/issues/178)) ([9ba9c61](https://github.com/heroui-inc/heroui-cli/commit/9ba9c611e3fbbb29e0a70e19ceb2cf8a8decaf55))
+
 # [1.6.0](https://github.com/heroui-inc/heroui-cli/compare/v1.5.0...v1.6.0) (2026-02-12)
 
 ### Features
