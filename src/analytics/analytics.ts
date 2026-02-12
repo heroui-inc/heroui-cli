@@ -5,7 +5,7 @@ import {getErrorMessage} from './utils';
 export type AgentsMdEvent = 'AGENTS_MD_SUCCESS' | 'AGENTS_MD_ERROR';
 
 export interface AgentsMdProperties {
-  selection?: 'react' | 'native' | 'both';
+  selection?: 'react' | 'native' | 'migration';
   outputFiles?: string[];
   outputFileCount?: number;
   duration?: number;

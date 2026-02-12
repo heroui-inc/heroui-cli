@@ -10,6 +10,7 @@ export function registerAgentsMdCommand(cmd: Command) {
     )
     .option('--react', 'Include only React docs')
     .option('--native', 'Include only Native docs')
+    .option('--migration', 'Include HeroUI v2 to v3 migration docs')
     .option(
       '--output <files...>',
       'Target file path(s) (e.g., AGENTS.md, or AGENTS.md CLAUDE.md for multiple)'

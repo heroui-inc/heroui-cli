@@ -71,6 +71,7 @@ export interface InitOptions {
 export interface DocsOptions extends CommandOptions {
   react?: boolean;
   native?: boolean;
+  migration?: boolean;
   output?: string | string[];
   ssh?: boolean;
 }
