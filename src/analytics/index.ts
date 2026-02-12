@@ -2,7 +2,8 @@ import {Analytics} from './analytics';
 
 let instance: Analytics | null = null;
 
-const POSTHOG_KEY = '__HEROUI_CLI_POSTHOG_KEY__';
+declare const __HEROUI_CLI_POSTHOG_KEY__: string;
+const POSTHOG_KEY = __HEROUI_CLI_POSTHOG_KEY__;
 const POSTHOG_HOST = 'https://us.i.posthog.com';
 
 export function getAnalytics(): Analytics | null {
