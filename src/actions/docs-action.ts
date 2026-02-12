@@ -147,6 +147,16 @@ function validateRequirements(cwd: string, selection: DocSelection): ValidationR
 }
 
 async function confirmRequirements(cwd: string, selection: DocSelection): Promise<boolean> {
+  if (selection === 'migration') {
+    Logger.warn('\n⚠️  HeroUI React v2 to v3 migration documentation is a work in progress.');
+    Logger.log('The migration guides may be incomplete or subject to change.');
+    Logger.newLine();
+
+    const confirmed = await getConfirm('Do you want to continue and install the migration docs?');
+
+    return confirmed;
+  }
+
   const validation = validateRequirements(cwd, selection);
 
   if (validation.isValid) {
