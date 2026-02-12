@@ -40,3 +40,4 @@ jobs:
           npm publish
         env:
           NPM_TOKEN: ${{secrets.NPM_TOKEN}}
+          HEROUI_CLI_POSTHOG_KEY: ${{secrets.HEROUI_CLI_POSTHOG_KEY}}
