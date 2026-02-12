@@ -58,6 +58,14 @@ Commands:
   help [command]                     Display help for command
 ```
 
+## Analytics
+
+The `agents-md` command collects anonymous usage data.
+
+**What we collect:** Selection (react/native/both), output file names, duration, success or error. No file paths, or project contents are collected.
+
+**Opt out:** Set `HEROUI_ANALYTICS_DISABLED=1` in your environment or shell profile.
+
 ## Commands
 
 ### Init

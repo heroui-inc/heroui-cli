@@ -6,9 +6,19 @@ declare const __HEROUI_CLI_POSTHOG_KEY__: string;
 const POSTHOG_KEY = __HEROUI_CLI_POSTHOG_KEY__;
 const POSTHOG_HOST = 'https://us.i.posthog.com';
 
+function isAnalyticsDisabled(): boolean {
+  const disabled = process.env['HEROUI_ANALYTICS_DISABLED'];
+
+  return disabled === '1' || disabled === 'true';
+}
+
 export function getAnalytics(): Analytics | null {
   if (instance !== null) {
     return instance;
+  }
+
+  if (isAnalyticsDisabled()) {
+    return null;
   }
 
   if (!POSTHOG_KEY) {

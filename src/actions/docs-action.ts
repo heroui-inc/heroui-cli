@@ -19,6 +19,7 @@ import {
 import {ValidationError} from '@helpers/errors';
 import {Logger} from '@helpers/logger';
 import {getAnalytics, shutdown} from 'src/analytics';
+import {showAnalyticsNotice} from 'src/analytics/notice';
 import {getConfirm, getSelect, getText} from 'src/prompts';
 import {compareVersions} from 'src/scripts/helpers';
 
@@ -163,6 +164,10 @@ export async function docsAction(options: DocsOptions) {
   const startTime = Date.now();
   const analytics = getAnalytics();
   const cwd = process.cwd();
+
+  if (analytics) {
+    showAnalyticsNotice();
+  }
 
   try {
     // Mode logic:
