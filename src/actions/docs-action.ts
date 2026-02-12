@@ -19,6 +19,8 @@ import {
 } from '@helpers/agents-docs/heroui-agents-md';
 import {ValidationError} from '@helpers/errors';
 import {Logger} from '@helpers/logger';
+import {getAnalytics, shutdown} from 'src/analytics';
+import {showAnalyticsNotice} from 'src/analytics/notice';
 import {getConfirm, getSelect, getText} from 'src/prompts';
 import {compareVersions} from 'src/scripts/helpers';
 
@@ -167,230 +169,256 @@ async function confirmRequirements(cwd: string, selection: DocSelection): Promis
 }
 
 export async function docsAction(options: DocsOptions) {
+  const startTime = Date.now();
+  const analytics = getAnalytics();
   const cwd = process.cwd();
 
-  // Mode logic:
-  // 1. No flags → autodetect package, prompt only if neither found (or if both found)
-  // 2. Library flags (--react, --native) → use that selection, prompt for output file if --output not provided
-  // 3. --output alone → autodetect package, use provided output file
+  if (analytics) {
+    showAnalyticsNotice();
+  }
 
-  let selection: DocSelection;
-  let outputFiles: string[] | undefined;
+  try {
+    // Mode logic:
+    // 1. No flags → autodetect package, prompt only if neither found (or if both found)
+    // 2. Library flags (--react, --native, --migration) → use that selection, prompt for output file if --output not provided
+    // 3. --output alone → autodetect package, use provided output file
 
-  // Determine selection from flags (only one library at a time)
-  const flagCount = [options.react, options.native, options.migration].filter(Boolean).length;
+    let selection: DocSelection;
+    let outputFiles: string[] | undefined;
 
-  if (flagCount > 1) {
-    throw new ValidationError(
-      'Only one library option is supported at a time. Use --react, --native, or --migration (not in combination).'
+    // Determine selection from flags (only one library at a time)
+    const flagCount = [options.react, options.native, options.migration].filter(Boolean).length;
+
+    if (flagCount > 1) {
+      throw new ValidationError(
+        'Only one library option is supported at a time. Use --react, --native, or --migration (not in combination).'
+      );
+    }
+
+    if (options.react || options.native || options.migration) {
+      selection = options.migration ? 'migration' : options.native ? 'native' : 'react';
+    } else {
+      // Autodetect installed packages
+      const {hasNative, hasReact} = detectInstalledPackages(cwd);
+
+      if (hasReact && hasNative) {
+        // Both found - prompt for selection
+        if (options.output) {
+          selection = await promptForLibrarySelection(false);
+        } else {
+          const promptedOptions = await promptForOptions(false);
+
+          selection = promptedOptions.selection;
+          outputFiles = promptedOptions.targetFiles;
+        }
+      } else if (hasReact) {
+        // Only React found - use it automatically
+        selection = 'react';
+        Logger.log(chalk.dim('Detected @heroui/react, using HeroUI React v3 docs'));
+      } else if (hasNative) {
+        // Only Native found - use it automatically
+        selection = 'native';
+        Logger.log(chalk.dim('Detected heroui-native, using HeroUI Native docs'));
+      } else {
+        // Neither found - prompt for selection with warning
+        if (options.output) {
+          selection = await promptForLibrarySelection(true);
+        } else {
+          const promptedOptions = await promptForOptions(true);
+
+          selection = promptedOptions.selection;
+          outputFiles = promptedOptions.targetFiles;
+        }
+      }
+    }
+
+    // Normalize output files to array (if not already set from prompt)
+    if (!outputFiles) {
+      if (options.output) {
+        outputFiles = Array.isArray(options.output) ? options.output : [options.output];
+      } else {
+        const promptedFile = await promptForOutputFile();
+
+        if (promptedFile) {
+          outputFiles = Array.isArray(promptedFile) ? promptedFile : [promptedFile];
+        } else {
+          outputFiles = ['AGENTS.md'];
+        }
+      }
+    }
+
+    // Validate requirements before downloading (only for React docs)
+    const canContinue = await confirmRequirements(cwd, selection);
+
+    if (!canContinue) {
+      Logger.warn('\nCancelled.');
+      process.exit(0);
+    }
+
+    const docsPath = path.join(cwd, DOCS_DIR_NAME);
+
+    const selectionText = formatSelectionText(selection);
+
+    Logger.log(`\nDownloading ${selectionText} documentation to ${chalk.cyan(DOCS_DIR_NAME)}...`);
+
+    const pullResult = await pullDocs({
+      cwd,
+      docsDir: docsPath,
+      selection,
+      useSsh: options.ssh ?? false
+    });
+
+    if (!pullResult.success) {
+      throw new ValidationError(`Failed to pull docs: ${pullResult.error}`);
+    }
+
+    // Collect and build trees for selected docs
+    let reactSections: ReturnType<typeof buildDocTree> | undefined;
+    let nativeSections: ReturnType<typeof buildDocTree> | undefined;
+    let migrationSections: ReturnType<typeof buildDocTree> | undefined;
+    let reactDemoFiles: {relativePath: string}[] | undefined;
+
+    if (selection === 'react') {
+      const reactDocsPath = path.join(docsPath, 'react');
+
+      if (fs.existsSync(reactDocsPath)) {
+        const reactDocFiles = collectDocFiles(reactDocsPath);
+
+        reactSections = buildDocTree(reactDocFiles);
+      }
+
+      const reactDemosPath = path.join(docsPath, 'react', 'demos');
+
+      if (fs.existsSync(reactDemosPath)) {
+        reactDemoFiles = collectDemoFiles(reactDemosPath);
+      }
+    }
+
+    if (selection === 'native') {
+      const nativeDocsPath = path.join(docsPath, 'native');
+
+      if (fs.existsSync(nativeDocsPath)) {
+        const nativeDocFiles = collectDocFiles(nativeDocsPath);
+
+        nativeSections = buildDocTree(nativeDocFiles);
+      }
+    }
+
+    if (selection === 'migration') {
+      const migrationDocsPath = path.join(docsPath, 'migration');
+
+      if (fs.existsSync(migrationDocsPath)) {
+        const migrationDocFiles = collectMigrationDocFiles(migrationDocsPath);
+
+        migrationSections = buildDocTree(migrationDocFiles);
+      }
+    }
+
+    const reactDocsLinkPath = selection === 'react' ? `./${DOCS_DIR_NAME}/react` : undefined;
+    const nativeDocsLinkPath = selection === 'native' ? `./${DOCS_DIR_NAME}/native` : undefined;
+    const migrationDocsLinkPath =
+      selection === 'migration' ? `./${DOCS_DIR_NAME}/migration` : undefined;
+
+    // Generate index content once (reused for all output files)
+    const indexData: Parameters<typeof generateHerouiMdIndex>[0] = {
+      outputFile: outputFiles[0], // Use first file for index generation (for display purposes)
+      selection
+    };
+
+    if (nativeDocsLinkPath) indexData.nativeDocsPath = nativeDocsLinkPath;
+    if (nativeSections) indexData.nativeSections = nativeSections;
+    if (migrationDocsLinkPath) indexData.migrationDocsPath = migrationDocsLinkPath;
+    if (migrationSections) indexData.migrationSections = migrationSections;
+    if (reactDocsLinkPath) indexData.reactDocsPath = reactDocsLinkPath;
+    if (reactSections) indexData.reactSections = reactSections;
+    if (reactDemoFiles) indexData.reactDemoFiles = reactDemoFiles;
+
+    // Generate index content for the selected library only
+    const reactIndexContent =
+      selection === 'react' ? generateHerouiMdIndex(indexData, 'react') : undefined;
+    const nativeIndexContent =
+      selection === 'native' ? generateHerouiMdIndex(indexData, 'native') : undefined;
+    const migrationIndexContent =
+      selection === 'migration' ? generateHerouiMdIndex(indexData, 'migration') : undefined;
+
+    // Write to all output files
+    const gitignoreResult = ensureGitignoreEntry(cwd);
+
+    for (const outputFile of outputFiles) {
+      const filePath = path.join(cwd, outputFile);
+      let sizeBefore = 0;
+      let isNewFile = true;
+      let existingContent = '';
+
+      if (fs.existsSync(filePath)) {
+        existingContent = fs.readFileSync(filePath, 'utf-8');
+        sizeBefore = Buffer.byteLength(existingContent, 'utf-8');
+        isNewFile = false;
+      }
+
+      const newContent = injectIntoClaudeMd(
+        existingContent,
+        reactIndexContent,
+        nativeIndexContent,
+        migrationIndexContent
+      );
+
+      fs.writeFileSync(filePath, newContent, 'utf-8');
+
+      const sizeAfter = Buffer.byteLength(newContent, 'utf-8');
+
+      const action = isNewFile ? 'Created' : 'Updated';
+      const sizeInfo = isNewFile
+        ? formatSize(sizeAfter)
+        : `${formatSize(sizeBefore)} → ${formatSize(sizeAfter)}`;
+
+      Logger.success(`✓ ${action} ${chalk.bold(outputFile)} (${sizeInfo})`);
+    }
+
+    if (gitignoreResult.updated) {
+      Logger.success(`✓ Added ${chalk.bold(DOCS_DIR_NAME)} to .gitignore`);
+    }
+    Logger.newLine();
+
+    // Show description of what was installed
+    Logger.log(chalk.cyan('📚 What was installed:'));
+    Logger.log(`  • Documentation files downloaded to ${chalk.bold(`.${DOCS_DIR_NAME}/`)}`);
+    Logger.log(`  • Index generated in ${chalk.bold(outputFiles.join(', '))}`);
+    if (selection === 'react') {
+      Logger.log(`  • Demo files included for React code examples`);
+    }
+    Logger.newLine();
+    Logger.log(chalk.cyan('💡 How it works:'));
+    Logger.log(
+      `  • AI assistants (like Claude, Cursor) can now reference ${selectionText} docs directly`
     );
-  }
+    Logger.log(
+      `  • The index in ${chalk.bold(outputFiles[0])} helps assistants find relevant documentation`
+    );
+    Logger.log(`  • Run ${chalk.bold('heroui agents-md')} again to update docs`);
+    Logger.newLine();
 
-  if (options.react || options.native || options.migration) {
-    selection = options.migration ? 'migration' : options.native ? 'native' : 'react';
-  } else {
-    // Autodetect installed packages
-    const {hasNative, hasReact} = detectInstalledPackages(cwd);
-
-    if (hasReact && hasNative) {
-      // Both found - prompt for selection
-      if (options.output) {
-        selection = await promptForLibrarySelection(false);
-      } else {
-        const promptedOptions = await promptForOptions(false);
-
-        selection = promptedOptions.selection;
-        outputFiles = promptedOptions.targetFiles;
+    analytics?.track({
+      event: 'AGENTS_MD_SUCCESS',
+      properties: {
+        duration: Date.now() - startTime,
+        outputFileCount: outputFiles.length,
+        outputFiles,
+        selection
       }
-    } else if (hasReact) {
-      // Only React found - use it automatically
-      selection = 'react';
-      Logger.log(chalk.dim('Detected @heroui/react, using HeroUI React v3 docs'));
-    } else if (hasNative) {
-      // Only Native found - use it automatically
-      selection = 'native';
-      Logger.log(chalk.dim('Detected heroui-native, using HeroUI Native docs'));
-    } else {
-      // Neither found - prompt for selection with warning
-      if (options.output) {
-        selection = await promptForLibrarySelection(true);
-      } else {
-        const promptedOptions = await promptForOptions(true);
-
-        selection = promptedOptions.selection;
-        outputFiles = promptedOptions.targetFiles;
-      }
-    }
-  }
-
-  // Normalize output files to array (if not already set from prompt)
-  if (!outputFiles) {
-    if (options.output) {
-      outputFiles = Array.isArray(options.output) ? options.output : [options.output];
-    } else {
-      // If output file not provided, prompt for it
-      const promptedFile = await promptForOutputFile();
-
-      if (promptedFile) {
-        outputFiles = Array.isArray(promptedFile) ? promptedFile : [promptedFile];
-      } else {
-        outputFiles = ['AGENTS.md'];
-      }
-    }
-  }
-
-  // Validate requirements before downloading (only for React docs)
-  const canContinue = await confirmRequirements(cwd, selection);
-
-  if (!canContinue) {
-    Logger.warn('\nCancelled.');
+    });
+    await shutdown();
     process.exit(0);
+  } catch (error) {
+    analytics?.trackError({
+      error,
+      errorEvent: 'AGENTS_MD_ERROR',
+      fallbackMessage: 'Failed to run agents-md',
+      properties: {duration: Date.now() - startTime}
+    });
+    await shutdown();
+    process.exit(1);
   }
-
-  const docsPath = path.join(cwd, DOCS_DIR_NAME);
-
-  const selectionText = formatSelectionText(selection);
-
-  Logger.log(`\nDownloading ${selectionText} documentation to ${chalk.cyan(DOCS_DIR_NAME)}...`);
-
-  const pullResult = await pullDocs({
-    cwd,
-    docsDir: docsPath,
-    selection,
-    useSsh: options.ssh ?? false
-  });
-
-  if (!pullResult.success) {
-    throw new ValidationError(`Failed to pull docs: ${pullResult.error}`);
-  }
-
-  // Collect and build trees for selected docs
-  let reactSections: ReturnType<typeof buildDocTree> | undefined;
-  let nativeSections: ReturnType<typeof buildDocTree> | undefined;
-  let migrationSections: ReturnType<typeof buildDocTree> | undefined;
-  let reactDemoFiles: {relativePath: string}[] | undefined;
-
-  if (selection === 'react') {
-    const reactDocsPath = path.join(docsPath, 'react');
-
-    if (fs.existsSync(reactDocsPath)) {
-      const reactDocFiles = collectDocFiles(reactDocsPath);
-
-      reactSections = buildDocTree(reactDocFiles);
-    }
-
-    const reactDemosPath = path.join(docsPath, 'react', 'demos');
-
-    if (fs.existsSync(reactDemosPath)) {
-      reactDemoFiles = collectDemoFiles(reactDemosPath);
-    }
-  }
-
-  if (selection === 'native') {
-    const nativeDocsPath = path.join(docsPath, 'native');
-
-    if (fs.existsSync(nativeDocsPath)) {
-      const nativeDocFiles = collectDocFiles(nativeDocsPath);
-
-      nativeSections = buildDocTree(nativeDocFiles);
-    }
-  }
-
-  if (selection === 'migration') {
-    const migrationDocsPath = path.join(docsPath, 'migration');
-
-    if (fs.existsSync(migrationDocsPath)) {
-      const migrationDocFiles = collectMigrationDocFiles(migrationDocsPath);
-
-      migrationSections = buildDocTree(migrationDocFiles);
-    }
-  }
-
-  const reactDocsLinkPath = selection === 'react' ? `./${DOCS_DIR_NAME}/react` : undefined;
-  const nativeDocsLinkPath = selection === 'native' ? `./${DOCS_DIR_NAME}/native` : undefined;
-  const migrationDocsLinkPath =
-    selection === 'migration' ? `./${DOCS_DIR_NAME}/migration` : undefined;
-
-  // Generate index content once (reused for all output files)
-  const indexData: Parameters<typeof generateHerouiMdIndex>[0] = {
-    outputFile: outputFiles[0], // Use first file for index generation (for display purposes)
-    selection
-  };
-
-  if (nativeDocsLinkPath) indexData.nativeDocsPath = nativeDocsLinkPath;
-  if (nativeSections) indexData.nativeSections = nativeSections;
-  if (migrationDocsLinkPath) indexData.migrationDocsPath = migrationDocsLinkPath;
-  if (migrationSections) indexData.migrationSections = migrationSections;
-  if (reactDocsLinkPath) indexData.reactDocsPath = reactDocsLinkPath;
-  if (reactSections) indexData.reactSections = reactSections;
-  if (reactDemoFiles) indexData.reactDemoFiles = reactDemoFiles;
-
-  // Generate index content for the selected library only
-  const reactIndexContent =
-    selection === 'react' ? generateHerouiMdIndex(indexData, 'react') : undefined;
-  const nativeIndexContent =
-    selection === 'native' ? generateHerouiMdIndex(indexData, 'native') : undefined;
-  const migrationIndexContent =
-    selection === 'migration' ? generateHerouiMdIndex(indexData, 'migration') : undefined;
-
-  // Write to all output files
-  const gitignoreResult = ensureGitignoreEntry(cwd);
-
-  for (const outputFile of outputFiles) {
-    const filePath = path.join(cwd, outputFile);
-    let sizeBefore = 0;
-    let isNewFile = true;
-    let existingContent = '';
-
-    if (fs.existsSync(filePath)) {
-      existingContent = fs.readFileSync(filePath, 'utf-8');
-      sizeBefore = Buffer.byteLength(existingContent, 'utf-8');
-      isNewFile = false;
-    }
-
-    const newContent = injectIntoClaudeMd(
-      existingContent,
-      reactIndexContent,
-      nativeIndexContent,
-      migrationIndexContent
-    );
-
-    fs.writeFileSync(filePath, newContent, 'utf-8');
-
-    const sizeAfter = Buffer.byteLength(newContent, 'utf-8');
-
-    const action = isNewFile ? 'Created' : 'Updated';
-    const sizeInfo = isNewFile
-      ? formatSize(sizeAfter)
-      : `${formatSize(sizeBefore)} → ${formatSize(sizeAfter)}`;
-
-    Logger.success(`✓ ${action} ${chalk.bold(outputFile)} (${sizeInfo})`);
-  }
-
-  if (gitignoreResult.updated) {
-    Logger.success(`✓ Added ${chalk.bold(DOCS_DIR_NAME)} to .gitignore`);
-  }
-  Logger.newLine();
-
-  // Show description of what was installed
-  Logger.log(chalk.cyan('📚 What was installed:'));
-  Logger.log(`  • Documentation files downloaded to ${chalk.bold(`.${DOCS_DIR_NAME}/`)}`);
-  Logger.log(`  • Index generated in ${chalk.bold(outputFiles.join(', '))}`);
-  if (selection === 'react') {
-    Logger.log(`  • Demo files included for React code examples`);
-  }
-  Logger.newLine();
-  Logger.log(chalk.cyan('💡 How it works:'));
-  Logger.log(
-    `  • AI assistants (like Claude, Cursor) can now reference ${selectionText} docs directly`
-  );
-  Logger.log(
-    `  • The index in ${chalk.bold(outputFiles[0])} helps assistants find relevant documentation`
-  );
-  Logger.log(`  • Run ${chalk.bold('heroui agents-md')} again to update docs`);
-  Logger.newLine();
-
-  process.exit(0);
 }
 
 async function promptForLibrarySelection(neitherFound: boolean = false): Promise<DocSelection> {
@@ -413,14 +441,14 @@ async function promptForLibrarySelection(neitherFound: boolean = false): Promise
   return selection as DocSelection;
 }
 
-async function promptForOptions(neitherFound: boolean = false): Promise<{
+async function promptForOptions(neitherFound?: boolean): Promise<{
   selection: DocSelection;
   targetFiles: string[];
 }> {
   Logger.log(chalk.cyan('HeroUI Documentation for AI Agents'));
   Logger.info('Download the latest HeroUI documentation for AI agents to the current project\n');
 
-  const selection = await promptForLibrarySelection(neitherFound);
+  const selection = await promptForLibrarySelection(neitherFound ?? false);
   const targetFile = await promptForOutputFile();
   const targetFiles = Array.isArray(targetFile) ? targetFile : [targetFile];
 
