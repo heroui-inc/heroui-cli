@@ -133,6 +133,69 @@ export async function pullDocs(options: PullOptions): Promise<PullResult> {
   }
 }
 
+/** Root-level migration files to copy. index.mdx is not copied (used only for include resolution). */
+const MIGRATION_ROOT_FILES = ['agent-index.mdx', 'hooks.mdx', 'styling.mdx'] as const;
+
+/** (workflows) subdir name; only files whose name starts with "agent-" are copied (non-agent guides excluded). */
+const MIGRATION_WORKFLOWS_DIR = '(workflows)';
+
+const INCLUDE_TAG_REGEX = /<include>(.+?)<\/include>/g;
+
+/**
+ * Replaces <include>path#anchor</include> with the inner content of <section id="anchor">...</section>
+ * from the referenced file. Used when copying migration agent guides so they are self-contained.
+ */
+function resolveIncludeTags(
+  content: string,
+  currentFileRelativePath: string,
+  sourceMigrationDir: string
+): string {
+  const currentDir = currentFileRelativePath.includes('/')
+    ? currentFileRelativePath.slice(0, currentFileRelativePath.lastIndexOf('/'))
+    : '.';
+
+  return content.replace(INCLUDE_TAG_REGEX, (match, pathAndAnchor: string) => {
+    const hashIndex = pathAndAnchor.indexOf('#');
+
+    if (hashIndex === -1) {
+      return match;
+    }
+
+    const relativePath = pathAndAnchor.slice(0, hashIndex).trim();
+    const anchor = pathAndAnchor.slice(hashIndex + 1).trim();
+
+    if (!relativePath || !anchor) {
+      return match;
+    }
+
+    const resolvedRelative = path
+      .normalize(path.join(currentDir, relativePath))
+      .replace(/\\/g, '/');
+    const targetPath = path.join(sourceMigrationDir, resolvedRelative);
+
+    if (!fs.existsSync(targetPath)) {
+      return match;
+    }
+
+    const targetContent = fs.readFileSync(targetPath, 'utf-8');
+    const sectionStart = `<section id="${anchor}">`;
+    const startIdx = targetContent.indexOf(sectionStart);
+
+    if (startIdx === -1) {
+      return match;
+    }
+
+    const innerStart = startIdx + sectionStart.length;
+    const endIdx = targetContent.indexOf('</section>', innerStart);
+
+    if (endIdx === -1) {
+      return match;
+    }
+
+    return targetContent.slice(innerStart, endIdx).trim();
+  });
+}
+
 async function cloneDocsFolder(
   ref: string,
   destDir: string,
@@ -246,7 +309,50 @@ async function cloneDocsFolder(
           fs.rmSync(destMigrationDir, {recursive: true});
         }
         fs.mkdirSync(destMigrationDir, {recursive: true});
-        fs.cpSync(sourceMigrationDir, destMigrationDir, {recursive: true});
+
+        for (const name of MIGRATION_ROOT_FILES) {
+          const sourcePath = path.join(sourceMigrationDir, name);
+
+          if (fs.existsSync(sourcePath)) {
+            fs.copyFileSync(sourcePath, path.join(destMigrationDir, name));
+          }
+        }
+
+        const sourceWorkflowsDir = path.join(sourceMigrationDir, MIGRATION_WORKFLOWS_DIR);
+
+        if (fs.existsSync(sourceWorkflowsDir)) {
+          const destWorkflowsDir = path.join(destMigrationDir, MIGRATION_WORKFLOWS_DIR);
+
+          fs.mkdirSync(destWorkflowsDir, {recursive: true});
+
+          for (const name of fs.readdirSync(sourceWorkflowsDir)) {
+            if (!name.startsWith('agent-')) {
+              continue;
+            }
+
+            const sourcePath = path.join(sourceWorkflowsDir, name);
+            const destPath = path.join(destWorkflowsDir, name);
+            const relativePath = `${MIGRATION_WORKFLOWS_DIR}/${name}`;
+
+            if (!fs.statSync(sourcePath).isFile()) {
+              continue;
+            }
+
+            const content = fs.readFileSync(sourcePath, 'utf-8');
+            const resolved = resolveIncludeTags(content, relativePath, sourceMigrationDir);
+
+            fs.writeFileSync(destPath, resolved, 'utf-8');
+          }
+        }
+
+        const sourceComponentsDir = path.join(sourceMigrationDir, '(components)');
+
+        if (fs.existsSync(sourceComponentsDir)) {
+          const destComponentsDir = path.join(destMigrationDir, '(components)');
+
+          fs.mkdirSync(destComponentsDir, {recursive: true});
+          fs.cpSync(sourceComponentsDir, destComponentsDir, {recursive: true});
+        }
       }
     }
   } finally {
@@ -403,6 +509,7 @@ export function generateHerouiMdIndex(
     parts.push(
       'STOP. Always search migration docs before migrating components from HeroUI v2 to v3.'
     );
+    parts.push('Start with: agent-index.mdx, then follow the workflow and component guides.');
 
     const targetFile = outputFile || 'AGENTS.md';
 
