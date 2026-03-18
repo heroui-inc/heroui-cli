@@ -3,7 +3,6 @@ import type {CommandName, SAFE_ANY} from '@helpers/type';
 import chalk from 'chalk';
 import {Command} from 'commander';
 
-import {isAddingHeroChatCodebase} from '@helpers/actions/add/heroui-chat/add-hero-chat-codebase';
 import {Logger, gradientString} from '@helpers/logger';
 import {findMostMatchText} from '@helpers/math-diff';
 import {outputBox} from '@helpers/output-info';
@@ -93,10 +92,8 @@ heroui.hook('preAction', async (command) => {
   const options = (command as SAFE_ANY).rawArgs.slice(2);
   const noCache = options.includes('--no-cache');
   const debug = options.includes('--debug') || options.includes('-d');
-  const targetsArgs = command.args?.slice(1);
 
-  if (isAddingHeroChatCodebase(targetsArgs) || !commandName) {
-    // HeroUI chat action don't need to init
+  if (!commandName) {
     return;
   }
 
