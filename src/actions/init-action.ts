@@ -20,15 +20,9 @@ import {
   APP_DIR,
   APP_NAME,
   APP_REPO,
-  LARAVEL_DIR,
-  LARAVEL_NAME,
-  LARAVEL_REPO,
   PAGES_DIR,
   PAGES_NAME,
   PAGES_REPO,
-  REMIX_DIR,
-  REMIX_NAME,
-  REMIX_REPO,
   VITE_DIR,
   VITE_NAME,
   VITE_REPO
@@ -36,9 +30,7 @@ import {
 
 export const templatesMap: Record<Required<InitOptions>['template'], string> = {
   app: APP_NAME,
-  laravel: LARAVEL_NAME,
   pages: PAGES_NAME,
-  remix: REMIX_NAME,
   vite: VITE_NAME
 };
 
@@ -78,12 +70,6 @@ export async function initAction(_projectName: string, options: InitOptions) {
   } else if (template === 'vite') {
     await generateTemplate(VITE_REPO);
     renameTemplate(VITE_DIR, projectName);
-  } else if (template === 'remix') {
-    await generateTemplate(REMIX_REPO);
-    renameTemplate(REMIX_DIR, projectName);
-  } else if (template === 'laravel') {
-    await generateTemplate(LARAVEL_REPO);
-    renameTemplate(LARAVEL_DIR, projectName);
   } else {
     // If add new template and not update this template, it will be exhaustive check error
     _exhaustiveCheck = template;
@@ -147,29 +133,19 @@ export type GenerateOptions<T, Last = GetUnionLastValue<T>> = [T] extends [never
 async function getTableInfo(packageName?: string, projectName?: string, template?: string) {
   const options: GenerateOptions<Exclude<InitOptions['template'], undefined>> = [
     {
-      hint: 'A Next.js 15 with app directory template pre-configured with HeroUI (v2) and Tailwind CSS.',
+      hint: 'A Next.js 15 with app directory template pre-configured with HeroUI (v3) and Tailwind CSS.',
       label: 'App',
       value: 'app'
     },
     {
-      hint: 'A Next.js 15 with pages directory template pre-configured with HeroUI (v2) and Tailwind CSS.',
+      hint: 'A Next.js 15 with pages directory template pre-configured with HeroUI (v3) and Tailwind CSS.',
       label: 'Pages',
       value: 'pages'
     },
     {
-      hint: 'A Vite template pre-configured with HeroUI (v2) and Tailwind CSS.',
+      hint: 'A Vite template pre-configured with HeroUI (v3) and Tailwind CSS.',
       label: 'Vite',
       value: 'vite'
-    },
-    {
-      hint: 'A Remix template pre-configured with HeroUI (v2) and Tailwind CSS.',
-      label: 'Remix',
-      value: 'remix'
-    },
-    {
-      hint: 'A Laravel template pre-configured with HeroUI (v2) and Tailwind CSS.',
-      label: 'Laravel',
-      value: 'laravel'
     }
   ];
 

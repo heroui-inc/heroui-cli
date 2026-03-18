@@ -23,11 +23,6 @@ export interface CommandOptions {
   debug?: boolean;
 }
 
-export interface AddOptions extends CommandOptions {
-  addApp?: boolean;
-  directory?: string;
-}
-
 export interface UpgradeOptions extends CommandOptions {
   packagePath?: string;
   all?: boolean;
@@ -64,7 +59,7 @@ export interface DoctorCommandOptions extends CommandOptions {
 }
 
 export interface InitOptions {
-  template?: 'app' | 'pages' | 'vite' | 'remix' | 'laravel';
+  template?: 'app' | 'pages' | 'vite';
   package?: Agent;
 }
 
