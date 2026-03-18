@@ -12,10 +12,9 @@ import pkg from '../package.json';
 
 import {getAnalytics, shutdown} from './analytics';
 import {registerCommands} from './commands';
-import {initStoreComponentsData} from './constants/component';
 import {getStore, store} from './constants/store';
 import {initCache} from './scripts/cache/cache';
-import {compareVersions, getComponents} from './scripts/helpers';
+import {compareVersions} from './scripts/helpers';
 
 const commandList: CommandName[] = [
   'add',
@@ -102,17 +101,6 @@ heroui.hook('preAction', async (command) => {
   // Init debug
   store.debug = debug;
   store.beta = options.includes('-b') || options.includes('--beta');
-
-  if (commandName && commandList.includes(commandName as CommandName)) {
-    // Before run the command init the components.json
-    const heroUIComponents = (await getComponents()).components;
-    const heroUIComponentsBeta = (await getComponents()).betaComponents;
-
-    initStoreComponentsData({beta: false, heroUIComponents: heroUIComponents});
-    if (store.beta) {
-      initStoreComponentsData({beta: true, heroUIComponents: heroUIComponentsBeta});
-    }
-  }
 
   const [cliLatestVersion] = await Promise.all([getStore('cliLatestVersion')]);
 

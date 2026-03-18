@@ -46,7 +46,6 @@
     "link:cli": "pnpm link --global",
     "link:remove": "pnpm uninstall --global heroui-cli",
     "build": "tsup",
-    "update:components": "tsx src/scripts/update/update-components.ts",
     "sync:docs": "tsx src/scripts/sync/sync.ts",
     "clean:cache": "tsx src/scripts/cache/clean.ts",
     "lint": "eslint . --max-warnings=0",

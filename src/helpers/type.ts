@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import type {Agent} from './detect';
-import type {HeroUIComponentsMap, StoreKeys} from 'src/constants/store';
-import type {Components} from 'src/scripts/helpers';
 
 /**
  * @example 'test-test' => 'TestTest'
@@ -134,20 +132,6 @@ export type ChalkColor =
   | 'bgMagentaBright'
   | 'bgCyanBright'
   | 'bgWhiteBright';
-
-export type ExtractStoreData<T extends StoreKeys> = T extends 'latestVersion' | 'cliLatestVersion'
-  ? string
-  : T extends 'heroUIComponents'
-    ? Components
-    : T extends 'heroUIComponentsKeys' | 'heroUIcomponentsPackages'
-      ? string[]
-      : T extends 'heroUIComponentsKeysSet'
-        ? Set<string>
-        : T extends 'heroUIComponentsMap'
-          ? HeroUIComponentsMap
-          : T extends 'heroUIComponentsPackageMap'
-            ? HeroUIComponentsMap
-            : never;
 
 /**
  *  @example UnionToIntersection<{ foo: string } | { bar: string }> --> { foo: string } & { bar: string }

@@ -12,7 +12,7 @@ import {
 } from '@helpers/check';
 import {detect} from '@helpers/detect';
 import {Logger, type PrefixLogType} from '@helpers/logger';
-import {getPackageInfo} from '@helpers/package';
+import {getInstalledHeroUIPackages, getPackageInfo} from '@helpers/package';
 import {findFiles, strip, transformOption} from '@helpers/utils';
 import {resolver} from 'src/constants/path';
 import {DOCS_PNPM_SETUP, DOCS_TAILWINDCSS_SETUP, HERO_UI} from 'src/constants/required';
@@ -37,8 +37,8 @@ export async function doctorAction(options: DoctorCommandOptions) {
   const enableCheckTailwind = transformOption(_enableCheckTailwind);
   const tailwindPaths = [tailwindPath].flat();
 
-  const {allDependencies, allDependenciesKeys, currentComponents, isAllComponents} =
-    getPackageInfo(packagePath);
+  const {allDependencies, allDependenciesKeys, isAllComponents} = getPackageInfo(packagePath);
+  const currentComponents = getInstalledHeroUIPackages(allDependencies);
 
   /** ======================== Output when there is no components installed ======================== */
   if (!currentComponents.length && !isAllComponents) {
@@ -158,7 +158,7 @@ export async function doctorAction(options: DoctorCommandOptions) {
   } else if (currentComponents.length) {
     // Individual components check
     const [isCorrectInstalled, ...missingDependencies] = await checkRequiredContentInstalled(
-      'partial',
+      'all',
       allDependenciesKeys,
       {
         allDependencies,
@@ -173,17 +173,8 @@ export async function doctorAction(options: DoctorCommandOptions) {
 
     // Check whether tailwind.config file is correct
     if (enableCheckTailwind) {
-      const isPnpm = (await detect()) === 'pnpm';
-
       for (const tailwindPath of tailwindPaths) {
-        const [isCorrectTailwind, ...errorInfo] = checkTailwind(
-          'partial',
-          tailwindPath,
-          currentComponents,
-          isPnpm,
-          undefined,
-          true
-        );
+        const [isCorrectTailwind, ...errorInfo] = checkTailwind('all', tailwindPath);
 
         if (!isCorrectTailwind) {
           const tailwindName = basename(tailwindPath);
@@ -195,7 +186,7 @@ export async function doctorAction(options: DoctorCommandOptions) {
 
     // Check whether the App.tsx is correct
     if (enableCheckApp && appPath) {
-      const [isAppCorrect, ...errorInfo] = checkApp('partial', appPath);
+      const [isAppCorrect, ...errorInfo] = checkApp('all', appPath);
 
       if (!isAppCorrect) {
         problemRecord.push(combineProblemRecord('incorrectApp', {errorInfo}));

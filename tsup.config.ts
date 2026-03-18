@@ -1,7 +1,5 @@
 import {defineConfig} from 'tsup';
 
-import {pluginCopyComponents} from 'build/plugin-copy';
-
 export default defineConfig((options) => {
   const posthogKey = process.env['HEROUI_CLI_POSTHOG_KEY'] ?? '';
 
@@ -16,7 +14,6 @@ export default defineConfig((options) => {
     format: ['esm'],
     minify: !options.watch,
     outDir: 'dist',
-    plugins: [pluginCopyComponents()],
     skipNodeModulesBundle: true,
     sourcemap: true,
     splitting: false,

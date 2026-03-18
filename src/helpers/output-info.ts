@@ -3,14 +3,9 @@ import type {ChalkColor, CommandName} from './type';
 import chalk from 'chalk';
 
 import {boxRound} from 'src/constants/box';
-import {
-  type HeroUIComponent,
-  type HeroUIComponents,
-  colorHeroUIComponentKeys,
-  orderHeroUIComponentKeys
-} from 'src/constants/component';
 
 import {Logger} from './logger';
+import {type PackageComponent} from './package';
 import {PasCalCase, fillAnsiLength, strip} from './utils';
 
 // eslint-disable-next-line no-control-regex
@@ -35,7 +30,7 @@ export function outputComponents({
   message = 'Current installed components:\n',
   warnError = true
 }: {
-  components: HeroUIComponents;
+  components: PackageComponent[];
   commandName?: CommandName;
   warnError?: boolean;
   message?: string;
@@ -48,7 +43,10 @@ export function outputComponents({
     return;
   }
 
-  const componentKeyLengthMap: Record<keyof HeroUIComponent | 'originVersion', number> = {
+  const orderHeroUIComponentKeys = ['package', 'version', 'status', 'docs'] as const;
+  const colorHeroUIComponentKeys = ['package', 'version', 'status'];
+
+  const componentKeyLengthMap: Record<keyof PackageComponent | 'originVersion', number> = {
     description: 0,
     docs: 0,
     name: 0,
@@ -57,7 +55,8 @@ export function outputComponents({
     peerDependencies: 0,
     status: 0,
     style: 0,
-    version: 0
+    version: 0,
+    versionMode: 0
   };
 
   for (const component of components) {
