@@ -5,8 +5,7 @@ import {listAction} from '../actions/list-action';
 export function registerListCommand(cmd: Command) {
   cmd
     .command('list')
-    .description('Lists all components, showing status, descriptions, and versions')
+    .description('Lists installed HeroUI packages (@heroui/react, @heroui/styles)')
     .option('-p --packagePath [string]', 'Specify the path to the package.json file')
-    .option('-r --remote', 'List all components available remotely')
     .action(listAction);
 }

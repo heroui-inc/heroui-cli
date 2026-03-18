@@ -39,12 +39,6 @@ export interface RemoveOptions extends CommandOptions {
   tailwindPath?: string;
   prettier?: boolean;
 }
-
-export interface ListOptions extends CommandOptions {
-  remote?: boolean;
-  packagePath?: string;
-}
-
 export interface EnvOptions extends CommandOptions {
   packagePath?: string;
 }

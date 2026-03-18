@@ -1,36 +1,34 @@
-import type {ListOptions} from '../helpers/type';
+import type {CommandOptions} from '../helpers/type';
 
 import {Logger} from '@helpers/logger';
 import {outputComponents} from '@helpers/output-info';
-import {getPackageInfo} from '@helpers/package';
-import {store} from 'src/constants/store';
+import {getPackageInfo, transformPackageDetail} from '@helpers/package';
 
-import {type HeroUIComponents} from '../../src/constants/component';
 import {resolver} from '../../src/constants/path';
 
-export async function listAction(options: ListOptions) {
-  const {packagePath = resolver('package.json'), remote = false} = options;
+const PACKAGES = ['@heroui/react', '@heroui/styles'];
 
-  let components = store.heroUIComponents as HeroUIComponents;
+export async function listAction(options: CommandOptions) {
+  const {packagePath = resolver('package.json')} = options;
 
   try {
-    /** ======================== Get the installed components ======================== */
-    if (!remote) {
-      const {currentComponents} = await getPackageInfo(packagePath);
+    const {allDependencies, allDependenciesKeys} = getPackageInfo(packagePath);
 
-      components = currentComponents;
-    }
+    const installed = PACKAGES.filter((pkg) => allDependenciesKeys.has(pkg));
 
-    if (!components.length) {
-      Logger.warn(`No HeroUI components detected in the specified package.json at: ${packagePath}`);
+    if (!installed.length) {
+      Logger.warn(
+        'No HeroUI packages found. Run `heroui add` to install @heroui/react and @heroui/styles.'
+      );
 
       return;
     }
 
-    /** ======================== Output the components ======================== */
-    remote ? outputComponents({commandName: 'list', components}) : outputComponents({components});
+    const components = await transformPackageDetail(installed, allDependencies);
+
+    outputComponents({components, message: 'Installed HeroUI packages:\n'});
   } catch (error) {
-    Logger.prefix('error', `An error occurred while attempting to list the components: ${error}`);
+    Logger.prefix('error', `An error occurred while listing packages: ${error}`);
   }
 
   process.exit(0);
