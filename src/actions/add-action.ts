@@ -7,15 +7,14 @@ import {exec} from '@helpers/exec';
 import {Logger} from '@helpers/logger';
 import {getPackageInfo} from '@helpers/package';
 import {resolver} from 'src/constants/path';
-
-const PACKAGES = ['@heroui/react', '@heroui/styles'];
+import {HEROUI_PACKAGES} from 'src/constants/required';
 
 export async function addAction(options: CommandOptions) {
   const {packagePath = resolver('package.json')} = options;
 
   const {allDependenciesKeys} = getPackageInfo(packagePath);
 
-  const missing = PACKAGES.filter((pkg) => !allDependenciesKeys.has(pkg));
+  const missing = HEROUI_PACKAGES.filter((pkg) => !allDependenciesKeys.has(pkg));
 
   if (!missing.length) {
     Logger.success('✅ @heroui/react and @heroui/styles are already installed');

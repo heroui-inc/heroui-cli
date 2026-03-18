@@ -8,15 +8,14 @@ import {Logger} from '@helpers/logger';
 import {getPackageInfo} from '@helpers/package';
 import {getColorVersion, getPackageManagerInfo, getVersionAndMode} from '@helpers/utils';
 import {resolver} from 'src/constants/path';
+import {HEROUI_PACKAGES} from 'src/constants/required';
 import {compareVersions, getLatestVersion} from 'src/scripts/helpers';
-
-const PACKAGES = ['@heroui/react', '@heroui/styles'];
 
 export async function upgradeAction(options: CommandOptions) {
   const {packagePath = resolver('package.json')} = options;
   const {allDependencies, allDependenciesKeys} = getPackageInfo(packagePath);
 
-  const installed = PACKAGES.filter((pkg) => allDependenciesKeys.has(pkg));
+  const installed = HEROUI_PACKAGES.filter((pkg) => allDependenciesKeys.has(pkg));
 
   if (!installed.length) {
     Logger.prefix(

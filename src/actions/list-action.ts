@@ -3,10 +3,9 @@ import type {CommandOptions} from '../helpers/type';
 import {Logger} from '@helpers/logger';
 import {outputComponents} from '@helpers/output-info';
 import {getPackageInfo, transformPackageDetail} from '@helpers/package';
+import {HEROUI_PACKAGES} from 'src/constants/required';
 
 import {resolver} from '../../src/constants/path';
-
-const PACKAGES = ['@heroui/react', '@heroui/styles'];
 
 export async function listAction(options: CommandOptions) {
   const {packagePath = resolver('package.json')} = options;
@@ -14,7 +13,7 @@ export async function listAction(options: CommandOptions) {
   try {
     const {allDependencies, allDependenciesKeys} = getPackageInfo(packagePath);
 
-    const installed = PACKAGES.filter((pkg) => allDependenciesKeys.has(pkg));
+    const installed = HEROUI_PACKAGES.filter((pkg) => allDependenciesKeys.has(pkg));
 
     if (!installed.length) {
       Logger.warn(
