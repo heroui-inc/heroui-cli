@@ -21,16 +21,6 @@ export interface CommandOptions {
   debug?: boolean;
 }
 
-export interface UpgradeOptions extends CommandOptions {
-  packagePath?: string;
-  all?: boolean;
-  major?: boolean;
-  minor?: boolean;
-  patch?: boolean;
-  write?: boolean;
-  beta?: boolean;
-}
-
 export interface RemoveOptions extends CommandOptions {
   packagePath: string;
   all?: boolean;

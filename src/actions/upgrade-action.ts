@@ -1,206 +1,65 @@
-import type {AppendKeyValue, UpgradeOptions} from '@helpers/type';
+import type {CommandOptions} from '@helpers/type';
 
-import fs from 'node:fs';
+import chalk from 'chalk';
 
-import {catchPnpmExec} from '@helpers/actions/upgrade/catch-pnpm-exec';
-import {getConditionVersion} from '@helpers/condition-value';
 import {detect} from '@helpers/detect';
 import {exec} from '@helpers/exec';
 import {Logger} from '@helpers/logger';
-import {colorMatchRegex} from '@helpers/output-info';
-import {type PackageComponent, getInstalledHeroUIPackages, getPackageInfo} from '@helpers/package';
-import {setupPnpm} from '@helpers/setup';
-import {upgrade, writeUpgradeVersion} from '@helpers/upgrade';
-import {getColorVersion, getPackageManagerInfo, transformPeerVersion} from '@helpers/utils';
+import {getPackageInfo} from '@helpers/package';
+import {getColorVersion, getPackageManagerInfo, getVersionAndMode} from '@helpers/utils';
 import {resolver} from 'src/constants/path';
-import {HERO_UI} from 'src/constants/required';
-import {getAutocompleteMultiselect, getMultiselect, getSelect} from 'src/prompts';
-import {compareVersions} from 'src/scripts/helpers';
+import {compareVersions, getLatestVersion} from 'src/scripts/helpers';
 
-type TransformComponent = Required<
-  AppendKeyValue<PackageComponent, 'latestVersion', string> & {isLatest: boolean}
->;
+const PACKAGES = ['@heroui/react', '@heroui/styles'];
 
-function betaCompareVersions(version: string, latestVersion: string, beta: boolean) {
-  const autoChangeTag = version.match(/(^\w+$)/)?.[1];
+export async function upgradeAction(options: CommandOptions) {
+  const {packagePath = resolver('package.json')} = options;
+  const {allDependencies, allDependenciesKeys} = getPackageInfo(packagePath);
 
-  if (autoChangeTag) {
-    return latestVersion.includes(autoChangeTag);
-  }
+  const installed = PACKAGES.filter((pkg) => allDependenciesKeys.has(pkg));
 
-  const compareResult = compareVersions(version, latestVersion);
-
-  return beta && compareResult === 1 && !version.includes('beta') ? false : compareResult >= 0;
-}
-
-export async function upgradeAction(components: string[], options: UpgradeOptions) {
-  const {
-    all = false,
-    beta = false,
-    packagePath = resolver('package.json'),
-    write = false
-  } = options;
-  const {allDependencies, dependencies, devDependencies, packageJson} = getPackageInfo(packagePath);
-
-  const currentComponents = getInstalledHeroUIPackages(allDependencies);
-  const isHeroUIAll = !!allDependencies[HERO_UI];
-
-  const transformComponents: TransformComponent[] = [];
-
-  await Promise.all(
-    currentComponents.map(async (component) => {
-      const mergedVersion = await getConditionVersion(component.package);
-      const compareResult = betaCompareVersions(component.version, mergedVersion, beta);
-
-      transformComponents.push({
-        ...component,
-        isLatest: compareResult,
-        latestVersion: mergedVersion
-      });
-    })
-  );
-
-  if (!transformComponents.length && !isHeroUIAll) {
-    Logger.prefix('error', `No HeroUI components detected in your package.json at: ${packagePath}`);
+  if (!installed.length) {
+    Logger.prefix(
+      'error',
+      'No HeroUI packages found. Run `heroui add` to install @heroui/react and @heroui/styles.'
+    );
 
     return;
   }
 
-  if (all) {
-    components = currentComponents.map((component) => component.package);
-  } else if (!components.length) {
-    if (isHeroUIAll) {
-      const latestVersion = await getConditionVersion(HERO_UI);
-      const herouiData = {
-        isLatest:
-          compareVersions(latestVersion, transformPeerVersion(allDependencies[HERO_UI])) <= 0,
-        latestVersion,
-        package: HERO_UI,
-        version: transformPeerVersion(allDependencies[HERO_UI])
-      } as TransformComponent;
+  const upgradable: {pkg: string; current: string; latest: string}[] = [];
 
-      transformComponents.push(herouiData);
-    }
+  await Promise.all(
+    installed.map(async (pkg) => {
+      const {currentVersion} = getVersionAndMode(allDependencies, pkg);
+      const latestVersion = await getLatestVersion(pkg);
 
-    if (transformComponents.every((component) => component.isLatest)) {
-      Logger.success('✅ All HeroUI packages are up to date');
-      process.exit(0);
-    }
+      if (compareVersions(currentVersion, latestVersion) < 0) {
+        upgradable.push({current: currentVersion, latest: latestVersion, pkg});
+      }
+    })
+  );
 
-    components = await getAutocompleteMultiselect(
-      'Select the components to upgrade',
-      transformComponents.map((component) => {
-        const isUpToDate = betaCompareVersions(component.version, component.latestVersion, beta);
-
-        return {
-          disabled: isUpToDate,
-          disabledMessage: 'Already up to date',
-          title: `${component.package}${
-            isUpToDate
-              ? ''
-              : `@${component.version} -> ${getColorVersion(
-                  component.version,
-                  component.latestVersion
-                )}`
-          }`,
-          value: component.package
-        };
-      })
-    );
+  if (!upgradable.length) {
+    Logger.success('✅ @heroui/react and @heroui/styles are up to date');
+    process.exit(0);
   }
 
-  /** ======================== Upgrade ======================== */
-  const upgradeOptionList = transformComponents.filter((c) => components.includes(c.package));
+  Logger.info('The following packages can be upgraded:');
+  for (const {current, latest, pkg} of upgradable) {
+    Logger.log(`  ${chalk.underline(pkg)} ${current} -> ${getColorVersion(current, latest)}`);
+  }
+  Logger.newLine();
 
-  let result = await upgrade({
-    all,
-    allDependencies,
-    isHeroUIAll,
-    upgradeOptionList
-  });
-  let ignoreList: string[] = [];
   const packageManager = await detect();
+  const {install} = getPackageManagerInfo(packageManager);
+  const installCmd = upgradable.map((u) => `${u.pkg}@${u.latest}`).join(' ');
 
-  if (result.length) {
-    const isExecute = await getSelect('Would you like to proceed with the upgrade?', [
-      {
-        title: 'Yes',
-        value: true
-      },
-      {
-        description: 'Select this if you wish to exclude certain packages from the upgrade',
-        title: 'No',
-        value: false
-      }
-    ]);
+  Logger.info(`Upgrading ${upgradable.map((u) => chalk.underline(u.pkg)).join(', ')}...`);
 
-    const {install} = getPackageManagerInfo(packageManager);
-
-    if (!isExecute) {
-      const isNeedRemove = await getSelect(
-        'Would you like to exclude any packages from the upgrade?',
-        [
-          {
-            description: 'Select this to choose packages to exclude',
-            title: 'Yes',
-            value: true
-          },
-          {
-            description: 'Select this to proceed without excluding any packages',
-            title: 'No',
-            value: false
-          }
-        ]
-      );
-
-      if (isNeedRemove) {
-        ignoreList = await getMultiselect(
-          'Select the packages you want to exclude from the upgrade:',
-          result.map((c) => {
-            return {
-              description: `${c.version} -> ${getColorVersion(c.version, c.latestVersion)}`,
-              title: c.package,
-              value: c.package
-            };
-          })
-        );
-      }
-    }
-
-    result = result.filter((r) => {
-      return !ignoreList.some((ignore) => r.package === ignore);
-    });
-
-    if (write) {
-      writeUpgradeVersion({
-        dependencies,
-        devDependencies,
-        upgradePackageList: result
-      });
-
-      fs.writeFileSync(packagePath, JSON.stringify(packageJson, null, 2), 'utf-8');
-
-      Logger.newLine();
-      Logger.success('✅ Upgrade version written to package.json');
-      process.exit(0);
-    } else {
-      await catchPnpmExec(() =>
-        exec(
-          `${packageManager} ${install} ${result.reduce((acc, component, index) => {
-            return `${acc}${index === 0 ? '' : ' '}${
-              component.package
-            }@${component.latestVersion.replace(colorMatchRegex, '')}`;
-          }, '')}`
-        )
-      );
-    }
-  }
-
-  /** ======================== Setup Pnpm ======================== */
-  setupPnpm(packageManager);
+  await exec(`${packageManager} ${install} ${installCmd}`);
 
   Logger.newLine();
-  Logger.success('✅ Upgrade complete. All components are up to date.');
-
+  Logger.success('✅ Upgrade complete');
   process.exit(0);
 }
