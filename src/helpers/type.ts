@@ -21,12 +21,6 @@ export interface CommandOptions {
   debug?: boolean;
 }
 
-export interface RemoveOptions extends CommandOptions {
-  packagePath: string;
-  all?: boolean;
-  tailwindPath?: string;
-  prettier?: boolean;
-}
 export interface EnvOptions extends CommandOptions {
   packagePath?: string;
 }
