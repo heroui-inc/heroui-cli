@@ -90,8 +90,13 @@ export async function transformPackageDetail(
   const result: PackageComponent[] = [];
 
   for (const component of components) {
-    let {currentVersion} = getVersionAndMode(allDependencies, component);
-    const {versionMode} = getVersionAndMode(allDependencies, component);
+    const isInstalled = component in allDependencies;
+    let currentVersion = isInstalled
+      ? getVersionAndMode(allDependencies, component).currentVersion
+      : '';
+    const versionMode = isInstalled
+      ? getVersionAndMode(allDependencies, component).versionMode
+      : '';
     const docs = (
       ((await getCacheExecData(`npm show ${component} homepage`)) || '') as string
     ).replace(/\n/, '');
@@ -100,7 +105,8 @@ export async function transformPackageDetail(
     ).replace(/\n/, '');
     const latestVersion = await getLatestVersion(component);
 
-    currentVersion = transformVersion ? `${currentVersion} new: ${latestVersion}` : currentVersion;
+    currentVersion =
+      isInstalled && transformVersion ? `${currentVersion} new: ${latestVersion}` : latestVersion;
 
     const detailPackageInfo: PackageComponent = {
       description: description || '',
