@@ -22,7 +22,7 @@ export async function removeAction(options: CommandOptions) {
     process.exit(0);
   }
 
-  const components = await transformPackageDetail(installed, allDependencies);
+  const components = await transformPackageDetail(installed, allDependencies, false);
 
   outputComponents({
     components,
