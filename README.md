@@ -122,7 +122,7 @@ HeroUI CLI <version>
 
 ### Add
 
-Add `@heroui/react` and `@heroui/styles` to your project. If they are already installed, the command does nothing.
+Add `@heroui/react` and `@heroui/styles` to your project, along with their peer dependencies. If they are already installed, the command does nothing.
 
 ```bash
 heroui add [options]
@@ -144,12 +144,18 @@ Output:
 HeroUI CLI <version>
 
 📦 Packages to be installed:
-╭──────────────────────────────────────────────────────────────────────────────────────╮
-│   Package          │   Version   │   Status   │   Docs                               │
-│──────────────────────────────────────────────────────────────────────────────────────│
-│   @heroui/react    │   3.0.0     │   stable   │   https://heroui.com                 │
-│   @heroui/styles   │   3.0.0     │   stable   │   https://heroui.com                 │
-╰──────────────────────────────────────────────────────────────────────────────────────╯
+╭─────────────────────────────────────────────────────────────────────────────╮
+│   Package          │   Version        │   Status   │   Docs                 │
+│─────────────────────────────────────────────────────────────────────────────│
+│   @heroui/react    │   3.0.0          │   stable   │   https://heroui.com   │
+│   @heroui/styles   │   3.0.0          │   stable   │   https://heroui.com   │
+╰─────────────────────────────────────────────────────────────────────────────╯
+
+╭─────────────── PeerDependencies ────────────────╮
+│  react@18.3.1                      latest       │
+│  react-dom@18.3.1                  latest       │
+│  tailwindcss@4.2.2                 latest       │
+╰─────────────────────────────────────────────────╯
 ? Proceed with installation? › - Use arrow-keys. Return to submit.
 ❯   Yes
     No
@@ -159,7 +165,7 @@ HeroUI CLI <version>
 
 ### Upgrade
 
-Upgrade `@heroui/react` and `@heroui/styles` to the latest versions.
+Upgrade `@heroui/react` and `@heroui/styles` with their peer dependencies to the latest versions.
 
 ```bash
 heroui upgrade [options]
@@ -194,7 +200,7 @@ HeroUI CLI <version>
 
 ### Remove
 
-Remove `@heroui/react` and `@heroui/styles` from your project.
+Remove `@heroui/react` and `@heroui/styles` from your project. Peer dependencies will not be deleted.
 
 ```bash
 heroui remove [options]
@@ -273,7 +279,7 @@ heroui doctor [options]
 #### Features
 
 > 1. Check whether `@heroui/react` and `@heroui/styles` are installed
-> 2. Check whether `required peer dependencies` are installed in the project
+> 2. Check whether `required peer dependencies` are installed and matched minimal requirements in the project
 
 #### Doctor Options
 
@@ -347,7 +353,7 @@ Environment Info:
     OS: darwin
     CPU: arm64
   Binaries:
-    Node: v22.0.0
+    Node: v25.8.1
 ```
 
 ### Agents-md
