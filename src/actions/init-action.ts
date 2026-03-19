@@ -9,7 +9,6 @@ import {join} from 'pathe';
 
 import {changeNpmrc} from '@helpers/actions/init/change-npmrc';
 import {downloadTemplate} from '@helpers/fetch';
-import {fixPnpm} from '@helpers/fix';
 import {checkInitOptions} from '@helpers/init';
 import {getPackageManagerInfo} from '@helpers/utils';
 import {selectClack, taskClack, textClack} from 'src/prompts/clack';
@@ -79,13 +78,6 @@ export async function initAction(_projectName: string, options: InitOptions) {
 
   /** ======================== Change default npmrc content ======================== */
   changeNpmrc(npmrcFile);
-
-  /** ======================== Pnpm setup (optional) ======================== */
-  if (packageName === 'pnpm') {
-    fixPnpm(npmrcFile, true, false, ({message}) => {
-      p.log.message(message);
-    });
-  }
 
   /** ======================== Add guide ======================== */
   p.note(

@@ -8,7 +8,7 @@ import type {SAFE_ANY} from './type';
 
 import chalk from 'chalk';
 
-import {HERO_UI, THEME_UI} from 'src/constants/required';
+import {HERO_UI} from 'src/constants/required';
 import {getCacheExecData} from 'src/scripts/cache/cache';
 import {type Dependencies, compareVersions, getLatestVersion} from 'src/scripts/helpers';
 
@@ -260,7 +260,6 @@ export async function getAllOutputData(
   const isLatest = compareVersions(currentVersion, latestVersion) >= 0;
 
   const heroUIPeerDepList = await getPackagePeerDep(HERO_UI, allDependencies, missingDepSet);
-  const heroUIThemePeerDepList = await getPackagePeerDep(THEME_UI, allDependencies, missingDepSet);
 
   const allOutputList = [
     {
@@ -271,7 +270,7 @@ export async function getAllOutputData(
       versionMode
     }
   ];
-  const allPeerDepList = [...heroUIPeerDepList, ...heroUIThemePeerDepList];
+  const allPeerDepList = [...heroUIPeerDepList];
   const allOutputData = {
     allOutputList,
     allPeerDepList
