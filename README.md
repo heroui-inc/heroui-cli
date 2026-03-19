@@ -434,10 +434,6 @@ your-project/
 - The command always downloads the latest documentation from the `v3` branch
 - Documentation is stored in `.heroui-docs/` which is automatically added to `.gitignore`
 
-## Documentation
-
-Visit [https://heroui.com/docs/guide/cli](https://heroui.com/docs/guide/cli) to view the full documentation.
-
 ### Community
 
 We're excited to see the community adopt HeroUI CLI, raise issues, and provide feedback.
