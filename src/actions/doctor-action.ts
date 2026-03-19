@@ -1,12 +1,14 @@
-import type {DoctorCommandOptions} from '@helpers/type';
+import type {DoctorCommandOptions, SAFE_ANY} from '@helpers/type';
 
 import chalk from 'chalk';
 
-import {checkRequiredContentInstalled} from '@helpers/check';
 import {Logger, type PrefixLogType} from '@helpers/logger';
 import {getPackageInfo} from '@helpers/package';
+import {getVersionAndMode, transformPeerVersion} from '@helpers/utils';
 import {resolver} from 'src/constants/path';
 import {DOCS_INSTALLED, HEROUI_PACKAGES} from 'src/constants/required';
+import {getCacheExecData} from 'src/scripts/cache/cache';
+import {compareVersions} from 'src/scripts/helpers';
 
 export interface ProblemRecord {
   name: string;
@@ -51,13 +53,35 @@ export async function doctorAction(options: DoctorCommandOptions) {
     });
   }
 
-  const [isCorrectInstalled, ...missingDependencies] = await checkRequiredContentInstalled(
-    'all',
-    allDependenciesKeys,
-    {allDependencies, packageNames: [...installed], peerDependencies: true}
-  );
+  const missingPeerDeps: string[] = [];
+  const seen = new Set<string>();
 
-  if (!isCorrectInstalled) {
+  for (const pkg of installed) {
+    const raw = await getCacheExecData(`npm show ${pkg} peerDependencies --json`);
+    const peerDeps: Record<string, string> = raw ? JSON.parse(raw as SAFE_ANY) : {};
+
+    for (const [peerPkg, peerVersion] of Object.entries(peerDeps)) {
+      if (
+        seen.has(peerPkg) ||
+        HEROUI_PACKAGES.includes(peerPkg as (typeof HEROUI_PACKAGES)[number])
+      )
+        continue;
+      seen.add(peerPkg);
+
+      if (!allDependenciesKeys.has(peerPkg)) {
+        missingPeerDeps.push(`${peerPkg} (${peerVersion})`);
+      } else {
+        const {currentVersion} = getVersionAndMode(allDependencies, peerPkg);
+        const minVersion = transformPeerVersion(peerVersion);
+
+        if (compareVersions(currentVersion, minVersion) < 0) {
+          missingPeerDeps.push(`${peerPkg} (${peerVersion}, current: ${currentVersion})`);
+        }
+      }
+    }
+  }
+
+  if (missingPeerDeps.length) {
     problemRecord.push({
       level: 'error',
       name: 'missingDependencies',
@@ -65,7 +89,7 @@ export async function doctorAction(options: DoctorCommandOptions) {
         Logger.log('You have not installed the required dependencies');
         Logger.newLine();
         Logger.log('The required dependencies are:');
-        missingDependencies.forEach((dependency) => {
+        missingPeerDeps.forEach((dependency) => {
           Logger.log(`- ${dependency}`);
         });
         Logger.newLine();

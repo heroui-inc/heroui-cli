@@ -60,9 +60,10 @@ export async function checkPeerDependencies(
 ) {
   const {allDependencies, packageNames} = config;
   const peerDepList: string[] = [];
+  const missingDepSet = new Set<{name: string; version: string}>();
 
   for (const packageName of packageNames) {
-    const result = await getPackagePeerDep(packageName, allDependencies, new Set());
+    const result = await getPackagePeerDep(packageName, allDependencies, missingDepSet);
 
     for (const peerData of result) {
       if (!peerData.isLatest) {
@@ -80,6 +81,12 @@ export async function checkPeerDependencies(
         }
         peerDepList.push(`${peerData.package}@${peerData.latestVersion}`);
       }
+    }
+  }
+
+  for (const missingDep of missingDepSet) {
+    if (!peerDepList.some((dep) => dep.includes(missingDep.name))) {
+      peerDepList.push(`${missingDep.name} >= ${missingDep.version}`);
     }
   }
 
