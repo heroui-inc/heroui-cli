@@ -2,11 +2,11 @@ import type {DoctorCommandOptions} from '@helpers/type';
 
 import chalk from 'chalk';
 
-import {checkRequiredContentInstalled, combineProblemRecord} from '@helpers/check';
+import {checkRequiredContentInstalled} from '@helpers/check';
 import {Logger, type PrefixLogType} from '@helpers/logger';
 import {getPackageInfo} from '@helpers/package';
 import {resolver} from 'src/constants/path';
-import {HEROUI_PACKAGES} from 'src/constants/required';
+import {DOCS_INSTALLED, HEROUI_PACKAGES} from 'src/constants/required';
 
 export interface ProblemRecord {
   name: string;
@@ -58,7 +58,20 @@ export async function doctorAction(options: DoctorCommandOptions) {
   );
 
   if (!isCorrectInstalled) {
-    problemRecord.push(combineProblemRecord('missingDependencies', {missingDependencies}));
+    problemRecord.push({
+      level: 'error',
+      name: 'missingDependencies',
+      outputFn: () => {
+        Logger.log('You have not installed the required dependencies');
+        Logger.newLine();
+        Logger.log('The required dependencies are:');
+        missingDependencies.forEach((dependency) => {
+          Logger.log(`- ${dependency}`);
+        });
+        Logger.newLine();
+        Logger.log(`See more info here: ${chalk.underline(DOCS_INSTALLED)}`);
+      }
+    });
   }
 
   if (!problemRecord.length) {
