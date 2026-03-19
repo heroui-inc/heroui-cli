@@ -1,21 +1,12 @@
 import type {DoctorCommandOptions} from '@helpers/type';
 
 import chalk from 'chalk';
-import {basename} from 'pathe';
 
-import {
-  checkApp,
-  checkPnpm,
-  checkRequiredContentInstalled,
-  checkTailwind,
-  combineProblemRecord
-} from '@helpers/check';
-import {detect} from '@helpers/detect';
+import {checkRequiredContentInstalled, combineProblemRecord} from '@helpers/check';
 import {Logger, type PrefixLogType} from '@helpers/logger';
-import {getInstalledHeroUIPackages, getPackageInfo} from '@helpers/package';
-import {findFiles, strip, transformOption} from '@helpers/utils';
+import {getPackageInfo} from '@helpers/package';
 import {resolver} from 'src/constants/path';
-import {DOCS_PNPM_SETUP, DOCS_TAILWINDCSS_SETUP, HERO_UI} from 'src/constants/required';
+import {HEROUI_PACKAGES} from 'src/constants/required';
 
 export interface ProblemRecord {
   name: string;
@@ -24,206 +15,52 @@ export interface ProblemRecord {
 }
 
 export async function doctorAction(options: DoctorCommandOptions) {
-  const {
-    tailwindPath = findFiles('**/tailwind.config.(j|t)s'),
-    appPath = findFiles('**/App.(j|t)sx')[0],
-    checkApp: _enableCheckApp = false,
-    checkPnpm: _enableCheckPnpm = true,
-    checkTailwind: _enableCheckTailwind = !!tailwindPath[0],
-    packagePath = resolver('package.json')
-  } = options;
-  const enableCheckApp = transformOption(_enableCheckApp);
-  const enableCheckPnpm = transformOption(_enableCheckPnpm);
-  const enableCheckTailwind = transformOption(_enableCheckTailwind);
-  const tailwindPaths = [tailwindPath].flat();
+  const {packagePath = resolver('package.json')} = options;
 
-  const {allDependencies, allDependenciesKeys, isAllComponents} = getPackageInfo(packagePath);
-  const currentComponents = getInstalledHeroUIPackages(allDependencies);
+  const {allDependencies, allDependenciesKeys} = getPackageInfo(packagePath);
 
-  /** ======================== Output when there is no components installed ======================== */
-  if (!currentComponents.length && !isAllComponents) {
+  const installed = HEROUI_PACKAGES.filter((pkg) => allDependenciesKeys.has(pkg));
+
+  if (!installed.length) {
     Logger.prefix(
       'error',
       `❌ No ${chalk.underline(
-        'HeroUI components'
+        'HeroUI packages'
       )} found in your project. Please consult the installation guide at: https://heroui.com/docs/guide/installation#global-installation`
     );
 
     return;
   }
 
-  /** ======================== Problem record ======================== */
   const problemRecord: ProblemRecord[] = [];
 
-  /** ======================== Check whether installed redundant dependencies ======================== */
-  if (isAllComponents && currentComponents.length) {
+  const missing = HEROUI_PACKAGES.filter((pkg) => !allDependenciesKeys.has(pkg));
+
+  if (missing.length) {
     problemRecord.push({
       level: 'warn',
-      name: 'redundantDependencies',
+      name: 'missingHeroUIPackages',
       outputFn: () => {
-        Logger.log(
-          'You have installed some unnecessary dependencies. Consider removing them for optimal performance.'
-        );
+        Logger.log('The following HeroUI packages are not installed:');
+        missing.forEach((pkg) => {
+          Logger.log(`- ${pkg}`);
+        });
         Logger.newLine();
-        Logger.log('The following dependencies are redundant:');
-        currentComponents.forEach((component) => {
-          Logger.log(`- ${component.package}`);
-        });
-      }
-    });
-  }
-  // If there is no tailwind.config file
-  if (enableCheckTailwind && !tailwindPaths.length) {
-    problemRecord.push({
-      level: 'error',
-      name: 'missingTailwind',
-      outputFn: () => {
-        Logger.log(
-          'Missing tailwind.config.(j|t)s file. To set up, visit: ' +
-            chalk.underline(DOCS_TAILWINDCSS_SETUP)
-        );
-      }
-    });
-  }
-  // If there is no App.tsx
-  if (enableCheckApp && !appPath) {
-    problemRecord.push({
-      level: 'error',
-      name: 'missingApp',
-      outputFn: () => {
-        Logger.log(
-          'App.(j|t)sx file not found. Please specify the path using: doctor --appPath=[yourAppPath]'
-        );
+        Logger.log('Run `heroui add` to install them.');
       }
     });
   }
 
-  /** ======================== Check if the allComponents required dependencies installed ======================== */
-  if (isAllComponents) {
-    // Check if framer-motion allComponents is installed
-    let [isCorrectInstalled, ...missingDependencies] = await checkRequiredContentInstalled(
-      'all',
-      allDependenciesKeys,
-      {allDependencies, packageNames: [HERO_UI], peerDependencies: true}
-    );
+  const [isCorrectInstalled, ...missingDependencies] = await checkRequiredContentInstalled(
+    'all',
+    allDependenciesKeys,
+    {allDependencies, packageNames: [...installed], peerDependencies: true}
+  );
 
-    // Check if other allComponents are installed
-    if (currentComponents.length) {
-      const [_isCorrectInstalled, ..._missingDependencies] = await checkRequiredContentInstalled(
-        'partial',
-        allDependenciesKeys,
-        {
-          allDependencies,
-          packageNames: currentComponents.map((c) => c.package),
-          peerDependencies: true
-        }
-      );
-
-      isCorrectInstalled = _isCorrectInstalled || isCorrectInstalled;
-      // Combine missing dependencies
-      missingDependencies = [..._missingDependencies, ...missingDependencies].filter(
-        (c, index, arr) => {
-          c = strip(c).replace(/@[\d.]+/g, '');
-
-          return arr.findIndex((d) => strip(d).replace(/@[\d.]+/g, '') === c) === index;
-        }
-      );
-    }
-
-    if (!isCorrectInstalled) {
-      problemRecord.push(combineProblemRecord('missingDependencies', {missingDependencies}));
-    }
-
-    // Check whether tailwind.config file is correct
-    if (enableCheckTailwind) {
-      for (const tailwindPath of tailwindPaths) {
-        const [isCorrectTailwind, ...errorInfo] = checkTailwind('all', tailwindPath);
-
-        if (!isCorrectTailwind) {
-          const tailwindName = basename(tailwindPath);
-
-          problemRecord.push(combineProblemRecord('incorrectTailwind', {errorInfo, tailwindName}));
-        }
-      }
-    }
-
-    // Check whether the App.tsx is correct
-    if (enableCheckApp && appPath) {
-      const [isAppCorrect, ...errorInfo] = checkApp('all', appPath);
-
-      if (!isAppCorrect) {
-        problemRecord.push(combineProblemRecord('incorrectApp', {errorInfo}));
-      }
-    }
-  } else if (currentComponents.length) {
-    // Individual components check
-    const [isCorrectInstalled, ...missingDependencies] = await checkRequiredContentInstalled(
-      'all',
-      allDependenciesKeys,
-      {
-        allDependencies,
-        packageNames: currentComponents.map((c) => c.package),
-        peerDependencies: true
-      }
-    );
-
-    if (!isCorrectInstalled) {
-      problemRecord.push(combineProblemRecord('missingDependencies', {missingDependencies}));
-    }
-
-    // Check whether tailwind.config file is correct
-    if (enableCheckTailwind) {
-      for (const tailwindPath of tailwindPaths) {
-        const [isCorrectTailwind, ...errorInfo] = checkTailwind('all', tailwindPath);
-
-        if (!isCorrectTailwind) {
-          const tailwindName = basename(tailwindPath);
-
-          problemRecord.push(combineProblemRecord('incorrectTailwind', {errorInfo, tailwindName}));
-        }
-      }
-    }
-
-    // Check whether the App.tsx is correct
-    if (enableCheckApp && appPath) {
-      const [isAppCorrect, ...errorInfo] = checkApp('all', appPath);
-
-      if (!isAppCorrect) {
-        problemRecord.push(combineProblemRecord('incorrectApp', {errorInfo}));
-      }
-    }
+  if (!isCorrectInstalled) {
+    problemRecord.push(combineProblemRecord('missingDependencies', {missingDependencies}));
   }
 
-  /** ======================== Check whether Pnpm setup is correct ======================== */
-  if (enableCheckPnpm) {
-    const currentPkgManager = await detect();
-
-    if (currentPkgManager === 'pnpm') {
-      const npmrcPath = resolver('.npmrc');
-
-      const [isCorrect, ...errorInfo] = checkPnpm(npmrcPath);
-
-      if (!isCorrect) {
-        problemRecord.push({
-          level: 'error',
-          name: 'incorrectPnpm',
-          outputFn: () => {
-            Logger.log(
-              'The pnpm setup is incorrect \nPlease update your configuration according to the guidelines provided at: ' +
-                chalk.underline(DOCS_PNPM_SETUP)
-            );
-            Logger.newLine();
-            Logger.log('Required changes:');
-            errorInfo.forEach((info) => {
-              Logger.log(`- Add ${info}`);
-            });
-          }
-        });
-      }
-    }
-  }
-
-  /** ======================== Return when there is no problem ======================== */
   if (!problemRecord.length) {
     Logger.newLine();
     Logger.success('✅ Your project has no detected issues.');
@@ -231,7 +68,6 @@ export async function doctorAction(options: DoctorCommandOptions) {
     return;
   }
 
-  /** ======================== Output the problem record ======================== */
   Logger.prefix(
     'error',
     `❌ Your project has ${chalk.underline(problemRecord.length)} issue${

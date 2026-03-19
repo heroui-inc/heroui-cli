@@ -27,11 +27,6 @@ export interface EnvOptions extends CommandOptions {
 
 export interface DoctorCommandOptions extends CommandOptions {
   packagePath?: string;
-  tailwindPath?: string;
-  appPath?: string;
-  checkApp?: boolean | 'false';
-  checkTailwind?: boolean | 'false';
-  checkPnpm?: boolean | 'false';
 }
 
 export interface InitOptions {
