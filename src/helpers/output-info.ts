@@ -67,18 +67,23 @@ export function outputComponents({
         const newVersion = str.match(newVersionRegex)?.[1];
         const currentVersion = str.match(versionRegex)?.[1];
 
-        const value = strip(generateComponentOutputVersion(currentVersion!, newVersion!));
+        if (currentVersion && newVersion) {
+          const value = strip(generateComponentOutputVersion(currentVersion, newVersion));
 
-        // Align the length of the version
-        componentKeyLengthMap[key] = Math.max(
-          componentKeyLengthMap[key],
-          Math.max(value.length, 'version'.length)
-        );
-        // Record origin version length
-        componentKeyLengthMap.originVersion = Math.max(
-          componentKeyLengthMap.originVersion,
-          currentVersion!.length
-        );
+          componentKeyLengthMap[key] = Math.max(
+            componentKeyLengthMap[key],
+            Math.max(value.length, 'version'.length)
+          );
+          componentKeyLengthMap.originVersion = Math.max(
+            componentKeyLengthMap.originVersion,
+            currentVersion.length
+          );
+        } else {
+          componentKeyLengthMap[key] = Math.max(
+            componentKeyLengthMap[key],
+            Math.max(str.length, 'version'.length)
+          );
+        }
 
         continue;
       }
@@ -95,25 +100,26 @@ export function outputComponents({
 
       /** ======================== Replace version to new version ======================== */
       if (commandName !== 'list' && key === 'version') {
-        // Filter list command cause it will list all the latest components
         const currentVersion = value.match(versionRegex)?.[1]?.trim();
         const newVersion = value.match(newVersionRegex)?.[1]?.trim();
 
-        if (currentVersion === newVersion) {
-          value = value.replace(/\snew:\s[\W\w]+(\s+)?/, '');
-          value = fillAnsiLength(
-            `${fillAnsiLength(value, componentKeyLengthMap.originVersion)} 🚀latest`,
-            componentKeyLengthMap[key]
-          );
-          value = value.replace('latest', chalk.magentaBright.underline('latest'));
-        } else if (newVersion) {
-          value = fillAnsiLength(
-            generateComponentOutputVersion(
-              fillAnsiLength(currentVersion!, componentKeyLengthMap.originVersion),
-              newVersion
-            ),
-            componentKeyLengthMap[key]
-          );
+        if (currentVersion && newVersion) {
+          if (currentVersion === newVersion) {
+            value = value.replace(/\snew:\s[\W\w]+(\s+)?/, '');
+            value = fillAnsiLength(
+              `${fillAnsiLength(value, componentKeyLengthMap.originVersion)} 🚀latest`,
+              componentKeyLengthMap[key]
+            );
+            value = value.replace('latest', chalk.magentaBright.underline('latest'));
+          } else {
+            value = fillAnsiLength(
+              generateComponentOutputVersion(
+                fillAnsiLength(currentVersion, componentKeyLengthMap.originVersion),
+                newVersion
+              ),
+              componentKeyLengthMap[key]
+            );
+          }
         }
       }
 
