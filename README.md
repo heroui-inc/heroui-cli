@@ -14,11 +14,11 @@
   </a>
 </p>
 
-The CLI offers a comprehensive suite of commands to initialize, manage, and improve your HeroUI projects. It enables you to `add`, `remove`, or `upgrade` individual components, assess the health of your project, and more.
+The CLI offers a suite of commands to initialize, manage, and improve your HeroUI projects. It enables you to `add`, `remove`, or `upgrade` HeroUI packages, assess the health of your project, and more.
 
 ## Quick Start
 
-> **Note**: The HeroUI CLI requires [Node.js](https://nodejs.org/en) _20.19.x+_ or later
+> **Note**: The HeroUI CLI requires [Node.js](https://nodejs.org/en) _22+_ or later
 
 You can choose the following ways to start the HeroUI CLI.
 
@@ -40,22 +40,21 @@ npm install -g heroui-cli
 Usage: heroui [command]
 
 Options:
-  -v, --version                      Output the current version
-  --no-cache                         Disable cache, by default data will be cached for 30m after the first request
-  -d, --debug                        Debug mode will not install dependencies
-  -h --help                          Display help information for commands
+  -v, --version                  Output the current version
+  --no-cache                     Disable cache, by default data will be cached for 30m after the first request
+  -d, --debug                    Debug mode will not install dependencies
+  -h --help                      Display help information for commands
 
 Commands:
-  init [options] [projectName]       Initializes a new project
-  add [options] [targets...]         1. Adds components to your project
-                                     2. Adds HeroUI Chat codebase to your project
-  upgrade [options] [components...]  Upgrades project components to the latest versions
-  remove [options] [components...]   Removes components from the project
-  list [options]                     Lists all components, showing status, descriptions, and versions
-  env [options]                      Displays debugging information for the local environment
-  doctor [options]                   Checks for issues in the project
-  agents-md [options]                Downloads HeroUI documentation for AI coding agents
-  help [command]                     Display help for command
+  init [options] [projectName]   Initializes a new project
+  add [options]                  Adds @heroui/react and @heroui/styles to your project
+  upgrade [options]              Upgrades @heroui/react and @heroui/styles to the latest versions
+  remove [options]               Removes @heroui/react and @heroui/styles from the project
+  list [options]                 Lists installed HeroUI packages (@heroui/react, @heroui/styles)
+  env [options]                  Displays debugging information for the local environment
+  doctor [options]               Checks for issues in the project
+  agents-md [options]            Downloads HeroUI documentation for AI coding agents
+  help [command]                 Display help for command
 ```
 
 ## Analytics
@@ -96,11 +95,9 @@ HeroUI CLI <version>
 ┌  Create a new project
 │
 ◇  Select a template (Enter to select)
-│  ● App (A Next.js 15 with app directory template pre-configured with HeroUI (v2) and Tailwind CSS.)
-│  ○ Pages (A Next.js 15 with pages directory template pre-configured with HeroUI (v2) and Tailwind CSS.)
-│  ○ Vite (A Vite template pre-configured with HeroUI (v2) and Tailwind CSS.)
-│  ○ Remix (A Remix template pre-configured with HeroUI (v2) and Tailwind CSS.)
-│  ○ Laravel (A Laravel template pre-configured with HeroUI (v2) and Tailwind CSS.)
+│  ● App (A Next.js 15 with app directory template pre-configured with HeroUI (v3) and Tailwind CSS.)
+│  ○ Pages (A Next.js 15 with pages directory template pre-configured with HeroUI (v3) and Tailwind CSS.)
+│  ○ Vite (A Vite template pre-configured with HeroUI (v3) and Tailwind CSS.)
 │
 ◇  New project name (Enter to skip with default name)
 │  my-heroui-app
@@ -125,33 +122,17 @@ HeroUI CLI <version>
 
 ### Add
 
-1. Add HeroUI components to your project.
-2. Add HeroUI Chat codebase to your project.
-
-#### Features
-
-> 1. Auto add the missing required `dependencies` to your project
-> 2. Detect whether using pnpm, if so, add the required configuration to your `.npmrc` file
-> 3. Add HeroUI Chat codebase to your project
+Add `@heroui/react` and `@heroui/styles` to your project. If they are already installed, the command does nothing.
 
 ```bash
-heroui add [targets...] [options]
+heroui add [options]
 ```
 
 #### Add Options
 
-- `-a --all` [boolean] Add all components (default: `false`)
 - `-p --packagePath` [string] The path to the package.json file
-- `--tw --tailwindPath` [string] The path to the tailwind.config file (for backward compatibility)
-- `--app --appPath` [string] The path to the App.tsx file
-- `--prettier` [boolean] Add prettier format in the add content which required installed prettier - (default: `false`)
-- `--addApp` [boolean] Add App.tsx file content which required provider (default: `false`)
-- `-b --beta` [boolean] Add beta components (default: `false`)
-- `-d --directory` [string] Add HeroUI Chat codebase to a specific directory
 
 ##### Example
-
-Without setting a specific component, the `add` command will show a list of available components.
 
 ```bash
 heroui add
@@ -162,77 +143,36 @@ Output:
 ```bash
 HeroUI CLI <version>
 
-? Which components would you like to add? › - Space to select. Return to submit
-Instructions:
-    ↑/↓: Highlight option
-    ←/→/[space]: Toggle selection
-    [a,b,c]/delete: Filter choices
-    enter/return: Complete answer
+📦 Packages to be installed:
+╭──────────────────────────────────────────────────────────────────────────────────────╮
+│   Package          │   Version   │   Status   │   Docs                               │
+│──────────────────────────────────────────────────────────────────────────────────────│
+│   @heroui/react    │   3.0.0     │   stable   │   https://heroui.com                 │
+│   @heroui/styles   │   3.0.0     │   stable   │   https://heroui.com                 │
+╰──────────────────────────────────────────────────────────────────────────────────────╯
+? Proceed with installation? › - Use arrow-keys. Return to submit.
+❯   Yes
+    No
 
-Filtered results for: Enter something to filter
-
-◉  accordion
-◯  autocomplete
-◯  avatar
-◯  badge
-◯  breadcrumbs
-◯  button
-◯  card
-◯  checkbox
-◯  chip
-◯  code
-```
-
-If you want to add a specific component, you can specify the component name.
-
-```bash
-heroui add button
-```
-
-Output:
-
-```bash
-HeroUI CLI <version>
-
-Adding the required dependencies: @heroui/button
-
-pnpm add @heroui/button
-Packages: +1
-+
-Progress: resolved 470, reused 462, downloaded 0, added 0, done
-
-dependencies:
-+ @heroui/button 2.0.24
-
-Done in 3.4s
-
-Tailwind CSS settings have been updated in: /project-path/tailwind.config.js
-
-✅ Components added successfully
+✅ @heroui/react and @heroui/styles added successfully
 ```
 
 ### Upgrade
 
-Upgrade the HeroUI components to the latest version.
+Upgrade `@heroui/react` and `@heroui/styles` to the latest versions.
 
 ```bash
-heroui upgrade [components...] [options]
+heroui upgrade [options]
 ```
 
 #### Upgrade Options
 
 - `-p --packagePath` [string] The path to the package.json file
-- `-a --all` [boolean] Upgrade all the HeroUI components (default: `false`)
-- `-w --write` [boolean] Write the upgrade version to package.json file (default: `false`)
-- `-b --beta` [boolean] Upgrade beta components (default: `false`)
-- `-h --help` Display help for command
 
 ##### Example
 
-Upgrade the **Button** component to the latest version.
-
 ```bash
-heroui upgrade button
+heroui upgrade
 ```
 
 Output:
@@ -240,59 +180,34 @@ Output:
 ```bash
 HeroUI CLI <version>
 
-╭───────────────────────── Component ─────────────────────────╮
-│  @heroui/button              ^2.0.11  ->  ^2.0.31           │
-╰─────────────────────────────────────────────────────────────╯
-
-Required min version: @heroui/theme>=2.1.0, tailwindcss>=3.4.0, react>=18.3.1, react-dom>=18.3.1
-╭───────────────────── PeerDependencies ─────────────────────╮
-│  @heroui/theme                   2.0.1    ->  2.1.0        │
-│  tailwindcss                     ^3.2.3   ->  ^3.4.0       │
-│  react                           Missing  ->  18.3.1       │
-│  react-dom                       Missing  ->  18.3.1       │
-╰────────────────────────────────────────────────────────────╯
-2 major, 2 minor, 1 patch
+╭──────────────────────────── Upgrade ────────────────────────────╮
+│  @heroui/react               ^3.0.0  ->  ^3.1.0                │
+│  @heroui/styles              ^3.0.0  ->  ^3.1.0                │
+╰─────────────────────────────────────────────────────────────────╯
 
 ? Would you like to proceed with the upgrade? › - Use arrow-keys. Return to submit.
 ❯   Yes
     No
 
-pnpm add @heroui/button@2.0.31 @heroui/theme@2.1.0 tailwindcss@3.4.0 react@18.3.1 react-dom@18.3.1
-
-dependencies:
-- @heroui/theme 2.0.1
-+ @heroui/theme 2.1.0 (2.2.3 is available)
-+ react 18.3.1
-+ react-dom 18.3.1
-
-Done in 1.8s
-
-✅ Upgrade complete. All components are up to date.
+✅ Upgrade complete. All packages are up to date.
 ```
 
 ### Remove
 
-Remove HeroUI components from your project.
-
-> **Note**: If there are no HeroUI components after removing, the required content will also be removed
+Remove `@heroui/react` and `@heroui/styles` from your project.
 
 ```bash
-heroui remove [components...] [options]
+heroui remove [options]
 ```
 
 #### Remove Options
 
 - `-p --packagePath` [string] The path to the package.json file
-- `-a --all` [boolean] Remove all the HeroUI components (default: `false`)
-- `--tw --tailwindPath` [string] The path to the tailwind.config file (for backward compatibility)
-- `--prettier` [boolean] Add prettier format in the add content which required installed prettier - (default: `false`)
 
 ##### Example
 
-Remove the **Button** component from your project.
-
 ```bash
-heroui remove button
+heroui remove
 ```
 
 Output:
@@ -300,33 +215,23 @@ Output:
 ```bash
 HeroUI CLI <version>
 
-❗️ Components slated for removal:
-╭──────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
-│   Package          │   Version              │   Status   │   Docs                                            │
-│──────────────────────────────────────────────────────────────────────────────────────────────────────────────│
-│   @heroui/button   │   2.0.27 🚀latest      │   stable   │   https://heroui.com/docs/components/button       │
-╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
-? Confirm removal of these components: › - Use arrow-keys. Return to submit.
+❗️ Packages slated for removal:
+╭──────────────────────────────────────────────────────────────────────────────────────╮
+│   Package          │   Version   │   Status   │   Docs                               │
+│──────────────────────────────────────────────────────────────────────────────────────│
+│   @heroui/react    │   3.0.0     │   stable   │   https://heroui.com                 │
+│   @heroui/styles   │   3.0.0     │   stable   │   https://heroui.com                 │
+╰──────────────────────────────────────────────────────────────────────────────────────╯
+? Confirm removal of these packages: › - Use arrow-keys. Return to submit.
 ❯   Yes
     No
 
-pnpm remove  @heroui/button
-Already up to date
-Progress: resolved 474, reused 465, downloaded 0, added 0, done
-
-dependencies:
-- @heroui/button 2.0.27
-
-Done in 2.1s
-
-Remove the removed components tailwind content in file:/project-path/tailwind.config.js
-
-✅ Successfully removed the specified HeroUI components: @heroui/button
+✅ Successfully removed: @heroui/react, @heroui/styles
 ```
 
 ### List
 
-List all the current installed components.
+List the installed HeroUI packages (`@heroui/react`, `@heroui/styles`).
 
 ```bash
 heroui list [options]
@@ -335,7 +240,6 @@ heroui list [options]
 #### List Options
 
 - `-p --packagePath` [string] The path to the package.json file
-- `-r --remote` List all components available remotely
 
 ##### Example
 
@@ -348,44 +252,34 @@ Output:
 ```bash
 HeroUI CLI <version>
 
-Current installed components:
+Current installed packages:
 
-╭───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
-│   Package                │   Version              │   Status    │   Docs                                                  │
-│───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────│
-│   @heroui/autocomplete   │   2.0.10 🚀latest      │   stable    │   https://heroui.com/docs/components/autocomplete       │
-│   @heroui/badge          │   2.0.24 🚀latest      │   stable    │   https://heroui.com/docs/components/badge              │
-│   @heroui/button         │   2.0.27 🚀latest      │   stable    │   https://heroui.com/docs/components/button             │
-│   @heroui/chip           │   2.0.25 🚀latest      │   stable    │   https://heroui.com/docs/components/chip               │
-╰───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭──────────────────────────────────────────────────────────────────────────────────────╮
+│   Package          │   Version          │   Status   │   Docs                        │
+│──────────────────────────────────────────────────────────────────────────────────────│
+│   @heroui/react    │   3.0.0 🚀latest   │   stable   │   https://heroui.com          │
+│   @heroui/styles   │   3.0.0 🚀latest   │   stable   │   https://heroui.com          │
+╰──────────────────────────────────────────────────────────────────────────────────────╯
 ```
 
 ### Doctor
 
-Check whether exist problem in your project by using the `doctor` command.
+Check for issues in your project.
 
 ```bash
 heroui doctor [options]
 ```
 
-### Features
+#### Features
 
-> 1. Check whether have `redundant dependencies` in the project
-> 2. Check whether the HeroUI components `required dependencies are installed` in the project
-> 3. Check the content of `tailwind.config.js` is correct (if it exists)
-> 4. Check `.npmrc` is correct when using `pnpm`
-> 5. Check `peerDependencies with required version` are installed in the project
+> 1. Check whether `@heroui/react` and `@heroui/styles` are installed
+> 2. Check whether `required peer dependencies` are installed in the project
 
 #### Doctor Options
 
-- `-p` `--packagePath` [string] The path to the package.json file
-- `--tw` `--tailwindPath` [string] The path to the tailwind.config file (for backward compatibility)
-- `--app` `--appPath` [string] The path to the App.tsx file
-- `--ca` `--checkApp` [boolean] Open check App (default: `true`)
-- `--ct` `--checkTailwind` [boolean] Open check tailwind.config file (default: `true` if it exists)
-- `--cp` `--checkPnpm` [boolean] Open check Pnpm (default: `true`)
+- `-p --packagePath` [string] The path to the package.json file
 
-#### Example
+##### Example
 
 ```bash
 heroui doctor
@@ -400,14 +294,12 @@ HeroUI CLI <version>
 
 HeroUI CLI: ❌ Your project has 1 issue that require attention
 
-❗️Issue 1: missingDependencies
+❗️Issue 1: missingHeroUIPackages
 
-You have not installed the required dependencies
+The following HeroUI packages are not installed:
+- @heroui/styles
 
-The required dependencies are:
-- @heroui/theme@2.4.25
-
-See more info here: https://heroui.com/docs/guide/installation#global-installation
+Run `heroui add` to install them.
 ```
 
 Otherwise, the `doctor` command will display the following message.
@@ -430,9 +322,7 @@ heroui env [options]
 
 - `-p --packagePath` [string] The path to the package.json file
 
-#### Example
-
-Display the local environment Information by using the `env` command.
+##### Example
 
 ```bash
 heroui env
@@ -443,23 +333,21 @@ Output:
 ```bash
 HeroUI CLI <version>
 
-Current installed components:
+Current installed packages:
 
-╭───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
-│   Package                │   Version              │   Status    │   Docs                                                  │
-│───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────│
-│   @heroui/autocomplete   │   2.0.10 🚀latest      │   stable    │   https://heroui.com/docs/components/autocomplete       │
-│   @heroui/badge          │   2.0.24 🚀latest      │   stable    │   https://heroui.com/docs/components/badge              │
-│   @heroui/button         │   2.0.27 🚀latest      │   stable    │   https://heroui.com/docs/components/button             │
-│   @heroui/chip           │   2.0.25 🚀latest      │   stable    │   https://heroui.com/docs/components/chip               │
-╰───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭──────────────────────────────────────────────────────────────────────────────────────╮
+│   Package          │   Version          │   Status   │   Docs                        │
+│──────────────────────────────────────────────────────────────────────────────────────│
+│   @heroui/react    │   3.0.0 🚀latest   │   stable   │   https://heroui.com          │
+│   @heroui/styles   │   3.0.0 🚀latest   │   stable   │   https://heroui.com          │
+╰──────────────────────────────────────────────────────────────────────────────────────╯
 
 Environment Info:
   System:
     OS: darwin
     CPU: arm64
   Binaries:
-    Node: v18.18.2
+    Node: v22.0.0
 ```
 
 ### Agents-md
