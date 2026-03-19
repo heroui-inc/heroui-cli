@@ -1,6 +1,8 @@
 import type {UpgradeOption} from './actions/upgrade/upgrade-types';
 
-import {readFileSync} from 'node:fs';
+import {readFileSync, statSync} from 'node:fs';
+
+import {resolve} from 'pathe';
 
 import {HEROUI_PREFIX, HERO_UI} from 'src/constants/required';
 import {getCacheExecData} from 'src/scripts/cache/cache';
@@ -27,12 +29,26 @@ export type PackageComponent = {
  * @param packagePath string
  */
 export function getPackageInfo(packagePath: string) {
+  if (!packagePath || typeof packagePath !== 'string') {
+    Logger.prefix('error', 'Invalid package.json path. Please provide a valid file path.');
+    process.exit(1);
+  }
+
+  try {
+    if (statSync(packagePath).isDirectory()) {
+      packagePath = resolve(packagePath, 'package.json');
+    }
+  } catch {
+    // Path doesn't exist, let readFileSync handle the error
+  }
+
   let pkg;
 
   try {
     pkg = JSON.parse(readFileSync(packagePath, 'utf-8'));
   } catch (error) {
     Logger.prefix('error', `Error reading package.json file: ${packagePath} \nError: ${error}`);
+    process.exit(1);
   }
 
   const devDependencies = pkg.devDependencies || {};
