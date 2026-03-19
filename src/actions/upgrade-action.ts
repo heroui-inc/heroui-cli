@@ -1,3 +1,4 @@
+import type {UpgradeOption} from '@helpers/actions/upgrade/upgrade-types';
 import type {CommandOptions, SAFE_ANY} from '@helpers/type';
 
 import chalk from 'chalk';
@@ -5,7 +6,9 @@ import chalk from 'chalk';
 import {detect} from '@helpers/detect';
 import {exec} from '@helpers/exec';
 import {Logger} from '@helpers/logger';
+import {outputBox} from '@helpers/output-info';
 import {getPackageInfo} from '@helpers/package';
+import {getUpgradeVersion} from '@helpers/upgrade';
 import {
   getColorVersion,
   getPackageManagerInfo,
@@ -76,22 +79,37 @@ export async function upgradeAction(options: CommandOptions) {
   }
 
   if (upgradable.length) {
-    Logger.info('The following packages can be upgraded:');
-    for (const {current, latest, pkg} of upgradable) {
-      Logger.log(`  ${chalk.underline(pkg)} ${current} -> ${getColorVersion(current, latest)}`);
-    }
+    const upgradeOptions: UpgradeOption[] = upgradable.map((u) => ({
+      isLatest: false,
+      latestVersion: getColorVersion(u.current, u.latest),
+      package: u.pkg,
+      version: u.current,
+      versionMode: getVersionAndMode(allDependencies, u.pkg).versionMode
+    }));
+
+    const output = getUpgradeVersion(upgradeOptions);
+
+    output.length && outputBox({color: 'blue', text: output, title: chalk.blue('Upgrade')});
     Logger.newLine();
   }
 
   if (peerUpgradable.length) {
-    Logger.info('The following peer dependencies need upgrading:');
-    for (const {current, latest, pkg} of peerUpgradable) {
-      Logger.log(`  ${chalk.underline(pkg)} ${current} -> ${getColorVersion(current, latest)}`);
-    }
+    const peerOptions: UpgradeOption[] = peerUpgradable.map((u) => ({
+      isLatest: false,
+      latestVersion: getColorVersion(u.current, u.latest),
+      package: u.pkg,
+      version: u.current,
+      versionMode: getVersionAndMode(allDependencies, u.pkg).versionMode
+    }));
+
+    const output = getUpgradeVersion(peerOptions);
+
+    output.length &&
+      outputBox({color: 'yellow', text: output, title: chalk.yellow('PeerDependencies')});
     Logger.newLine();
   }
 
-  const isConfirmed = await getSelect('Proceed with upgrade?', [
+  const isConfirmed = await getSelect('Would you like to proceed with the upgrade?', [
     {title: 'Yes', value: true},
     {title: 'No', value: false}
   ]);
