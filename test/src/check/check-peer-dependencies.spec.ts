@@ -76,7 +76,6 @@ describe('checkPeerDependencies', () => {
     vi.spyOn(packageHelper, 'getPackageInfo').mockReturnValue({
       allDependencies: mockAllDependencies,
       allDependenciesKeys: new Set(Object.keys(mockAllDependencies)),
-      currentComponents: [],
       dependencies: {},
       devDependencies: {},
       isAllComponents: false,
@@ -125,7 +124,6 @@ describe('checkPeerDependencies', () => {
     vi.spyOn(packageHelper, 'getPackageInfo').mockReturnValue({
       allDependencies: mockAllDependencies,
       allDependenciesKeys: new Set(Object.keys(mockAllDependencies)),
-      currentComponents: [],
       dependencies: {},
       devDependencies: {},
       isAllComponents: false,
