@@ -26,7 +26,7 @@ export async function doctorAction(options: DoctorCommandOptions) {
       'error',
       `❌ No ${chalk.underline(
         'HeroUI packages'
-      )} found in your project. Please consult the installation guide at: https://heroui.com/docs/guide/installation#global-installation`
+      )} found in your project. Please consult the installation guide at: https://heroui.com/docs/react/getting-started/quick-start`
     );
 
     return;
