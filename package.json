@@ -60,19 +60,19 @@
     "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
-    "@clack/prompts": "0.11.0",
+    "@clack/prompts": "1.1.0",
     "@winches/prompts": "0.0.7",
     "async-retry": "1.3.3",
     "chalk": "5.6.2",
-    "commander": "14.0.2",
+    "commander": "14.0.3",
     "compare-versions": "6.1.1",
     "fast-glob": "3.3.3",
-    "find-up": "7.0.0",
+    "find-up": "8.0.0",
     "gradient-string": "2.0.2",
     "ora": "8.2.0",
-    "pathe": "1.1.2",
-    "posthog-node": "^5.9.1",
-    "tar": "6.2.1"
+    "pathe": "2.0.3",
+    "posthog-node": "5.28.4",
+    "tar": "7.5.12"
   },
   "devDependencies": {
     "@commitlint/cli": "19.5.0",
