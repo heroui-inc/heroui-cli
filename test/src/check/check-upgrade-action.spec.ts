@@ -3,7 +3,7 @@ import type {
   UpgradeOption
 } from '../../../src/helpers/actions/upgrade/upgrade-types';
 
-import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
+import {type Mock, afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {store} from '../../../src/constants/store';
 import * as libsDataModule from '../../../src/helpers/actions/upgrade/get-libs-data';
@@ -52,40 +52,42 @@ describe('Upgrade functionality with beta flag', () => {
 
   // Initialize mocks
   const mockedGetConditionVersion = vi.fn();
-  let mockGetAllOutputDataImpl: ReturnType<typeof vi.fn>;
-  let mockUpgradeImpl: ReturnType<typeof vi.fn>;
-  let mockGetPackagePeerDepImpl: ReturnType<typeof vi.fn>;
-  let mockGetPackageUpgradeDataImpl: ReturnType<typeof vi.fn>;
-  let mockGetLibsDataImpl: ReturnType<typeof vi.fn>;
+  let mockGetAllOutputDataImpl: Mock<typeof upgradeModule.getAllOutputData>;
+  let mockUpgradeImpl: Mock<typeof upgradeModule.upgrade>;
+  let mockGetPackagePeerDepImpl: Mock<typeof upgradeModule.getPackagePeerDep>;
+  let mockGetPackageUpgradeDataImpl: Mock<typeof upgradeModule.getPackageUpgradeData>;
+  let mockGetLibsDataImpl: Mock<typeof libsDataModule.getLibsData>;
 
   beforeEach(() => {
     vi.clearAllMocks();
 
     // Setup default implementations for mocks
-    mockGetAllOutputDataImpl = vi.fn().mockImplementation(async (all, isHeroUIAll) => {
-      if (!all || !isHeroUIAll) {
+    mockGetAllOutputDataImpl = vi
+      .fn<typeof upgradeModule.getAllOutputData>()
+      .mockImplementation(async (all, isHeroUIAll) => {
+        if (!all || !isHeroUIAll) {
+          return {
+            allOutputList: [],
+            allPeerDepList: []
+          };
+        }
+
+        // Don't call the real getPackagePeerDep here, as we'll mock its return value in the tests
         return {
-          allOutputList: [],
+          allOutputList: [
+            {
+              isLatest: false,
+              latestVersion: store.beta ? '2.1.0-beta.3' : '2.1.0',
+              package: '@heroui/react',
+              version: '2.0.0',
+              versionMode: ''
+            }
+          ],
           allPeerDepList: []
         };
-      }
+      });
 
-      // Don't call the real getPackagePeerDep here, as we'll mock its return value in the tests
-      return {
-        allOutputList: [
-          {
-            isLatest: false,
-            latestVersion: store.beta ? '2.1.0-beta.3' : '2.1.0',
-            package: '@heroui/react',
-            version: '2.0.0',
-            versionMode: ''
-          }
-        ],
-        allPeerDepList: []
-      };
-    });
-
-    mockUpgradeImpl = vi.fn().mockImplementation(async (options) => {
+    mockUpgradeImpl = vi.fn<typeof upgradeModule.upgrade>().mockImplementation(async (options) => {
       if (options.all && options.isHeroUIAll) {
         if (store.beta) {
           return [
@@ -121,7 +123,7 @@ describe('Upgrade functionality with beta flag', () => {
     });
 
     mockGetPackagePeerDepImpl = vi
-      .fn()
+      .fn<typeof upgradeModule.getPackagePeerDep>()
       .mockImplementation(
         async (_packageName, allDependencies, missingDepSet, peerDependencies) => {
           // Implement adding missing dependencies
@@ -145,17 +147,19 @@ describe('Upgrade functionality with beta flag', () => {
         }
       );
 
-    mockGetPackageUpgradeDataImpl = vi.fn().mockImplementation(async (missingDepList) => {
-      return missingDepList.map((dep) => ({
-        isLatest: false,
-        latestVersion: dep.version || '1.0.0-beta.0',
-        package: dep.name,
-        version: 'Missing',
-        versionMode: ''
-      }));
-    });
+    mockGetPackageUpgradeDataImpl = vi
+      .fn<typeof upgradeModule.getPackageUpgradeData>()
+      .mockImplementation(async (missingDepList) => {
+        return missingDepList.map((dep) => ({
+          isLatest: false,
+          latestVersion: dep.version || '1.0.0-beta.0',
+          package: dep.name,
+          version: 'Missing',
+          versionMode: ''
+        }));
+      });
 
-    mockGetLibsDataImpl = vi.fn().mockResolvedValue([
+    mockGetLibsDataImpl = vi.fn<typeof libsDataModule.getLibsData>().mockResolvedValue([
       {
         isLatest: false,
         latestVersion: store.beta ? '3.0.0-beta.1' : '3.0.0',
