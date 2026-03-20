@@ -5,7 +5,7 @@ import {pipeline} from 'node:stream/promises';
 import retry from 'async-retry';
 import chalk from 'chalk';
 import ora from 'ora';
-import tar from 'tar';
+import * as tar from 'tar';
 
 /**
  * Fetch the tar stream from the specified URL.
