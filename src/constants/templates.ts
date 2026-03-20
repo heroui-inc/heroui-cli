@@ -1,15 +1,15 @@
 import type {CheckType} from '@helpers/check';
 
-export const APP_REPO = 'https://codeload.github.com/heroui-inc/next-app-template/tar.gz/main';
-export const PAGES_REPO = 'https://codeload.github.com/heroui-inc/next-pages-template/tar.gz/main';
-export const VITE_REPO = 'https://codeload.github.com/heroui-inc/vite-template/tar.gz/main';
+export const APP_REPO = 'https://codeload.github.com/heroui-inc/next-app-template/tar.gz/v2';
+export const PAGES_REPO = 'https://codeload.github.com/heroui-inc/next-pages-template/tar.gz/v2';
+export const VITE_REPO = 'https://codeload.github.com/heroui-inc/vite-template/tar.gz/v2';
 export const REMIX_REPO = 'https://codeload.github.com/heroui-inc/remix-template/tar.gz/main';
 export const LARAVEL_REPO =
   'https://github.com/heroui-inc/laravel-template/archive/refs/heads/master.zip';
 
-export const APP_DIR = 'next-app-template-main';
-export const PAGES_DIR = 'next-pages-template-main';
-export const VITE_DIR = 'vite-template-main';
+export const APP_DIR = 'next-app-template-v2';
+export const PAGES_DIR = 'next-pages-template-v2';
+export const VITE_DIR = 'vite-template-v2';
 export const REMIX_DIR = 'remix-template-main';
 export const LARAVEL_DIR = 'laravel-template-main';
 
