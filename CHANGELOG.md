@@ -1,3 +1,9 @@
+# [3.0.0](https://github.com/heroui-inc/heroui-cli/compare/v1.6.1...v3.0.0) (2026-03-21)
+
+### Features
+
+- remove v2 logic & support v3 ([#179](https://github.com/heroui-inc/heroui-cli/issues/179)) ([7c7b798](https://github.com/heroui-inc/heroui-cli/commit/7c7b798280abd0890ae43b20ae01638189e2e51d))
+
 ## [1.6.1](https://github.com/heroui-inc/heroui-cli/compare/v1.6.0...v1.6.1) (2026-02-12)
 
 ### Bug Fixes
