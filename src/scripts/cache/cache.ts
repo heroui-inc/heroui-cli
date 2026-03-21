@@ -111,7 +111,22 @@ export function isExpired(packageName: string, existingCache?: CacheData): boole
 }
 
 /**
+ * Get the latest v2 version from a list of all published versions.
+ * Filters for stable (non-prerelease) 2.x versions and returns the last one.
+ */
+function getLatestV2Version(allVersions: string[]): string {
+  const v2Versions = allVersions.filter((v) => v.startsWith('2.') && !v.includes('-'));
+
+  if (v2Versions.length === 0) {
+    throw new Error('No stable v2 version found');
+  }
+
+  return v2Versions[v2Versions.length - 1]!;
+}
+
+/**
  * Get package version from cache or fetch from npm registry.
+ * For @heroui/ scoped packages, constrains to the latest stable v2 version.
  * @param packageName - The npm package name
  * @returns Promise resolving to an object containing the version
  */
@@ -120,10 +135,21 @@ export async function getPackageVersion(packageName: string): Promise<{version: 
   const expired = isExpired(packageName, data);
 
   if (expired) {
-    const version = await oraExecCmd(
-      `npm view ${packageName} version`,
-      `Fetching ${packageName} latest version`
-    );
+    let version: string;
+
+    if (packageName.startsWith('@heroui/react')) {
+      const allVersionsJson = await oraExecCmd(
+        `npm view ${packageName} versions --json`,
+        `Fetching ${packageName} latest version`
+      );
+
+      version = getLatestV2Version(JSON.parse(allVersionsJson) as string[]);
+    } else {
+      version = await oraExecCmd(
+        `npm view ${packageName} version`,
+        `Fetching ${packageName} latest version`
+      );
+    }
 
     const pkgVersion = {version};
 
