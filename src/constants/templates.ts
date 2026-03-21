@@ -7,9 +7,9 @@ export const REMIX_REPO = 'https://codeload.github.com/heroui-inc/remix-template
 export const LARAVEL_REPO =
   'https://github.com/heroui-inc/laravel-template/archive/refs/heads/master.zip';
 
-export const APP_DIR = 'next-app-template-v2';
-export const PAGES_DIR = 'next-pages-template-v2';
-export const VITE_DIR = 'vite-template-v2';
+export const APP_DIR = 'next-app-template-2';
+export const PAGES_DIR = 'next-pages-template-2';
+export const VITE_DIR = 'vite-template-2';
 export const REMIX_DIR = 'remix-template-main';
 export const LARAVEL_DIR = 'laravel-template-main';
 
