@@ -1,3 +1,7 @@
+# [2.0.0](https://github.com/heroui-inc/heroui-cli/compare/v1.6.1...v2.0.0) (2026-03-21)
+
+- Support HeroUI v2 only
+
 ## [1.6.1](https://github.com/heroui-inc/heroui-cli/compare/v1.6.0...v1.6.1) (2026-02-12)
 
 ### Bug Fixes
