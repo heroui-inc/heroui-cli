@@ -3,7 +3,6 @@ import type {CommandName, SAFE_ANY} from '@helpers/type';
 import chalk from 'chalk';
 import {Command} from 'commander';
 
-import {isAddingHeroChatCodebase} from '@helpers/actions/add/heroui-chat/add-hero-chat-codebase';
 import {Logger, gradientString} from '@helpers/logger';
 import {findMostMatchText} from '@helpers/math-diff';
 import {outputBox} from '@helpers/output-info';
@@ -13,10 +12,9 @@ import pkg from '../package.json';
 
 import {getAnalytics, shutdown} from './analytics';
 import {registerCommands} from './commands';
-import {initStoreComponentsData} from './constants/component';
 import {getStore, store} from './constants/store';
 import {initCache} from './scripts/cache/cache';
-import {compareVersions, getComponents} from './scripts/helpers';
+import {compareVersions} from './scripts/helpers';
 
 const commandList: CommandName[] = [
   'add',
@@ -93,10 +91,8 @@ heroui.hook('preAction', async (command) => {
   const options = (command as SAFE_ANY).rawArgs.slice(2);
   const noCache = options.includes('--no-cache');
   const debug = options.includes('--debug') || options.includes('-d');
-  const targetsArgs = command.args?.slice(1);
 
-  if (isAddingHeroChatCodebase(targetsArgs) || !commandName) {
-    // HeroUI chat action don't need to init
+  if (!commandName) {
     return;
   }
 
@@ -105,17 +101,6 @@ heroui.hook('preAction', async (command) => {
   // Init debug
   store.debug = debug;
   store.beta = options.includes('-b') || options.includes('--beta');
-
-  if (commandName && commandList.includes(commandName as CommandName)) {
-    // Before run the command init the components.json
-    const heroUIComponents = (await getComponents()).components;
-    const heroUIComponentsBeta = (await getComponents()).betaComponents;
-
-    initStoreComponentsData({beta: false, heroUIComponents: heroUIComponents});
-    if (store.beta) {
-      initStoreComponentsData({beta: true, heroUIComponents: heroUIComponentsBeta});
-    }
-  }
 
   const [cliLatestVersion] = await Promise.all([getStore('cliLatestVersion')]);
 

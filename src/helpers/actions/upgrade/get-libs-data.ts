@@ -4,7 +4,6 @@ import type {SAFE_ANY} from '@helpers/type';
 import {getConditionVersion} from '@helpers/condition-value';
 import {getColorVersion, getVersionAndMode} from '@helpers/utils';
 import {HEROUI_PREFIX} from 'src/constants/required';
-import {store} from 'src/constants/store';
 import {compareVersions} from 'src/scripts/helpers';
 
 export async function getLibsData(
@@ -13,9 +12,7 @@ export async function getLibsData(
   const allDependenciesKeys = Object.keys(allDependencies);
 
   const allLibs = allDependenciesKeys.filter((dependency) => {
-    return (
-      !store.heroUIcomponentsPackages.includes(dependency) && dependency.startsWith(HEROUI_PREFIX)
-    );
+    return dependency.startsWith(HEROUI_PREFIX);
   });
 
   if (!allLibs.length) {

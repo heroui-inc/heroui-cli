@@ -131,12 +131,6 @@ After cloning the repository, execute the following commands in the root folder:
    - Your pull request will be reviewed by the maintainers and the maintainers will decide if it is accepted or not
    - Once the pull request is accepted, the maintainers will merge it to the `main` branch
 
-## Documentation
-
-Please update the docs with any command changes, the code and docs should always be in sync.
-
-The main documentation lives in `https://heroui.com/docs/guide/cli`, please create a PR in `heroui-inc/heroui` instead.
-
 ## Breaking changes
 
 Breaking changes should be accompanied with deprecations of removed functionality. The deprecated changes themselves should not be removed until the minor release after that.

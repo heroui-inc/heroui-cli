@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import type {Agent} from './detect';
-import type {HeroUIComponentsMap, StoreKeys} from 'src/constants/store';
-import type {Components} from 'src/scripts/helpers';
 
 /**
  * @example 'test-test' => 'TestTest'
@@ -23,48 +21,16 @@ export interface CommandOptions {
   debug?: boolean;
 }
 
-export interface AddOptions extends CommandOptions {
-  addApp?: boolean;
-  directory?: string;
-}
-
-export interface UpgradeOptions extends CommandOptions {
-  packagePath?: string;
-  all?: boolean;
-  major?: boolean;
-  minor?: boolean;
-  patch?: boolean;
-  write?: boolean;
-  beta?: boolean;
-}
-
-export interface RemoveOptions extends CommandOptions {
-  packagePath: string;
-  all?: boolean;
-  tailwindPath?: string;
-  prettier?: boolean;
-}
-
-export interface ListOptions extends CommandOptions {
-  remote?: boolean;
-  packagePath?: string;
-}
-
 export interface EnvOptions extends CommandOptions {
   packagePath?: string;
 }
 
 export interface DoctorCommandOptions extends CommandOptions {
   packagePath?: string;
-  tailwindPath?: string;
-  appPath?: string;
-  checkApp?: boolean | 'false';
-  checkTailwind?: boolean | 'false';
-  checkPnpm?: boolean | 'false';
 }
 
 export interface InitOptions {
-  template?: 'app' | 'pages' | 'vite' | 'remix' | 'laravel';
+  template?: 'app' | 'pages' | 'vite';
   package?: Agent;
 }
 
@@ -145,20 +111,6 @@ export type ChalkColor =
   | 'bgMagentaBright'
   | 'bgCyanBright'
   | 'bgWhiteBright';
-
-export type ExtractStoreData<T extends StoreKeys> = T extends 'latestVersion' | 'cliLatestVersion'
-  ? string
-  : T extends 'heroUIComponents'
-    ? Components
-    : T extends 'heroUIComponentsKeys' | 'heroUIcomponentsPackages'
-      ? string[]
-      : T extends 'heroUIComponentsKeysSet'
-        ? Set<string>
-        : T extends 'heroUIComponentsMap'
-          ? HeroUIComponentsMap
-          : T extends 'heroUIComponentsPackageMap'
-            ? HeroUIComponentsMap
-            : never;
 
 /**
  *  @example UnionToIntersection<{ foo: string } | { bar: string }> --> { foo: string } & { bar: string }

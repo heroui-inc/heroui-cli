@@ -1,10 +1,10 @@
 import type {UpgradeOption} from './actions/upgrade/upgrade-types';
 
-import {readFileSync} from 'node:fs';
+import {readFileSync, statSync} from 'node:fs';
 
-import {type HeroUIComponents} from 'src/constants/component';
-import {HERO_UI} from 'src/constants/required';
-import {store} from 'src/constants/store';
+import {resolve} from 'pathe';
+
+import {HEROUI_PREFIX, HERO_UI} from 'src/constants/required';
 import {getCacheExecData} from 'src/scripts/cache/cache';
 import {getLatestVersion} from 'src/scripts/helpers';
 
@@ -12,50 +12,54 @@ import {Logger} from './logger';
 import {colorMatchRegex} from './output-info';
 import {getVersionAndMode} from './utils';
 
+export type PackageComponent = {
+  name: string;
+  package: string;
+  version: string;
+  docs: string;
+  description: string;
+  status: string;
+  style: string;
+  peerDependencies: Record<string, string>;
+  versionMode: string;
+};
+
 /**
  * Get the package information
  * @param packagePath string
- * @param transformVersion boolean
  */
-export function getPackageInfo(packagePath: string, transformVersion = true) {
+export function getPackageInfo(packagePath: string) {
+  if (!packagePath || typeof packagePath !== 'string') {
+    Logger.prefix('error', 'Invalid package.json path. Please provide a valid file path.');
+    process.exit(1);
+  }
+
+  try {
+    if (statSync(packagePath).isDirectory()) {
+      packagePath = resolve(packagePath, 'package.json');
+    }
+  } catch {
+    // Path doesn't exist, let readFileSync handle the error
+  }
+
   let pkg;
 
   try {
     pkg = JSON.parse(readFileSync(packagePath, 'utf-8'));
   } catch (error) {
     Logger.prefix('error', `Error reading package.json file: ${packagePath} \nError: ${error}`);
+    process.exit(1);
   }
 
   const devDependencies = pkg.devDependencies || {};
   const dependencies = pkg.dependencies || {};
   const allDependencies = {...devDependencies, ...dependencies};
   const allDependenciesKeys = new Set(Object.keys(allDependencies));
-
-  const currentComponents = (store.heroUIComponents as unknown as HeroUIComponents)
-    .map((component) => {
-      let version = component.version;
-      let versionMode = component.versionMode;
-
-      if (allDependenciesKeys.has(component.package)) {
-        const data = getVersionAndMode(allDependencies, component.package);
-
-        version = transformVersion ? `${data.currentVersion} new: ${version}` : data.currentVersion;
-        versionMode = data.versionMode;
-      }
-
-      return {
-        ...component,
-        version,
-        versionMode
-      };
-    })
-    .filter((component) => allDependenciesKeys.has(component.package)) as HeroUIComponents;
   const isAllComponents = allDependenciesKeys.has(HERO_UI);
 
   return {
     allDependencies,
     allDependenciesKeys,
-    currentComponents,
     dependencies,
     devDependencies,
     isAllComponents,
@@ -63,43 +67,64 @@ export function getPackageInfo(packagePath: string, transformVersion = true) {
   };
 }
 
-export function transformComponentsToPackage(components: string[]) {
-  return components.map((component) => {
-    const herouiComponent = store.heroUIComponentsMap[component];
-    const packageName = herouiComponent?.package;
+/**
+ * Get installed @heroui/* packages from package.json
+ */
+export function getInstalledHeroUIPackages(
+  allDependencies: Record<string, string>
+): PackageComponent[] {
+  return Object.keys(allDependencies)
+    .filter((dep) => dep.startsWith(HEROUI_PREFIX))
+    .map((dep) => {
+      const {currentVersion, versionMode} = getVersionAndMode(allDependencies, dep);
 
-    return packageName ? packageName : component;
-  });
+      return {
+        description: '',
+        docs: '',
+        name: dep,
+        package: dep,
+        peerDependencies: {},
+        status: 'stable',
+        style: '',
+        version: currentVersion,
+        versionMode
+      };
+    });
 }
 
 /**
  * Get the package detail information
  * @param components need package name
  * @param allDependencies
- * @returns
+ * @param transformVersion boolean
  */
 export async function transformPackageDetail(
   components: string[],
   allDependencies: Record<string, string>,
   transformVersion = true
-): Promise<HeroUIComponents> {
-  const result: HeroUIComponents = [];
+): Promise<PackageComponent[]> {
+  const result: PackageComponent[] = [];
 
   for (const component of components) {
-    let {currentVersion} = getVersionAndMode(allDependencies, component);
-    const {versionMode} = getVersionAndMode(allDependencies, component);
+    const isInstalled = component in allDependencies;
+    let currentVersion = isInstalled
+      ? getVersionAndMode(allDependencies, component).currentVersion
+      : '';
+    const versionMode = isInstalled
+      ? getVersionAndMode(allDependencies, component).versionMode
+      : '';
     const docs = (
       ((await getCacheExecData(`npm show ${component} homepage`)) || '') as string
     ).replace(/\n/, '');
     const description = (
       ((await getCacheExecData(`npm show ${component} description`)) || '') as string
     ).replace(/\n/, '');
-    const latestVersion =
-      store.heroUIComponentsPackageMap[component]?.version || (await getLatestVersion(component));
+    const latestVersion = await getLatestVersion(component);
 
-    currentVersion = transformVersion ? `${currentVersion} new: ${latestVersion}` : currentVersion;
+    currentVersion =
+      isInstalled && transformVersion ? `${currentVersion} new: ${latestVersion}` : latestVersion;
 
-    const detailPackageInfo: HeroUIComponents[0] = {
+    const detailPackageInfo: PackageComponent = {
       description: description || '',
       docs: docs || '',
       name: component,
@@ -108,7 +133,7 @@ export async function transformPackageDetail(
       status: 'stable',
       style: '',
       version: currentVersion,
-      versionMode: versionMode
+      versionMode
     };
 
     result.push(detailPackageInfo);

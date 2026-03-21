@@ -10,9 +10,8 @@
     "test:run": "vitest run"
   },
   "devDependencies": {
-    "vite": "latest",
-    "vite-tsconfig-paths": "5.1.4",
-    "vitest": "latest"
+    "vite": "8.0.1",
+    "vitest": "4.1.0"
   },
   "keywords": [
     "heroui",

@@ -3,14 +3,9 @@ import type {ChalkColor, CommandName} from './type';
 import chalk from 'chalk';
 
 import {boxRound} from 'src/constants/box';
-import {
-  type HeroUIComponent,
-  type HeroUIComponents,
-  colorHeroUIComponentKeys,
-  orderHeroUIComponentKeys
-} from 'src/constants/component';
 
 import {Logger} from './logger';
+import {type PackageComponent} from './package';
 import {PasCalCase, fillAnsiLength, strip} from './utils';
 
 // eslint-disable-next-line no-control-regex
@@ -35,7 +30,7 @@ export function outputComponents({
   message = 'Current installed components:\n',
   warnError = true
 }: {
-  components: HeroUIComponents;
+  components: PackageComponent[];
   commandName?: CommandName;
   warnError?: boolean;
   message?: string;
@@ -48,7 +43,10 @@ export function outputComponents({
     return;
   }
 
-  const componentKeyLengthMap: Record<keyof HeroUIComponent | 'originVersion', number> = {
+  const orderHeroUIComponentKeys = ['package', 'version', 'status', 'docs'] as const;
+  const colorHeroUIComponentKeys = ['package', 'version', 'status'];
+
+  const componentKeyLengthMap: Record<keyof PackageComponent | 'originVersion', number> = {
     description: 0,
     docs: 0,
     name: 0,
@@ -57,7 +55,8 @@ export function outputComponents({
     peerDependencies: 0,
     status: 0,
     style: 0,
-    version: 0
+    version: 0,
+    versionMode: 0
   };
 
   for (const component of components) {
@@ -68,18 +67,23 @@ export function outputComponents({
         const newVersion = str.match(newVersionRegex)?.[1];
         const currentVersion = str.match(versionRegex)?.[1];
 
-        const value = strip(generateComponentOutputVersion(currentVersion!, newVersion!));
+        if (currentVersion && newVersion) {
+          const value = strip(generateComponentOutputVersion(currentVersion, newVersion));
 
-        // Align the length of the version
-        componentKeyLengthMap[key] = Math.max(
-          componentKeyLengthMap[key],
-          Math.max(value.length, 'version'.length)
-        );
-        // Record origin version length
-        componentKeyLengthMap.originVersion = Math.max(
-          componentKeyLengthMap.originVersion,
-          currentVersion!.length
-        );
+          componentKeyLengthMap[key] = Math.max(
+            componentKeyLengthMap[key],
+            Math.max(value.length, 'version'.length)
+          );
+          componentKeyLengthMap.originVersion = Math.max(
+            componentKeyLengthMap.originVersion,
+            currentVersion.length
+          );
+        } else {
+          componentKeyLengthMap[key] = Math.max(
+            componentKeyLengthMap[key],
+            Math.max(str.length, 'version'.length)
+          );
+        }
 
         continue;
       }
@@ -96,25 +100,26 @@ export function outputComponents({
 
       /** ======================== Replace version to new version ======================== */
       if (commandName !== 'list' && key === 'version') {
-        // Filter list command cause it will list all the latest components
         const currentVersion = value.match(versionRegex)?.[1]?.trim();
         const newVersion = value.match(newVersionRegex)?.[1]?.trim();
 
-        if (currentVersion === newVersion) {
-          value = value.replace(/\snew:\s[\W\w]+(\s+)?/, '');
-          value = fillAnsiLength(
-            `${fillAnsiLength(value, componentKeyLengthMap.originVersion)} 🚀latest`,
-            componentKeyLengthMap[key]
-          );
-          value = value.replace('latest', chalk.magentaBright.underline('latest'));
-        } else if (newVersion) {
-          value = fillAnsiLength(
-            generateComponentOutputVersion(
-              fillAnsiLength(currentVersion!, componentKeyLengthMap.originVersion),
-              newVersion
-            ),
-            componentKeyLengthMap[key]
-          );
+        if (currentVersion && newVersion) {
+          if (currentVersion === newVersion) {
+            value = value.replace(/\snew:\s[\W\w]+(\s+)?/, '');
+            value = fillAnsiLength(
+              `${fillAnsiLength(value, componentKeyLengthMap.originVersion)} 🚀latest`,
+              componentKeyLengthMap[key]
+            );
+            value = value.replace('latest', chalk.magentaBright.underline('latest'));
+          } else {
+            value = fillAnsiLength(
+              generateComponentOutputVersion(
+                fillAnsiLength(currentVersion, componentKeyLengthMap.originVersion),
+                newVersion
+              ),
+              componentKeyLengthMap[key]
+            );
+          }
         }
       }
 
