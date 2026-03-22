@@ -54,7 +54,7 @@
     "check:prettier": "prettier --check .",
     "check:types": "tsc --noEmit",
     "changelog": "npx conventional-changelog -p angular -i CHANGELOG.md -s --commit-path .",
-    "release": "bumpp --execute='pnpm run changelog' --all --tag='v2'",
+    "release": "bumpp --execute='pnpm run changelog' --all",
     "prepare": "husky install",
     "prebuild": "pnpm run update:components",
     "prepublishOnly": "pnpm run build"
