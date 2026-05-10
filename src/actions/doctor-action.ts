@@ -48,7 +48,7 @@ export async function doctorAction(options: DoctorCommandOptions) {
           Logger.log(`- ${pkg}`);
         });
         Logger.newLine();
-        Logger.log('Run `heroui add` to install them.');
+        Logger.log('Run `heroui install` to install them.');
       }
     });
   }

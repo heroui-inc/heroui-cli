@@ -17,14 +17,14 @@ import {initCache} from './scripts/cache/cache';
 import {compareVersions} from './scripts/helpers';
 
 const commandList: CommandName[] = [
-  'add',
+  'install',
   'agents-md',
   'env',
   'init',
   'list',
   'upgrade',
   'doctor',
-  'remove'
+  'uninstall'
 ];
 
 const heroui = new Command();

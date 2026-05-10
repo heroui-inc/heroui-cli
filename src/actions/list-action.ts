@@ -17,7 +17,7 @@ export async function listAction(options: CommandOptions) {
 
     if (!installed.length) {
       Logger.warn(
-        'No HeroUI packages found. Run `heroui add` to install @heroui/react and @heroui/styles.'
+        'No HeroUI packages found. Run `heroui install` to install @heroui/react and @heroui/styles.'
       );
 
       return;
