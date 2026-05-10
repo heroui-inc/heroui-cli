@@ -51,8 +51,8 @@ export type CommandName =
   | 'list'
   | 'env'
   | 'upgrade'
-  | 'remove'
-  | 'add'
+  | 'uninstall'
+  | 'install'
   | 'doctor'
   | 'agents-md';
 

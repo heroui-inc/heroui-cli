@@ -30,7 +30,7 @@ export async function upgradeAction(options: CommandOptions) {
   if (!installed.length) {
     Logger.prefix(
       'error',
-      'No HeroUI packages found. Run `heroui add` to install @heroui/react and @heroui/styles.'
+      'No HeroUI packages found. Run `heroui install` to install @heroui/react and @heroui/styles.'
     );
 
     return;

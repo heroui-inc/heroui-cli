@@ -11,14 +11,14 @@ import {resolver} from 'src/constants/path';
 import {HEROUI_PACKAGES} from 'src/constants/required';
 import {getSelect} from 'src/prompts';
 
-export async function removeAction(options: CommandOptions) {
+export async function uninstallAction(options: CommandOptions) {
   const {packagePath = resolver('package.json')} = options;
   const {allDependencies, allDependenciesKeys} = getPackageInfo(packagePath);
 
   const installed = HEROUI_PACKAGES.filter((pkg) => allDependenciesKeys.has(pkg));
 
   if (!installed.length) {
-    Logger.success('✅ No HeroUI packages to remove');
+    Logger.success('✅ No HeroUI packages to uninstall');
     process.exit(0);
   }
 
@@ -26,10 +26,10 @@ export async function removeAction(options: CommandOptions) {
 
   outputComponents({
     components,
-    message: chalk.yellowBright('❗️ Packages slated for removal:')
+    message: chalk.yellowBright('❗️ Packages slated for uninstallation:')
   });
 
-  const isConfirmed = await getSelect('Confirm removal of these packages:', [
+  const isConfirmed = await getSelect('Confirm uninstallation of these packages:', [
     {title: 'Yes', value: true},
     {title: 'No', value: false}
   ]);
@@ -43,6 +43,8 @@ export async function removeAction(options: CommandOptions) {
   await removeDependencies([...installed], packageManager);
 
   Logger.newLine();
-  Logger.success(`✅ Successfully removed: ${installed.map((c) => chalk.underline(c)).join(', ')}`);
+  Logger.success(
+    `✅ Successfully uninstalled: ${installed.map((c) => chalk.underline(c)).join(', ')}`
+  );
   process.exit(0);
 }

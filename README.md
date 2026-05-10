@@ -14,7 +14,7 @@
   </a>
 </p>
 
-The CLI offers a suite of commands to initialize, manage, and improve your HeroUI projects. It enables you to `add`, `remove`, or `upgrade` HeroUI packages, assess the health of your project, and more.
+The CLI offers a suite of commands to initialize, manage, and improve your HeroUI projects. It enables you to `install`, `uninstall`, or `upgrade` HeroUI packages, assess the health of your project, and more.
 
 ## Quick Start
 
@@ -47,9 +47,9 @@ Options:
 
 Commands:
   init [options] [projectName]   Initializes a new project
-  add [options]                  Adds @heroui/react and @heroui/styles to your project
+  install [options]              Installs @heroui/react and @heroui/styles in your project
   upgrade [options]              Upgrades @heroui/react and @heroui/styles to the latest versions
-  remove [options]               Removes @heroui/react and @heroui/styles from the project
+  uninstall [options]            Uninstalls @heroui/react and @heroui/styles from the project
   list [options]                 Lists installed HeroUI packages (@heroui/react, @heroui/styles)
   env [options]                  Displays debugging information for the local environment
   doctor [options]               Checks for issues in the project
@@ -120,22 +120,22 @@ HeroUI CLI <version>
 └  🚀 Get started with npm run dev
 ```
 
-### Add
+### Install
 
-Add `@heroui/react` and `@heroui/styles` to your project, along with their peer dependencies. If they are already installed, the command does nothing.
+Install `@heroui/react` and `@heroui/styles` in your project, along with their peer dependencies. If they are already installed, the command does nothing.
 
 ```bash
-heroui add [options]
+heroui install [options]
 ```
 
-#### Add Options
+#### Install Options
 
 - `-p --packagePath` [string] The path to the package.json file
 
 ##### Example
 
 ```bash
-heroui add
+heroui install
 ```
 
 Output:
@@ -160,7 +160,7 @@ HeroUI CLI <version>
 ❯   Yes
     No
 
-✅ @heroui/react and @heroui/styles added successfully
+✅ @heroui/react and @heroui/styles installed successfully
 ```
 
 ### Upgrade
@@ -198,22 +198,22 @@ HeroUI CLI <version>
 ✅ Upgrade complete. All packages are up to date.
 ```
 
-### Remove
+### Uninstall
 
-Remove `@heroui/react` and `@heroui/styles` from your project. Peer dependencies will not be deleted.
+Uninstall `@heroui/react` and `@heroui/styles` from your project. Peer dependencies will not be deleted.
 
 ```bash
-heroui remove [options]
+heroui uninstall [options]
 ```
 
-#### Remove Options
+#### Uninstall Options
 
 - `-p --packagePath` [string] The path to the package.json file
 
 ##### Example
 
 ```bash
-heroui remove
+heroui uninstall
 ```
 
 Output:
@@ -221,18 +221,18 @@ Output:
 ```bash
 HeroUI CLI <version>
 
-❗️ Packages slated for removal:
+❗️ Packages slated for uninstallation:
 ╭──────────────────────────────────────────────────────────────────────────────────────╮
 │   Package          │   Version   │   Status   │   Docs                               │
 │──────────────────────────────────────────────────────────────────────────────────────│
 │   @heroui/react    │   3.0.0     │   stable   │   https://heroui.com                 │
 │   @heroui/styles   │   3.0.0     │   stable   │   https://heroui.com                 │
 ╰──────────────────────────────────────────────────────────────────────────────────────╯
-? Confirm removal of these packages: › - Use arrow-keys. Return to submit.
+? Confirm uninstallation of these packages: › - Use arrow-keys. Return to submit.
 ❯   Yes
     No
 
-✅ Successfully removed: @heroui/react, @heroui/styles
+✅ Successfully uninstalled: @heroui/react, @heroui/styles
 ```
 
 ### List
@@ -305,7 +305,7 @@ HeroUI CLI: ❌ Your project has 1 issue that require attention
 The following HeroUI packages are not installed:
 - @heroui/styles
 
-Run `heroui add` to install them.
+Run `heroui install` to install them.
 ```
 
 Otherwise, the `doctor` command will display the following message.

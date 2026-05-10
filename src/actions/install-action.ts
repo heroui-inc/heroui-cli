@@ -50,7 +50,7 @@ async function getPeerDepOptions(
   return peerDepOptions;
 }
 
-export async function addAction(options: CommandOptions) {
+export async function installAction(options: CommandOptions) {
   const {packagePath = resolver('package.json')} = options;
 
   const {allDependencies, allDependenciesKeys} = getPackageInfo(packagePath);
@@ -101,6 +101,6 @@ export async function addAction(options: CommandOptions) {
   await exec(`${currentPkgManager} ${runCmd} ${installTargets.join(' ')}`);
 
   Logger.newLine();
-  Logger.success('✅ @heroui/react and @heroui/styles added successfully');
+  Logger.success('✅ @heroui/react and @heroui/styles installed successfully');
   process.exit(0);
 }
