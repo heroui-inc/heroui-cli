@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://heroui.com">
-      <img width="20%" src="https://raw.githubusercontent.com/heroui-inc/heroui/main/apps/docs/public/isotipo.png" alt="heroui (previously nextui)" />
+      <img width="20%" src="https://raw.githubusercontent.com/heroui-inc/heroui/v3/apps/docs/public/icons/readme-logo.png" alt="heroui (previously nextui)" />
       <h1 align="center">HeroUI CLI (Previously NextUI CLI)</h1>
   </a>
 </p>
