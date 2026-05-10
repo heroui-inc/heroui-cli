@@ -1,3 +1,5 @@
+## [3.0.1](https://github.com/heroui-inc/heroui-cli/compare/v3.0.0...v3.0.1) (2026-05-10)
+
 # [3.0.0](https://github.com/heroui-inc/heroui-cli/compare/v1.6.1...v3.0.0) (2026-03-21)
 
 ### Features
