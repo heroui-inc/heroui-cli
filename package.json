@@ -5,12 +5,11 @@
   "license": "MIT",
   "version": "3.0.1",
   "homepage": "https://github.com/heroui-inc/heroui-cli#readme",
-  "description": "A CLI tool that unlocks seamless HeroUI integration (Previously NextUI CLI)",
+  "description": "A CLI tool that unlocks seamless HeroUI integration",
   "keywords": [
     "UI",
     "CLI",
     "Tool",
-    "NextUI",
     "Template",
     "Integration",
     "Add Component",
