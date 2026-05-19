@@ -78,13 +78,19 @@ heroui init [projectName] [options]
 #### Init Options
 
 - `-t --template [string]` The template to use for the new project e.g. app, laravel, pages, remix, vite
-- `-p --package [string]` The package manager to use for the new project (default: `npm`)
+- `-p --package [string]` The package manager to use for the new project
 
 ##### Example
 
 ```bash
-# Initialize a new HeroUI project with the app template, named my-heroui-app
-heroui init my-heroui-app -t app
+# Initialize a new HeroUI project with the app template, named my-heroui-app using pnpm
+heroui init my-heroui-app -t app -p pnpm
+```
+
+Alternatively, you can run `init` without any flags and select an option from the prompt.
+
+```bash
+heroui init
 ```
 
 output:
