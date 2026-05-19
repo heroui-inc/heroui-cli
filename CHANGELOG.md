@@ -1,3 +1,11 @@
+## [3.0.2](https://github.com/heroui-inc/heroui-cli/compare/v3.0.1...v3.0.2) (2026-05-19)
+
+### Bug Fixes
+
+- **cli:** handle flags logic ([#186](https://github.com/heroui-inc/heroui-cli/issues/186)) ([460a85e](https://github.com/heroui-inc/heroui-cli/commit/460a85e7e122a2bc13a0c006f23fc02506a85c2a))
+- **cli:** missing files after running agents-md ([#187](https://github.com/heroui-inc/heroui-cli/issues/187)) ([69dabdf](https://github.com/heroui-inc/heroui-cli/commit/69dabdfcb184f67fd22466b24c2f7ee6985e80ea))
+- **deps:** bump vite & vitest ([#188](https://github.com/heroui-inc/heroui-cli/issues/188)) ([20d936b](https://github.com/heroui-inc/heroui-cli/commit/20d936b278d31c3a812dbae998dee6bf424d82c1))
+
 ## [3.0.1](https://github.com/heroui-inc/heroui-cli/compare/v3.0.0...v3.0.1) (2026-05-10)
 
 # [3.0.0](https://github.com/heroui-inc/heroui-cli/compare/v1.6.1...v3.0.0) (2026-03-21)
