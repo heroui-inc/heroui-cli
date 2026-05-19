@@ -40,12 +40,8 @@ export {
 export type {GitignoreStatus, HerouiMdIndexData} from './index-and-inject';
 export type {HerouiVersionsResult} from './workspace-versions';
 
-/**
- * Default branch to use for docs.
- * React and Native use v3; migration uses docs/migration (WIP, not in v3 yet).
- */
+/** Default branch for all docs (React, Native, and migration). */
 const DEFAULT_DOCS_BRANCH = 'v3';
-const MIGRATION_DOCS_BRANCH = 'docs/migration';
 
 interface PullOptions {
   cwd: string;
@@ -63,7 +59,7 @@ interface PullResult {
 export async function pullDocs(options: PullOptions): Promise<PullResult> {
   const {cwd, docsDir, selection, useSsh} = options;
 
-  const gitRef = selection === 'migration' ? MIGRATION_DOCS_BRANCH : DEFAULT_DOCS_BRANCH;
+  const gitRef = DEFAULT_DOCS_BRANCH;
 
   const docsPath = docsDir ?? path.join(cwd, '.heroui-docs');
 
