@@ -11,6 +11,9 @@ const MIGRATION_ROOT_FILES = ['agent-index.mdx', 'hooks.mdx', 'styling.mdx'] as 
 /** (workflows) subdir name; only files whose name starts with "agent-" are copied (non-agent guides excluded). */
 const MIGRATION_WORKFLOWS_DIR = '(workflows)';
 
+/** Agent-focused migration guides (skills, agents-md, MCP). */
+const MIGRATION_FOR_AGENTS_DIR = '(migration-for-agents)';
+
 const INCLUDE_TAG_REGEX = /<include>(.+?)<\/include>/g;
 
 /**
@@ -224,6 +227,15 @@ export async function cloneDocsFolder(
 
           fs.mkdirSync(destComponentsDir, {recursive: true});
           fs.cpSync(sourceComponentsDir, destComponentsDir, {recursive: true});
+        }
+
+        const sourceForAgentsDir = path.join(sourceMigrationDir, MIGRATION_FOR_AGENTS_DIR);
+
+        if (fs.existsSync(sourceForAgentsDir)) {
+          const destForAgentsDir = path.join(destMigrationDir, MIGRATION_FOR_AGENTS_DIR);
+
+          fs.mkdirSync(destForAgentsDir, {recursive: true});
+          fs.cpSync(sourceForAgentsDir, destForAgentsDir, {recursive: true});
         }
       }
     }
