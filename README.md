@@ -77,7 +77,7 @@ heroui init [projectName] [options]
 
 #### Init Options
 
-- `-t --template [string]` The template to use for the new project e.g. app, laravel, pages, remix, vite
+- `-t --template [string]` The template to use for the new project e.g. app, pages, vite
 - `-p --package [string]` The package manager to use for the new project
 
 ##### Example
