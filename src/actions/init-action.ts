@@ -36,8 +36,8 @@ export const templatesMap: Record<Required<InitOptions>['template'], string> = {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 declare let _exhaustiveCheck: never;
 
-export async function initAction(_projectName: string, options: InitOptions) {
-  const {package: _package = 'npm', template: _template} = options;
+export async function initAction(_projectName?: string, options: InitOptions = {}) {
+  const {package: _package, template: _template} = options;
 
   /** ======================== Check invalid options ======================== */
   checkInitOptions(_template, _package);
@@ -141,40 +141,44 @@ async function getTableInfo(packageName?: string, projectName?: string, template
     }
   ];
 
-  template = (await selectClack({
-    initialValue: template,
-    message: 'Select a template (Enter to select)',
-    options
-  })) as string;
+  if (!template) {
+    template = (await selectClack({
+      message: 'Select a template (Enter to select)',
+      options
+    })) as string;
+  }
 
-  projectName = (await textClack({
-    initialValue: projectName ?? templatesMap[template],
-    message: 'New project name (Enter to skip with default name)',
-    placeholder: templatesMap[template]
-  })) as string;
+  if (!projectName) {
+    projectName = (await textClack({
+      initialValue: templatesMap[template as keyof typeof templatesMap],
+      message: 'New project name (Enter to skip with default name)',
+      placeholder: templatesMap[template as keyof typeof templatesMap]
+    })) as string;
+  }
 
-  packageName = (await selectClack({
-    initialValue: packageName,
-    message: 'Select a package manager (Enter to select)',
-    options: [
-      {
-        label: chalk.gray('npm'),
-        value: 'npm'
-      },
-      {
-        label: chalk.gray('yarn'),
-        value: 'yarn'
-      },
-      {
-        label: chalk.gray('pnpm'),
-        value: 'pnpm'
-      },
-      {
-        label: chalk.gray('bun'),
-        value: 'bun'
-      }
-    ]
-  })) as Agent;
+  if (!packageName) {
+    packageName = (await selectClack({
+      message: 'Select a package manager (Enter to select)',
+      options: [
+        {
+          label: chalk.gray('npm'),
+          value: 'npm'
+        },
+        {
+          label: chalk.gray('yarn'),
+          value: 'yarn'
+        },
+        {
+          label: chalk.gray('pnpm'),
+          value: 'pnpm'
+        },
+        {
+          label: chalk.gray('bun'),
+          value: 'bun'
+        }
+      ]
+    })) as Agent;
+  }
 
   return {
     packageName: packageName as Agent,

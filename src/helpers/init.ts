@@ -5,7 +5,7 @@ import {templatesMap} from 'src/actions/init-action';
 import {AGENTS, type Agent} from './detect';
 import {printMostMatchText} from './math-diff';
 
-export function checkInitOptions(template: InitOptions['template'], agent: Agent) {
+export function checkInitOptions(template: InitOptions['template'], agent?: Agent) {
   if (template) {
     if (!Object.keys(templatesMap).includes(template)) {
       printMostMatchText(Object.keys(templatesMap), template);
