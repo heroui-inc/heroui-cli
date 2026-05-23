@@ -23,22 +23,19 @@ async function fetchTarStream(url: string) {
 
 /**
  * Download the template from the specified URL and extract it to the specified directory.
+ * Retries up to 3 times for transient network errors.
  * @param root
  * @param url
  */
 export async function downloadTemplate(root: string, url: string) {
   await retry(
-    async (bail) => {
-      try {
-        await pipeline(
-          await fetchTarStream(url),
-          tar.x({
-            cwd: root
-          })
-        );
-      } catch (error) {
-        bail(new Error(`Failed to download ${url} Error: ${error}`));
-      }
+    async () => {
+      await pipeline(
+        await fetchTarStream(url),
+        tar.x({
+          cwd: root
+        })
+      );
     },
     {
       retries: 3
