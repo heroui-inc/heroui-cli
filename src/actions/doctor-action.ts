@@ -6,7 +6,7 @@ import {Logger, type PrefixLogType} from '@helpers/logger';
 import {getPackageInfo} from '@helpers/package';
 import {getVersionAndMode, transformPeerVersion} from '@helpers/utils';
 import {resolver} from 'src/constants/path';
-import {DOCS_INSTALLED, HEROUI_PACKAGES} from 'src/constants/required';
+import {DOCS_INSTALLED, HEROUI_PACKAGES, TAILWINDCSS} from 'src/constants/required';
 import {getCacheExecData} from 'src/scripts/cache/cache';
 import {compareVersions} from 'src/scripts/helpers';
 
@@ -21,6 +21,29 @@ export async function doctorAction(options: DoctorCommandOptions) {
 
   const {allDependencies, allDependenciesKeys} = getPackageInfo(packagePath);
 
+  const problemRecord: ProblemRecord[] = [];
+
+  // Check 1: Node.js version meets minimum requirement
+  const nodeVersion = process.versions.node;
+  const [nodeMajor] = nodeVersion.split('.').map(Number);
+
+  if (nodeMajor != null && nodeMajor < 22) {
+    problemRecord.push({
+      level: 'error',
+      name: 'unsupportedNodeVersion',
+      outputFn: () => {
+        Logger.log(
+          `Node.js v${nodeVersion} detected, but HeroUI CLI requires Node.js 22 or later.`
+        );
+        Logger.log(`Current: v${nodeVersion}`);
+        Logger.log(`Required: v22.0.0+`);
+        Logger.newLine();
+        Logger.log('Upgrade Node.js: https://nodejs.org/');
+      }
+    });
+  }
+
+  // Check 2: HeroUI packages are installed
   const installed = HEROUI_PACKAGES.filter((pkg) => allDependenciesKeys.has(pkg));
 
   if (!installed.length) {
@@ -33,8 +56,6 @@ export async function doctorAction(options: DoctorCommandOptions) {
 
     return;
   }
-
-  const problemRecord: ProblemRecord[] = [];
 
   const missing = HEROUI_PACKAGES.filter((pkg) => !allDependenciesKeys.has(pkg));
 
@@ -53,6 +74,22 @@ export async function doctorAction(options: DoctorCommandOptions) {
     });
   }
 
+  // Check 3: Tailwind CSS is installed
+  if (!allDependenciesKeys.has(TAILWINDCSS)) {
+    problemRecord.push({
+      level: 'error',
+      name: 'missingTailwindCSS',
+      outputFn: () => {
+        Logger.log('Tailwind CSS is not installed.');
+        Logger.log('HeroUI v3 requires Tailwind CSS v4.');
+        Logger.newLine();
+        Logger.log('Install it with: npm install tailwindcss@latest');
+        Logger.log(`See: ${chalk.underline(DOCS_INSTALLED)}`);
+      }
+    });
+  }
+
+  // Check 4: Peer dependencies are installed and meet minimum versions
   const missingPeerDeps: string[] = [];
   const seen = new Set<string>();
 
