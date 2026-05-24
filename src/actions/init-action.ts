@@ -106,7 +106,7 @@ function renameTemplate(originName: string, projectName: string) {
   } catch (error) {
     if (error) {
       p.cancel(`rename Error: ${error}`);
-      process.exit(0);
+      process.exit(1);
     }
   }
 }
