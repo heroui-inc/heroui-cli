@@ -8,7 +8,9 @@ import {HEROUI_PACKAGES} from 'src/constants/required';
 import {resolver} from '../../src/constants/path';
 
 export async function listAction(options: CommandOptions) {
-  const {packagePath = resolver('package.json'), json} = options as CommandOptions & {json?: boolean};
+  const {json, packagePath = resolver('package.json')} = options as CommandOptions & {
+    json?: boolean;
+  };
 
   try {
     const {allDependencies, allDependenciesKeys} = getPackageInfo(packagePath);
@@ -17,7 +19,7 @@ export async function listAction(options: CommandOptions) {
 
     if (!installed.length) {
       if (json) {
-        console.log(JSON.stringify({packages: []}, null, 2));
+        Logger.log(JSON.stringify({packages: []}, null, 2));
       } else {
         Logger.warn(
           'No HeroUI packages found. Run `heroui install` to install @heroui/react and @heroui/styles.'
@@ -32,20 +34,20 @@ export async function listAction(options: CommandOptions) {
     if (json) {
       const output = {
         packages: components.map((c) => ({
+          docs: c.docs,
           package: c.package,
-          version: c.version.replace(/\s*new:\s*/, ' -> ').trim(),
           status: c.status,
-          docs: c.docs
+          version: c.version.replace(/\s*new:\s*/, ' -> ').trim()
         }))
       };
 
-      console.log(JSON.stringify(output, null, 2));
+      Logger.log(JSON.stringify(output, null, 2));
     } else {
       outputComponents({components, message: 'Installed HeroUI packages:\n'});
     }
   } catch (error) {
     if (json) {
-      console.log(JSON.stringify({error: String(error)}, null, 2));
+      Logger.log(JSON.stringify({error: String(error)}, null, 2));
     } else {
       Logger.prefix('error', `An error occurred while listing packages: ${error}`);
     }

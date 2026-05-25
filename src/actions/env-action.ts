@@ -1,12 +1,13 @@
 import type {EnvOptions} from '@helpers/type';
 
+import {Logger} from '@helpers/logger';
 import {outputComponents, outputInfo} from '@helpers/output-info';
 import {getPackageInfo, transformPackageDetail} from '@helpers/package';
 import {resolver} from 'src/constants/path';
 import {HEROUI_PACKAGES} from 'src/constants/required';
 
 export async function envAction(options: EnvOptions) {
-  const {packagePath = resolver('package.json'), json} = options as EnvOptions & {json?: boolean};
+  const {json, packagePath = resolver('package.json')} = options as EnvOptions & {json?: boolean};
 
   const {allDependencies, allDependenciesKeys} = getPackageInfo(packagePath);
 
@@ -15,23 +16,23 @@ export async function envAction(options: EnvOptions) {
   if (json) {
     const packages = installed.length
       ? (await transformPackageDetail([...installed], allDependencies)).map((c) => ({
+          docs: c.docs,
           package: c.package,
-          version: c.version.replace(/\s*new:\s*/, ' -> ').trim(),
           status: c.status,
-          docs: c.docs
+          version: c.version.replace(/\s*new:\s*/, ' -> ').trim()
         }))
       : [];
 
     const output = {
-      packages,
       environment: {
-        os: process.platform,
         arch: process.arch,
-        nodeVersion: process.version
-      }
+        nodeVersion: process.version,
+        os: process.platform
+      },
+      packages
     };
 
-    console.log(JSON.stringify(output, null, 2));
+    Logger.log(JSON.stringify(output, null, 2));
     process.exit(0);
   }
 
