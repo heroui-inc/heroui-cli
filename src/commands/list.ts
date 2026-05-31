@@ -7,5 +7,6 @@ export function registerListCommand(cmd: Command) {
     .command('list')
     .description('Lists installed HeroUI packages (@heroui/react, @heroui/styles)')
     .option('-p --packagePath [string]', 'Specify the path to the package.json file')
+    .option('--json', 'Output as JSON for programmatic use')
     .action(listAction);
 }
