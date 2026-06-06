@@ -14,6 +14,14 @@ const MIGRATION_WORKFLOWS_DIR = '(workflows)';
 /** Agent-focused migration guides (skills, agents-md, MCP). */
 const MIGRATION_FOR_AGENTS_DIR = '(migration-for-agents)';
 
+/**
+ * Locale-prefixed root for documentation content in the heroui repo.
+ * Docs were moved under `en/` (with a sibling `cn/`) for i18n on the v3 branch.
+ * If this path is changed upstream, update both the sparse-checkout patterns
+ * and the source-dir paths below.
+ */
+const DOCS_CONTENT_ROOT = 'apps/docs/content/docs/en';
+
 const INCLUDE_TAG_REGEX = /<include>(.+?)<\/include>/g;
 
 /**
@@ -104,8 +112,8 @@ export async function cloneDocsFolder(
     // Build sparse-checkout patterns. For React: include full folder but exclude migration.
     if (selection === 'react') {
       const patterns = [
-        'apps/docs/content/docs/react',
-        '!apps/docs/content/docs/react/migration',
+        `${DOCS_CONTENT_ROOT}/react`,
+        `!${DOCS_CONTENT_ROOT}/react/migration`,
         'apps/docs/src/demos'
       ].join('\n');
 
@@ -115,12 +123,12 @@ export async function cloneDocsFolder(
         stdio: ['pipe', 'pipe', 'pipe']
       });
     } else if (selection === 'native') {
-      execSync('git sparse-checkout set apps/docs/content/docs/native', {
+      execSync(`git sparse-checkout set ${DOCS_CONTENT_ROOT}/native`, {
         cwd: tempDir,
         stdio: 'pipe'
       });
     } else {
-      execSync('git sparse-checkout set apps/docs/content/docs/react/migration', {
+      execSync(`git sparse-checkout set ${DOCS_CONTENT_ROOT}/react/migration`, {
         cwd: tempDir,
         stdio: 'pipe'
       });
@@ -131,17 +139,21 @@ export async function cloneDocsFolder(
 
     // Copy docs to destination - only the selected library
     if (selection === 'react') {
-      const sourceReactDir = path.join(tempDir, 'apps', 'docs', 'content', 'docs', 'react');
+      const sourceReactDir = path.join(tempDir, ...DOCS_CONTENT_ROOT.split('/'), 'react');
 
-      if (fs.existsSync(sourceReactDir)) {
-        const destReactDir = path.join(destDir, 'react');
-
-        if (fs.existsSync(destReactDir)) {
-          fs.rmSync(destReactDir, {recursive: true});
-        }
-        fs.mkdirSync(destReactDir, {recursive: true});
-        fs.cpSync(sourceReactDir, destReactDir, {recursive: true});
+      if (!fs.existsSync(sourceReactDir)) {
+        throw new Error(
+          `Expected React docs at "${DOCS_CONTENT_ROOT}/react" on branch "${ref}" but the directory is missing. The upstream docs layout may have changed; please report this at https://github.com/heroui-inc/heroui-cli/issues.`
+        );
       }
+
+      const destReactDir = path.join(destDir, 'react');
+
+      if (fs.existsSync(destReactDir)) {
+        fs.rmSync(destReactDir, {recursive: true});
+      }
+      fs.mkdirSync(destReactDir, {recursive: true});
+      fs.cpSync(sourceReactDir, destReactDir, {recursive: true});
 
       const sourceDemosDir = path.join(tempDir, 'apps', 'docs', 'src', 'demos');
 
@@ -155,88 +167,93 @@ export async function cloneDocsFolder(
         fs.cpSync(sourceDemosDir, destDemosDir, {recursive: true});
       }
     } else if (selection === 'native') {
-      const sourceNativeDir = path.join(tempDir, 'apps', 'docs', 'content', 'docs', 'native');
+      const sourceNativeDir = path.join(tempDir, ...DOCS_CONTENT_ROOT.split('/'), 'native');
 
-      if (fs.existsSync(sourceNativeDir)) {
-        const destNativeDir = path.join(destDir, 'native');
-
-        if (fs.existsSync(destNativeDir)) {
-          fs.rmSync(destNativeDir, {recursive: true});
-        }
-        fs.mkdirSync(destNativeDir, {recursive: true});
-        fs.cpSync(sourceNativeDir, destNativeDir, {recursive: true});
+      if (!fs.existsSync(sourceNativeDir)) {
+        throw new Error(
+          `Expected Native docs at "${DOCS_CONTENT_ROOT}/native" on branch "${ref}" but the directory is missing. The upstream docs layout may have changed; please report this at https://github.com/heroui-inc/heroui-cli/issues.`
+        );
       }
+
+      const destNativeDir = path.join(destDir, 'native');
+
+      if (fs.existsSync(destNativeDir)) {
+        fs.rmSync(destNativeDir, {recursive: true});
+      }
+      fs.mkdirSync(destNativeDir, {recursive: true});
+      fs.cpSync(sourceNativeDir, destNativeDir, {recursive: true});
     } else {
       const sourceMigrationDir = path.join(
         tempDir,
-        'apps',
-        'docs',
-        'content',
-        'docs',
+        ...DOCS_CONTENT_ROOT.split('/'),
         'react',
         'migration'
       );
 
-      if (fs.existsSync(sourceMigrationDir)) {
-        const destMigrationDir = path.join(destDir, 'migration');
+      if (!fs.existsSync(sourceMigrationDir)) {
+        throw new Error(
+          `Expected Migration docs at "${DOCS_CONTENT_ROOT}/react/migration" on branch "${ref}" but the directory is missing. The upstream docs layout may have changed; please report this at https://github.com/heroui-inc/heroui-cli/issues.`
+        );
+      }
 
-        if (fs.existsSync(destMigrationDir)) {
-          fs.rmSync(destMigrationDir, {recursive: true});
+      const destMigrationDir = path.join(destDir, 'migration');
+
+      if (fs.existsSync(destMigrationDir)) {
+        fs.rmSync(destMigrationDir, {recursive: true});
+      }
+      fs.mkdirSync(destMigrationDir, {recursive: true});
+
+      for (const name of MIGRATION_ROOT_FILES) {
+        const sourcePath = path.join(sourceMigrationDir, name);
+
+        if (fs.existsSync(sourcePath)) {
+          fs.copyFileSync(sourcePath, path.join(destMigrationDir, name));
         }
-        fs.mkdirSync(destMigrationDir, {recursive: true});
+      }
 
-        for (const name of MIGRATION_ROOT_FILES) {
-          const sourcePath = path.join(sourceMigrationDir, name);
+      const sourceWorkflowsDir = path.join(sourceMigrationDir, MIGRATION_WORKFLOWS_DIR);
 
-          if (fs.existsSync(sourcePath)) {
-            fs.copyFileSync(sourcePath, path.join(destMigrationDir, name));
+      if (fs.existsSync(sourceWorkflowsDir)) {
+        const destWorkflowsDir = path.join(destMigrationDir, MIGRATION_WORKFLOWS_DIR);
+
+        fs.mkdirSync(destWorkflowsDir, {recursive: true});
+
+        for (const name of fs.readdirSync(sourceWorkflowsDir)) {
+          if (!name.startsWith('agent-')) {
+            continue;
           }
-        }
 
-        const sourceWorkflowsDir = path.join(sourceMigrationDir, MIGRATION_WORKFLOWS_DIR);
+          const sourcePath = path.join(sourceWorkflowsDir, name);
+          const destPath = path.join(destWorkflowsDir, name);
+          const relativePath = `${MIGRATION_WORKFLOWS_DIR}/${name}`;
 
-        if (fs.existsSync(sourceWorkflowsDir)) {
-          const destWorkflowsDir = path.join(destMigrationDir, MIGRATION_WORKFLOWS_DIR);
-
-          fs.mkdirSync(destWorkflowsDir, {recursive: true});
-
-          for (const name of fs.readdirSync(sourceWorkflowsDir)) {
-            if (!name.startsWith('agent-')) {
-              continue;
-            }
-
-            const sourcePath = path.join(sourceWorkflowsDir, name);
-            const destPath = path.join(destWorkflowsDir, name);
-            const relativePath = `${MIGRATION_WORKFLOWS_DIR}/${name}`;
-
-            if (!fs.statSync(sourcePath).isFile()) {
-              continue;
-            }
-
-            const content = fs.readFileSync(sourcePath, 'utf-8');
-            const resolved = resolveIncludeTags(content, relativePath, sourceMigrationDir);
-
-            fs.writeFileSync(destPath, resolved, 'utf-8');
+          if (!fs.statSync(sourcePath).isFile()) {
+            continue;
           }
+
+          const content = fs.readFileSync(sourcePath, 'utf-8');
+          const resolved = resolveIncludeTags(content, relativePath, sourceMigrationDir);
+
+          fs.writeFileSync(destPath, resolved, 'utf-8');
         }
+      }
 
-        const sourceComponentsDir = path.join(sourceMigrationDir, '(components)');
+      const sourceComponentsDir = path.join(sourceMigrationDir, '(components)');
 
-        if (fs.existsSync(sourceComponentsDir)) {
-          const destComponentsDir = path.join(destMigrationDir, '(components)');
+      if (fs.existsSync(sourceComponentsDir)) {
+        const destComponentsDir = path.join(destMigrationDir, '(components)');
 
-          fs.mkdirSync(destComponentsDir, {recursive: true});
-          fs.cpSync(sourceComponentsDir, destComponentsDir, {recursive: true});
-        }
+        fs.mkdirSync(destComponentsDir, {recursive: true});
+        fs.cpSync(sourceComponentsDir, destComponentsDir, {recursive: true});
+      }
 
-        const sourceForAgentsDir = path.join(sourceMigrationDir, MIGRATION_FOR_AGENTS_DIR);
+      const sourceForAgentsDir = path.join(sourceMigrationDir, MIGRATION_FOR_AGENTS_DIR);
 
-        if (fs.existsSync(sourceForAgentsDir)) {
-          const destForAgentsDir = path.join(destMigrationDir, MIGRATION_FOR_AGENTS_DIR);
+      if (fs.existsSync(sourceForAgentsDir)) {
+        const destForAgentsDir = path.join(destMigrationDir, MIGRATION_FOR_AGENTS_DIR);
 
-          fs.mkdirSync(destForAgentsDir, {recursive: true});
-          fs.cpSync(sourceForAgentsDir, destForAgentsDir, {recursive: true});
-        }
+        fs.mkdirSync(destForAgentsDir, {recursive: true});
+        fs.cpSync(sourceForAgentsDir, destForAgentsDir, {recursive: true});
       }
     }
   } finally {
