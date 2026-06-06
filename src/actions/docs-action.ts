@@ -388,7 +388,7 @@ export async function docsAction(options: DocsOptions) {
 
     // Show description of what was installed
     Logger.log(chalk.cyan('📚 What was installed:'));
-    Logger.log(`  • Documentation files downloaded to ${chalk.bold(`.${DOCS_DIR_NAME}/`)}`);
+    Logger.log(`  • Documentation files downloaded to ${chalk.bold(`${DOCS_DIR_NAME}/`)}`);
     Logger.log(`  • Index generated in ${chalk.bold(outputFiles.join(', '))}`);
     if (selection === 'react') {
       Logger.log(`  • Demo files included for React code examples`);
