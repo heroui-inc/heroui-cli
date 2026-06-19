@@ -30,7 +30,7 @@ export interface DoctorCommandOptions extends CommandOptions {
 }
 
 export interface InitOptions {
-  template?: 'app' | 'pages' | 'vite';
+  template?: 'app' | 'pages' | 'vite' | 'react-router';
   package?: Agent;
 }
 
