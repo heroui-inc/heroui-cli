@@ -1,3 +1,9 @@
+## [3.0.4](https://github.com/heroui-inc/heroui-cli/compare/v3.0.3...v3.0.4) (2026-07-06)
+
+### Features
+
+- add react-router template ([#198](https://github.com/heroui-inc/heroui-cli/issues/198)) ([a53ef30](https://github.com/heroui-inc/heroui-cli/commit/a53ef302142bccf6cf6a1ef391e4bf2864cb82d7))
+
 ## [3.0.3](https://github.com/heroui-inc/heroui-cli/compare/v3.0.2...v3.0.3) (2026-06-06)
 
 ### Bug Fixes
