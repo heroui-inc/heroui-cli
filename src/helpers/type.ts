@@ -19,10 +19,12 @@ export interface CommandOptions {
   all?: boolean;
   beta?: boolean;
   debug?: boolean;
+  json?: boolean;
 }
 
 export interface EnvOptions extends CommandOptions {
   packagePath?: string;
+  json?: boolean;
 }
 
 export interface DoctorCommandOptions extends CommandOptions {

@@ -12,7 +12,11 @@ import {Logger} from './logger';
 import {colorMatchRegex} from './output-info';
 
 export function getCommandDescAndLog(log: string, desc: string) {
-  Logger.gradient(log);
+  // Suppress the CLI branding banner when running with --json so the JSON
+  // payload on stdout stays clean and pipe-parseable for CI consumers.
+  if (!process.argv.includes('--json')) {
+    Logger.gradient(log);
+  }
 
   return desc;
 }

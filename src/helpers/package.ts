@@ -6,7 +6,7 @@ import {resolve} from 'pathe';
 
 import {HEROUI_PREFIX, HERO_UI} from 'src/constants/required';
 import {getCacheExecData} from 'src/scripts/cache/cache';
-import {getLatestVersion} from 'src/scripts/helpers';
+import {compareVersions, getLatestVersion} from 'src/scripts/helpers';
 
 import {Logger} from './logger';
 import {colorMatchRegex} from './output-info';
@@ -151,4 +151,26 @@ export function getCompleteVersion(upgradeOption: UpgradeOption) {
     colorMatchRegex,
     ''
   )}`;
+}
+
+/**
+ * Re-shape a PackageComponent (whose `version` field is the
+ * `"<current> new: <latest>"` string built by `transformPackageDetail`)
+ * into the discrete `version` / `latestVersion` / `upgradeAvailable`
+ * fields suitable for CI / programmatic consumers of the --json output.
+ */
+export function mapPackageComponentForJson(c: PackageComponent) {
+  const versionMatch = c.version.match(/^(.+?)\s+new:\s+(.+)$/);
+  const version = versionMatch ? versionMatch[1]!.trim() : c.version.trim();
+  const latestVersion = versionMatch ? versionMatch[2]!.trim() : c.version.trim();
+
+  return {
+    docs: c.docs,
+    latestVersion,
+    package: c.package,
+    status: c.status,
+    upgradeAvailable: compareVersions(version, latestVersion) < 0,
+    version,
+    versionMode: c.versionMode
+  };
 }
