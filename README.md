@@ -57,6 +57,18 @@ Commands:
   help [command]                 Display help for command
 ```
 
+## Cache
+
+Registry lookups are cached for 30 minutes in a per-user cache directory:
+
+| Platform | Location                                              |
+| -------- | ----------------------------------------------------- |
+| macOS    | `~/Library/Caches/heroui-cli`                         |
+| Linux    | `$XDG_CACHE_HOME/heroui-cli` or `~/.cache/heroui-cli` |
+| Windows  | `%LOCALAPPDATA%\heroui-cli\Cache`                     |
+
+Set `HEROUI_CACHE_DIR` to store the cache somewhere else, or pass `--no-cache` to skip it. When no location is writable, the CLI keeps working without caching.
+
 ## Analytics
 
 The `agents-md` command collects anonymous usage data.

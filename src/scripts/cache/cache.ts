@@ -1,9 +1,11 @@
 import type {SAFE_ANY} from '@helpers/type';
 
-import {existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync} from 'node:fs';
+import {existsSync, mkdirSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
+
+import {resolve} from 'pathe';
 
 import {oraExecCmd} from '../helpers';
-import {CACHE_DIR, CACHE_PATH} from '../path';
+import {CACHE_DIR, FALLBACK_CACHE_DIR} from '../path';
 
 /**
  * Cache time-to-live in milliseconds (30 minutes)
@@ -14,6 +16,55 @@ const CACHE_TTL_MS = 30 * 60_000;
  * Global flag to disable caching
  */
 let noCache = false;
+
+/**
+ * Directories tried in order when preparing the cache, the first writable one wins
+ */
+const CACHE_DIR_CANDIDATES = [...new Set([CACHE_DIR, FALLBACK_CACHE_DIR])];
+
+/**
+ * Resolved cache location, undefined until the cache has been prepared
+ */
+let cacheLocation: {dir: string; path: string} | undefined;
+
+/**
+ * Set once every candidate directory turned out to be unwritable
+ */
+let cacheUnavailable = false;
+
+/**
+ * Prepare the cache directory and data file.
+ * @returns The cache location, or undefined when no writable location is available
+ */
+function ensureCache(): {dir: string; path: string} | undefined {
+  if (cacheLocation || cacheUnavailable) {
+    return cacheLocation;
+  }
+
+  for (const dir of CACHE_DIR_CANDIDATES) {
+    const path = resolve(dir, 'data.json');
+
+    try {
+      if (!existsSync(dir)) {
+        mkdirSync(dir, {recursive: true});
+      }
+
+      if (!existsSync(path)) {
+        writeFileSync(path, JSON.stringify({}), 'utf8');
+      }
+
+      cacheLocation = {dir, path};
+
+      return cacheLocation;
+    } catch {
+      // Try the next candidate, e.g. read-only filesystems under `yarn dlx`
+    }
+  }
+
+  cacheUnavailable = true;
+
+  return undefined;
+}
 
 /**
  * Structure of the cache data stored on disk
@@ -32,22 +83,21 @@ export interface CacheData {
 export function initCache(_noCache = noCache): void {
   noCache = Boolean(_noCache);
 
-  if (!existsSync(CACHE_DIR)) {
-    mkdirSync(CACHE_DIR, {recursive: true});
-  }
-
-  if (!existsSync(CACHE_PATH)) {
-    writeFileSync(CACHE_PATH, JSON.stringify({}), 'utf8');
-  }
+  ensureCache();
 }
 
 export function getCacheData(): CacheData {
-  if (!existsSync(CACHE_DIR) || !existsSync(CACHE_PATH)) {
-    initCache();
-  }
-  const data = readFileSync(CACHE_PATH, 'utf8');
+  const cache = ensureCache();
 
-  return JSON.parse(data);
+  if (!cache) {
+    return {};
+  }
+
+  try {
+    return JSON.parse(readFileSync(cache.path, 'utf8'));
+  } catch {
+    return {};
+  }
 }
 
 /**
@@ -64,7 +114,11 @@ export function cacheData(
   },
   existingCache?: CacheData
 ): void {
-  initCache();
+  const cache = ensureCache();
+
+  if (!cache) {
+    return;
+  }
 
   const data = existingCache ?? getCacheData();
   const now = new Date();
@@ -78,11 +132,20 @@ export function cacheData(
     formatDate: now.toString()
   };
 
-  writeFileSync(CACHE_PATH, JSON.stringify(data, undefined, 2), 'utf-8');
+  try {
+    writeFileSync(cache.path, JSON.stringify(data, undefined, 2), 'utf-8');
+  } catch {
+    // Caching is best-effort, never fail a command because the cache is unwritable
+  }
 }
 
 export function removeCache() {
-  unlinkSync(CACHE_DIR);
+  for (const dir of CACHE_DIR_CANDIDATES) {
+    rmSync(dir, {force: true, recursive: true});
+  }
+
+  cacheLocation = undefined;
+  cacheUnavailable = false;
 }
 
 function now(): number {
