@@ -137,6 +137,22 @@ heroui.hook('preAction', async (command) => {
   }
 });
 
+// parseAsync only sees rejections from the command it ran. Anything thrown from
+// a detached promise or a callback would otherwise exit silently.
+process.on('unhandledRejection', (reason) => {
+  Logger.newLine();
+  Logger.error('Unhandled promise rejection:');
+  Logger.log(reason instanceof Error ? reason.message : String(reason));
+  process.exit(1);
+});
+
+process.on('uncaughtException', (error) => {
+  Logger.newLine();
+  Logger.error('Uncaught exception:');
+  Logger.log(error.message);
+  process.exit(1);
+});
+
 heroui.parseAsync(process.argv).catch(async (error: Error) => {
   const isAgentsMd = process.argv.includes('agents-md');
 
