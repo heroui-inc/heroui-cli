@@ -5,9 +5,9 @@
     "baseUrl": ".",
     "rootDir": ".",
     "lib": ["ESNext"],
-    "target": "ES2019",
+    "target": "ES2022",
     "moduleDetection": "auto",
-    "moduleResolution": "Node",
+    "moduleResolution": "Bundler",
     "allowJs": true,
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
@@ -31,11 +31,9 @@
     "sourceMap": true,
     "strict": true,
     "verbatimModuleSyntax": true,
-    "noImplicitAny": false,
     "paths": {
       "@helpers/*": ["src/helpers/*"],
-      "src/*": ["src/*"],
-      "build/*": ["plugins/*"]
+      "src/*": ["src/*"]
     }
   },
   "include": ["**/*.js", "**/*.cjs", "**/*.mjs", "**/*.ts", "**/*.tsx", "**/*.d.ts"],

@@ -40,7 +40,7 @@ export function migrateTailwindcss(paths: string[]) {
           prop.key.name === 'content' &&
           jscodeshift.ArrayExpression.check(prop.value)
         ) {
-          prop.value.elements.forEach((element) => {
+          prop.value.elements.forEach((element: SAFE_ANY) => {
             if (
               jscodeshift.Literal.check(element) &&
               typeof element.value === 'string' &&

@@ -102,14 +102,16 @@ export function getUpgradeVersion(upgradeOptionList: UpgradeOption[], peer = fal
   };
 
   for (const upgradeOption of upgradeOptionList) {
-    for (const key in upgradeOption) {
-      if (!Object.prototype.hasOwnProperty.call(upgradeOption, key) || !upgradeOption[key]) {
+    for (const key of Object.keys(optionMaxLenMap) as (keyof typeof optionMaxLenMap)[]) {
+      const value = upgradeOption[key];
+
+      if (!value) {
         continue;
       }
 
       if (key === 'version') {
         // Remove the duplicate character '^'
-        upgradeOption[key] = upgradeOption[key].replace(VERSION_MODE_REGEX, '');
+        upgradeOption[key] = value.replace(VERSION_MODE_REGEX, '');
       }
 
       const compareLength =

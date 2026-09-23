@@ -56,14 +56,14 @@
   },
   "dependencies": {
     "@clack/prompts": "0.7.0",
+    "@winches/prompts": "0.0.7",
     "async-retry": "1.3.3",
     "chalk": "5.3.0",
-    "@winches/prompts": "0.0.7",
     "cli-progress": "3.12.0",
     "commander": "11.0.0",
-    "find-up": "7.0.0",
     "compare-versions": "6.1.1",
     "fast-glob": "3.3.2",
+    "find-up": "7.0.0",
     "gradient-string": "2.0.2",
     "jscodeshift": "17.1.1",
     "ora": "8.0.1",
@@ -74,6 +74,7 @@
   },
   "packageManager": "pnpm@9.6.0",
   "devDependencies": {
+    "@types/cli-progress": "3.11.6",
     "@types/jscodeshift": "0.12.0"
   }
 }

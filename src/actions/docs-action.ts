@@ -55,6 +55,9 @@ function detectInstalledPackages(cwd: string): {
   };
 }
 
+/** First @heroui/react release of the v3 line these docs describe */
+const MIN_HEROUI_REACT_VERSION = '3.0.0';
+
 interface ValidationResult {
   isValid: boolean;
   warnings: string[];
@@ -80,7 +83,9 @@ function validateRequirements(cwd: string, selection: DocSelection): ValidationR
     const tailwindVersion = allDeps.tailwindcss || allDeps['@tailwindcss/vite'];
 
     if (tailwindVersion) {
-      const cleanVersion = tailwindVersion.replace(/^[<=>^~]+/, '');
+      // `v` is stripped too, otherwise `v3.4.0` parses to NaN and the
+      // comparison below silently passes
+      const cleanVersion = tailwindVersion.replace(/^[<=>^v~]+/, '');
       // Extract major version number
       const majorVersion = parseInt(cleanVersion.split('.')[0] || '0', 10);
 
@@ -109,29 +114,22 @@ function validateRequirements(cwd: string, selection: DocSelection): ValidationR
         warnings.push('React is not installed. HeroUI v3 requires React 19+.');
       }
 
-      // Check @heroui/react >= 2.8.0, @beta, or @latest (version that supports Tailwind v4)
-      // Only check if @heroui/react is installed
+      // These docs describe HeroUI v3, so anything below the first v3 release is
+      // a mismatch. Only check if @heroui/react is installed.
       const herouiReactVersion = allDeps['@heroui/react'];
 
       if (herouiReactVersion) {
-        // Allow @beta and @latest versions
-        if (
-          herouiReactVersion.includes('@beta') ||
-          herouiReactVersion === 'beta' ||
-          herouiReactVersion.includes('@latest') ||
-          herouiReactVersion === 'latest'
-        ) {
-          // Beta and latest versions are allowed, skip version check
-        } else {
-          const cleanVersion = herouiReactVersion.replace(/^[<=>^~]+/, '');
-          // Compare with 2.8.0 - returns -1 if cleanVersion < 2.8.0, 0 if equal, 1 if greater
-          const comparison = compareVersions(cleanVersion, '2.8.0');
+        // `v` is stripped too, so a `v2.8.0` pin is compared rather than being
+        // mistaken for a dist tag below
+        const cleanVersion = herouiReactVersion.replace(/^[<=>^v~]+/, '');
+        // A dist tag (`beta`, `latest`, `npm:@heroui/react@beta`, ...) always
+        // resolves to a current release, so there is no version to compare
+        const isDistTag = !/^\d/.test(cleanVersion);
 
-          if (comparison < 0) {
-            warnings.push(
-              `@heroui/react version ${herouiReactVersion} is installed, but these docs are recommended for version >= 2.8.0, @beta, or @latest (which supports Tailwind CSS v4).`
-            );
-          }
+        if (!isDistTag && compareVersions(cleanVersion, MIN_HEROUI_REACT_VERSION) < 0) {
+          warnings.push(
+            `@heroui/react version ${herouiReactVersion} is installed, but these docs are for HeroUI v3 and require version >= ${MIN_HEROUI_REACT_VERSION}, @beta, or @latest.`
+          );
         }
       }
     }

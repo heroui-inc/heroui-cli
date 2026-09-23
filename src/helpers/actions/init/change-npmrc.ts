@@ -1,11 +1,28 @@
-import {writeFileSync} from 'node:fs';
+import {existsSync, readFileSync, writeFileSync} from 'node:fs';
 
-const DEFAULT_NPMRC_CONTENT = `package-lock=true`;
+const LOCKFILE_SETTING = 'package-lock=true';
 
 /**
- * Change the npmrc file to the default content
- * Currently it is using `package-lock=false` which won't generate the lockfile
+ * Templates ship an `.npmrc` with `package-lock=false`, which stops npm from
+ * generating a lockfile. Flip that setting on without discarding anything else
+ * the template put in the file.
+ *
+ * `package-lock` is an npm-only setting, so this is a no-op for other managers.
  */
 export function changeNpmrc(npmrcFile: string) {
-  writeFileSync(npmrcFile, DEFAULT_NPMRC_CONTENT, 'utf-8');
+  const existing = existsSync(npmrcFile) ? readFileSync(npmrcFile, 'utf-8') : '';
+
+  if (/^\s*package-lock\s*=/m.test(existing)) {
+    writeFileSync(
+      npmrcFile,
+      existing.replace(/^\s*package-lock\s*=.*$/m, LOCKFILE_SETTING),
+      'utf-8'
+    );
+
+    return;
+  }
+
+  const separator = !existing || existing.endsWith('\n') ? '' : '\n';
+
+  writeFileSync(npmrcFile, `${existing}${separator}${LOCKFILE_SETTING}\n`, 'utf-8');
 }
