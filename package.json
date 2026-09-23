@@ -69,7 +69,7 @@
     "ora": "8.2.0",
     "pathe": "2.0.3",
     "posthog-node": "5.28.4",
-    "tar": "7.5.12"
+    "tar": "7.5.22"
   },
   "devDependencies": {
     "@commitlint/cli": "19.5.0",
@@ -81,7 +81,8 @@
     "bumpp": "10.3.2",
     "clean-package": "2.2.0",
     "commitlint-plugin-function-rules": "4.3.0",
-    "conventional-changelog-cli": "5.0.0",
+    "conventional-changelog": "8.1.3",
+    "conventional-changelog-angular": "9.4.0",
     "eslint": "8.57.1",
     "eslint-config-prettier": "9.1.2",
     "eslint-import-resolver-typescript": "3.10.1",
@@ -102,5 +103,5 @@
     "node": ">=22.22.0",
     "pnpm": ">=10.x"
   },
-  "packageManager": "pnpm@10.26.2"
+  "packageManager": "pnpm@12.5.1"
 }
