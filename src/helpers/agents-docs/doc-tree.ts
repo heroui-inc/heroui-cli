@@ -6,8 +6,19 @@ export interface DocSection {
   subsections: DocSection[];
 }
 
+/**
+ * Recursive readdir joins entries with the platform separator, so on Windows
+ * every `/` comparison below would miss. These paths are only ever rendered
+ * into the generated markdown index, which wants forward slashes regardless.
+ */
+function readRelativePaths(dir: string): string[] {
+  return (fs.readdirSync(dir, {recursive: true}) as string[]).map((f) =>
+    f.split(/[/\\]/).join('/')
+  );
+}
+
 export function collectDocFiles(dir: string): {relativePath: string}[] {
-  return (fs.readdirSync(dir, {recursive: true}) as string[])
+  return readRelativePaths(dir)
     .filter(
       (f) =>
         (f.endsWith('.mdx') || f.endsWith('.md')) &&
@@ -20,7 +31,7 @@ export function collectDocFiles(dir: string): {relativePath: string}[] {
 }
 
 export function collectMigrationDocFiles(dir: string): {relativePath: string}[] {
-  return (fs.readdirSync(dir, {recursive: true}) as string[])
+  return readRelativePaths(dir)
     .filter((f) => f.endsWith('.mdx') || f.endsWith('.md'))
     .sort()
     .map((f) => ({relativePath: f}));
@@ -31,7 +42,7 @@ export function collectDemoFiles(dir: string): {relativePath: string}[] {
     return [];
   }
 
-  return (fs.readdirSync(dir, {recursive: true}) as string[])
+  return readRelativePaths(dir)
     .filter((f) => f.endsWith('.tsx') && !f.endsWith('/index.tsx'))
     .sort()
     .map((f) => ({relativePath: f}));
