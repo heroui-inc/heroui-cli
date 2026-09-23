@@ -1,6 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+import {compareVersions} from 'src/scripts/helpers';
+
 export interface HerouiVersionsResult {
   react?: string;
   native?: string;
@@ -295,28 +297,6 @@ function findHighestVersion(versions: string[]): string | null {
 
     return compareVersions(current, highest) > 0 ? current : highest;
   });
-}
-
-function compareVersions(a: string, b: string): number {
-  const parseVersion = (v: string): [number, number, number] => {
-    const match = v.match(/^(\d+)\.(\d+)\.(\d+)/);
-
-    if (!match) return [0, 0, 0];
-
-    return [
-      parseInt(match[1] ?? '0', 10),
-      parseInt(match[2] ?? '0', 10),
-      parseInt(match[3] ?? '0', 10)
-    ];
-  };
-
-  const [aMajor, aMinor, aPatch] = parseVersion(a);
-  const [bMajor, bMinor, bPatch] = parseVersion(b);
-
-  if (aMajor !== bMajor) return aMajor - bMajor;
-  if (aMinor !== bMinor) return aMinor - bMinor;
-
-  return aPatch - bPatch;
 }
 
 export function getHerouiVersions(cwd: string): HerouiVersionsResult {
