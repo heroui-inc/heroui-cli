@@ -152,9 +152,14 @@ function injectSection(
 
   if (hasExistingIndex(content, library)) {
     const startIdx = content.indexOf(start);
-    const endIdx = content.indexOf(end) + end.length;
+    const endMarkerIdx = content.indexOf(end, startIdx);
 
-    return content.slice(0, startIdx) + wrappedContent + content.slice(endIdx);
+    // A hand-edited file can lose the end marker. Replacing from an unmatched
+    // marker would splice at an arbitrary offset and mangle the user's content,
+    // so fall back to appending a fresh, fully delimited section instead.
+    if (endMarkerIdx !== -1) {
+      return content.slice(0, startIdx) + wrappedContent + content.slice(endMarkerIdx + end.length);
+    }
   }
 
   // If section doesn't exist, append it

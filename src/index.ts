@@ -81,7 +81,7 @@ heroui
 
       Logger.log(helpInfoArr.join('\n'));
     }
-    process.exit(0);
+    process.exit(isArgs ? 1 : 0);
   });
 
 registerCommands(heroui);
@@ -102,7 +102,15 @@ heroui.hook('preAction', async (command) => {
   store.debug = debug;
   store.beta = options.includes('-b') || options.includes('--beta');
 
-  const [cliLatestVersion] = await Promise.all([getStore('cliLatestVersion')]);
+  // The upgrade notice is a convenience, never a requirement. Registry lookups fail
+  // offline or behind a proxy, and that must not stop the command from running.
+  let cliLatestVersion = '';
+
+  try {
+    cliLatestVersion = await getStore('cliLatestVersion');
+  } catch {
+    return;
+  }
 
   // Init latest version
   store.cliLatestVersion = cliLatestVersion;

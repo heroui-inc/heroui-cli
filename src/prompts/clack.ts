@@ -65,8 +65,11 @@ export const taskClack = async <T>(opts: TaskClackOptions<T>) => {
     result = await (task instanceof Promise ? task : Promise.resolve(task));
     spinner.stop(successText);
   } catch (error) {
-    cancel(failText ?? result ?? 'Task failed');
-    process.exit(0);
+    const reason = error instanceof Error ? error.message : String(error);
+
+    spinner.stop(failText ?? result ?? 'Task failed');
+    cancel(reason);
+    process.exit(1);
   }
 
   return result;
