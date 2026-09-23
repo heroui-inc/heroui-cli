@@ -1,6 +1,6 @@
 import type {InitOptions, SAFE_ANY} from './type';
 
-import {templatesMap} from 'src/actions/init-action';
+import {templatesMap} from 'src/constants/templates';
 
 import {AGENTS, type Agent} from './detect';
 import {printMostMatchText} from './math-diff';

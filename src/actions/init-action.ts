@@ -16,25 +16,15 @@ import {selectClack, taskClack, textClack} from 'src/prompts/clack';
 import {ROOT} from '../../src/constants/path';
 import {
   APP_DIR,
-  APP_NAME,
   APP_REPO,
   PAGES_DIR,
-  PAGES_NAME,
   PAGES_REPO,
   REACT_ROUTER_DIR,
-  REACT_ROUTER_NAME,
   REACT_ROUTER_REPO,
   VITE_DIR,
-  VITE_NAME,
-  VITE_REPO
+  VITE_REPO,
+  templatesMap
 } from '../../src/constants/templates';
-
-export const templatesMap: Record<Required<InitOptions>['template'], string> = {
-  app: APP_NAME,
-  pages: PAGES_NAME,
-  'react-router': REACT_ROUTER_NAME,
-  vite: VITE_NAME
-};
 
 /**
  * `declare let _exhaustiveCheck: never` emitted nothing but left the assignment
