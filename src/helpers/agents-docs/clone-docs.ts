@@ -25,6 +25,14 @@ const DOCS_CONTENT_ROOT = 'apps/docs/content/docs/en';
 const INCLUDE_TAG_REGEX = /<include>(.+?)<\/include>/g;
 
 /**
+ * Remove a directory tree. Windows routinely reports EPERM/EBUSY when deleting a
+ * freshly cloned `.git`, so retries are required for this to be reliable there.
+ */
+function removeDir(dir: string): void {
+  fs.rmSync(dir, {force: true, maxRetries: 3, recursive: true, retryDelay: 100});
+}
+
+/**
  * Replaces <include>path#anchor</include> with the inner content of <section id="anchor">...</section>
  * from the referenced file. Used when copying migration agent guides so they are self-contained.
  */
@@ -150,7 +158,7 @@ export async function cloneDocsFolder(
       const destReactDir = path.join(destDir, 'react');
 
       if (fs.existsSync(destReactDir)) {
-        fs.rmSync(destReactDir, {recursive: true});
+        removeDir(destReactDir);
       }
       fs.mkdirSync(destReactDir, {recursive: true});
       fs.cpSync(sourceReactDir, destReactDir, {recursive: true});
@@ -161,7 +169,7 @@ export async function cloneDocsFolder(
         const destDemosDir = path.join(destDir, 'react', 'demos');
 
         if (fs.existsSync(destDemosDir)) {
-          fs.rmSync(destDemosDir, {recursive: true});
+          removeDir(destDemosDir);
         }
         fs.mkdirSync(destDemosDir, {recursive: true});
         fs.cpSync(sourceDemosDir, destDemosDir, {recursive: true});
@@ -178,7 +186,7 @@ export async function cloneDocsFolder(
       const destNativeDir = path.join(destDir, 'native');
 
       if (fs.existsSync(destNativeDir)) {
-        fs.rmSync(destNativeDir, {recursive: true});
+        removeDir(destNativeDir);
       }
       fs.mkdirSync(destNativeDir, {recursive: true});
       fs.cpSync(sourceNativeDir, destNativeDir, {recursive: true});
@@ -199,7 +207,7 @@ export async function cloneDocsFolder(
       const destMigrationDir = path.join(destDir, 'migration');
 
       if (fs.existsSync(destMigrationDir)) {
-        fs.rmSync(destMigrationDir, {recursive: true});
+        removeDir(destMigrationDir);
       }
       fs.mkdirSync(destMigrationDir, {recursive: true});
 
@@ -257,8 +265,11 @@ export async function cloneDocsFolder(
       }
     }
   } finally {
-    if (fs.existsSync(tempDir)) {
-      fs.rmSync(tempDir, {recursive: true});
+    // Cleanup must never replace the error that actually caused the failure
+    try {
+      removeDir(tempDir);
+    } catch {
+      // Leaving a temp dir behind is preferable to masking the real error
     }
   }
 }
