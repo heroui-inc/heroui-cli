@@ -3,7 +3,10 @@ import {Analytics} from './analytics';
 let instance: Analytics | null = null;
 
 declare const __HEROUI_CLI_POSTHOG_KEY__: string;
-const POSTHOG_KEY = __HEROUI_CLI_POSTHOG_KEY__;
+// tsup substitutes this at build time. Running from source leaves it undeclared,
+// where a bare reference is a ReferenceError rather than undefined.
+const POSTHOG_KEY =
+  typeof __HEROUI_CLI_POSTHOG_KEY__ === 'undefined' ? '' : __HEROUI_CLI_POSTHOG_KEY__;
 const POSTHOG_HOST = 'https://us.i.posthog.com';
 
 function isAnalyticsDisabled(): boolean {
