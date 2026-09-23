@@ -11,7 +11,7 @@ import {getStore} from './store';
 const dtsOptions = {
   ...tsOptions,
   plugins: [
-    ...tsOptions.plugins.filter((plugin) => plugin !== 'typescript'),
+    ...tsOptions.plugins.filter((plugin: SAFE_ANY) => plugin !== 'typescript'),
     ['typescript', {dts: true}]
   ]
 };

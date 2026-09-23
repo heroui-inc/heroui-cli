@@ -60,7 +60,7 @@ export function outputComponents({
   };
 
   for (const component of components) {
-    for (const key in component) {
+    for (const key of Object.keys(component) as (keyof PackageComponent)[]) {
       const str = String(component[key]);
 
       if (key === 'version') {
@@ -340,20 +340,4 @@ export function outputBox({
 
 function generateComponentOutputVersion(currentVersion: string, newVersion: string) {
   return `${chalk.white(`${currentVersion} ->`)} ${chalk.yellowBright(`${newVersion} (new)`)}`;
-}
-
-export function outputDeprecatedInfo() {
-  outputBox({
-    color: 'yellow',
-    padding: 1,
-    text: `NextUI has rebranded to HeroUI! These packages are deprecated and won’t receive updates.
-HeroUI offers the same great features with ongoing improvements.
-
-→ ${chalk.bold('Switch to [HeroUI](https://heroui.com) for the latest updates.')}
-→ ${chalk.bold('Migration guide:')} [NextUI to HeroUI](https://heroui.com/docs/nextui-to-heroui)
-→ ${chalk.bold('New NPM package:')} "@heroui/react"
-
-Thanks for your support — see you at HeroUI!`,
-    title: chalk.yellow(`❗️ Notice: NextUI is now ${chalk.bold('HeroUI')} ❗️`)
-  });
 }

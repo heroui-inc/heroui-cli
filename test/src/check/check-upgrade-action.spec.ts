@@ -16,7 +16,7 @@ vi.mock('../../../src/helpers/actions/upgrade/get-libs-data', () => ({
 }));
 
 vi.mock('../../../src/scripts/helpers', () => ({
-  compareVersions: (a, b) => {
+  compareVersions: (a: string, b: string) => {
     if (a === b) return 0;
     if (a.includes('beta') && !b.includes('beta')) return -1;
     if (!a.includes('beta') && b.includes('beta')) return 1;
