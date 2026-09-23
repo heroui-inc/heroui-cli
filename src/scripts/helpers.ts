@@ -80,5 +80,3 @@ export async function getLatestVersion(packageName: string): Promise<string> {
 
   return result.version;
 }
-
-export const isGithubAction = process.env['CI'] === 'true';

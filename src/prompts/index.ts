@@ -24,58 +24,12 @@ export async function getText(message: string, initial?: string) {
   return result.value;
 }
 
-export async function getAutocomplete(message: string, choices?: prompts.Choice[]) {
-  const result = await prompts(
-    {
-      message,
-      name: 'value',
-      type: 'autocomplete',
-      ...(choices ? {choices} : {})
-    },
-    defaultPromptOptions
-  );
-
-  return result.value;
-}
-
-export async function getAutocompleteMultiselect(message: string, choices?: prompts.Choice[]) {
-  const result = await prompts(
-    {
-      hint: '- Space to select. Return to submit',
-      message,
-      min: 1,
-      name: 'value',
-      type: 'autocompleteMultiselect',
-      ...(choices ? {choices} : {})
-    },
-    defaultPromptOptions
-  );
-
-  return result.value;
-}
-
 export async function getSelect(message: string, choices: prompts.Choice[]) {
   const result = await prompts(
     {
       message,
       name: 'value',
       type: 'select',
-      ...(choices ? {choices} : {})
-    },
-    defaultPromptOptions
-  );
-
-  return result.value;
-}
-
-export async function getMultiselect(message: string, choices?: prompts.Choice[]) {
-  const result = await prompts(
-    {
-      hint: '- Space to select. Return to submit',
-      message,
-      min: 1,
-      name: 'value',
-      type: 'multiselect',
       ...(choices ? {choices} : {})
     },
     defaultPromptOptions

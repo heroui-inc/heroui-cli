@@ -3,15 +3,8 @@ import type {PascalCase, SAFE_ANY} from './type';
 
 import chalk from 'chalk';
 import {compareVersions} from 'compare-versions';
-import fg, {type Options} from 'fast-glob';
 
-import {ROOT} from 'src/constants/path';
-
-import {
-  DEFAULT_FILE_IGNORE_PATTERNS,
-  VERSION_MODE_GLOBAL_REGEX,
-  VERSION_MODE_REGEX
-} from './constants';
+import {VERSION_MODE_GLOBAL_REGEX, VERSION_MODE_REGEX} from './constants';
 import {Logger} from './logger';
 import {colorMatchRegex} from './output-info';
 
@@ -36,56 +29,6 @@ export function PasCalCase<T extends string>(str: T): PascalCase<T> {
     .split('-')
     .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
     .join('') as PascalCase<T>;
-}
-
-/**
- * Find files by glob pattern with default ignore patterns.
- * @param glob - The glob pattern to match files
- * @param options - Additional fast-glob options
- * @returns Array of absolute file paths
- * @example
- * ```ts
- * findFiles('**\/*.ts')
- * findFiles('src/**\/*.tsx', { deep: 3 })
- * ```
- */
-export const findFiles = (glob: string, options?: Options): string[] => {
-  return fg.sync(glob, {
-    absolute: true,
-    cwd: ROOT,
-    deep: 5,
-    ignore: [...DEFAULT_FILE_IGNORE_PATTERNS],
-    onlyFiles: true,
-    ...options
-  });
-};
-
-export function transformOption(options: boolean | 'false') {
-  if (options === 'false') return false;
-
-  return !!options;
-}
-
-export function omit<T extends Record<string, SAFE_ANY>>(obj: T, keys: string[]): Partial<T> {
-  return Object.fromEntries(
-    Object.entries(obj).filter(([key]) => !keys.includes(key))
-  ) as Partial<T>;
-}
-
-export function getUpgradeType({
-  major,
-  minor,
-  patch
-}: {
-  major: boolean;
-  minor: boolean;
-  patch: boolean;
-}) {
-  if (major) return 'major';
-  if (minor) return 'minor';
-  if (patch) return 'patch';
-
-  return 'minor';
 }
 
 export function getColorVersion(currentVersion: string, latestVersion: string) {

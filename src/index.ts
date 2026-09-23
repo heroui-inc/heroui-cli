@@ -100,7 +100,6 @@ heroui.hook('preAction', async (command) => {
   initCache(noCache);
   // Init debug
   store.debug = debug;
-  store.beta = options.includes('-b') || options.includes('--beta');
 
   // The upgrade notice is a convenience, never a requirement. Registry lookups fail
   // offline or behind a proxy, and that must not stop the command from running.
