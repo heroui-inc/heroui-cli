@@ -17,7 +17,7 @@ import {
   transformPeerVersion
 } from '@helpers/utils';
 import {resolver} from 'src/constants/path';
-import {HEROUI_PACKAGES} from 'src/constants/required';
+import {HEROUI_PACKAGES, HEROUI_PACKAGES_LABEL} from 'src/constants/required';
 import {getSelect} from 'src/prompts';
 import {getCacheExecData} from 'src/scripts/cache/cache';
 import {compareVersions, getLatestVersion} from 'src/scripts/helpers';
@@ -31,7 +31,7 @@ export async function upgradeAction(options: CommandOptions) {
   if (!installed.length) {
     Logger.prefix(
       'error',
-      'No HeroUI packages found. Run `heroui install` to install @heroui/react and @heroui/styles.'
+      `No HeroUI packages found. Run \`heroui install\` to install ${HEROUI_PACKAGES_LABEL}.`
     );
 
     return;

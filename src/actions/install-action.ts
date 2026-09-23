@@ -11,7 +11,7 @@ import {getPackageInfo, transformPackageDetail} from '@helpers/package';
 import {getUpgradeVersion} from '@helpers/upgrade';
 import {getVersionAndMode, safeJsonParse, strip} from '@helpers/utils';
 import {resolver} from 'src/constants/path';
-import {HEROUI_PACKAGES} from 'src/constants/required';
+import {HEROUI_PACKAGES, HEROUI_PACKAGES_LABEL} from 'src/constants/required';
 import {getSelect} from 'src/prompts';
 import {getCacheExecData} from 'src/scripts/cache/cache';
 import {getLatestVersion} from 'src/scripts/helpers';
@@ -76,7 +76,7 @@ export async function installAction(options: CommandOptions) {
   const missing = HEROUI_PACKAGES.filter((pkg) => !allDependenciesKeys.has(pkg));
 
   if (!missing.length) {
-    Logger.success('✅ @heroui/react and @heroui/styles are already installed');
+    Logger.success(`✅ ${HEROUI_PACKAGES_LABEL} are already installed`);
     process.exit(0);
   }
 
@@ -119,6 +119,6 @@ export async function installAction(options: CommandOptions) {
   await exec(`${currentPkgManager} ${runCmd} ${installTargets.join(' ')}`);
 
   Logger.newLine();
-  Logger.success('✅ @heroui/react and @heroui/styles installed successfully');
+  Logger.success(`✅ ${HEROUI_PACKAGES_LABEL} installed successfully`);
   process.exit(0);
 }
