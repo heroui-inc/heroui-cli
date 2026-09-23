@@ -8,6 +8,7 @@ import {exec} from '@helpers/exec';
 import {Logger} from '@helpers/logger';
 import {outputBox, outputComponents} from '@helpers/output-info';
 import {getPackageInfo, transformPackageDetail} from '@helpers/package';
+import {collectPeerDependencies} from '@helpers/peer-deps';
 import {getUpgradeVersion} from '@helpers/upgrade';
 import {getVersionAndMode, safeJsonParse, strip} from '@helpers/utils';
 import {resolver} from 'src/constants/path';
@@ -38,31 +39,22 @@ async function getPeerDepOptions(
   packages: string[],
   allDependencies: Record<string, string>
 ): Promise<UpgradeOption[]> {
-  const seen = new Set<string>();
   const peerDepOptions: UpgradeOption[] = [];
 
-  for (const pkg of packages) {
-    const raw = await getCacheExecData(`npm show ${pkg} peerDependencies --json`);
-    const peerDeps = safeJsonParse<Record<string, string>>(raw, {});
+  for (const [peerPkg, peerRange] of await collectPeerDependencies(packages)) {
+    const isInstalled = peerPkg in allDependencies;
 
-    for (const [peerPkg, peerRange] of Object.entries(peerDeps)) {
-      if (seen.has(peerPkg)) continue;
-      seen.add(peerPkg);
+    const {currentVersion = '', versionMode = ''} = isInstalled
+      ? getVersionAndMode(allDependencies, peerPkg)
+      : {};
 
-      const isInstalled = peerPkg in allDependencies;
-
-      const {currentVersion = '', versionMode = ''} = isInstalled
-        ? getVersionAndMode(allDependencies, peerPkg)
-        : {};
-
-      peerDepOptions.push({
-        isLatest: isInstalled,
-        latestVersion: isInstalled ? currentVersion : await resolvePeerVersion(peerPkg, peerRange),
-        package: peerPkg,
-        version: isInstalled ? currentVersion : 'Missing',
-        versionMode
-      });
-    }
+    peerDepOptions.push({
+      isLatest: isInstalled,
+      latestVersion: isInstalled ? currentVersion : await resolvePeerVersion(peerPkg, peerRange),
+      package: peerPkg,
+      version: isInstalled ? currentVersion : 'Missing',
+      versionMode
+    });
   }
 
   return peerDepOptions;

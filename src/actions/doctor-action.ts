@@ -4,10 +4,10 @@ import chalk from 'chalk';
 
 import {Logger, type PrefixLogType} from '@helpers/logger';
 import {getPackageInfo} from '@helpers/package';
-import {getVersionAndMode, safeJsonParse, transformPeerVersion} from '@helpers/utils';
+import {collectPeerDependencies} from '@helpers/peer-deps';
+import {getVersionAndMode, transformPeerVersion} from '@helpers/utils';
 import {resolver} from 'src/constants/path';
 import {DOCS_INSTALLED, HEROUI_PACKAGES} from 'src/constants/required';
-import {getCacheExecData} from 'src/scripts/cache/cache';
 import {compareVersions} from 'src/scripts/helpers';
 
 export interface ProblemRecord {
@@ -54,30 +54,19 @@ export async function doctorAction(options: DoctorCommandOptions) {
   }
 
   const missingPeerDeps: string[] = [];
-  const seen = new Set<string>();
+  const peerDeps = await collectPeerDependencies(installed, HEROUI_PACKAGES);
 
-  for (const pkg of installed) {
-    const raw = await getCacheExecData(`npm show ${pkg} peerDependencies --json`);
-    const peerDeps = safeJsonParse<Record<string, string>>(raw, {});
+  for (const [peerPkg, peerVersion] of peerDeps) {
+    if (!allDependenciesKeys.has(peerPkg)) {
+      missingPeerDeps.push(`${peerPkg} (${peerVersion})`);
+      continue;
+    }
 
-    for (const [peerPkg, peerVersion] of Object.entries(peerDeps)) {
-      if (
-        seen.has(peerPkg) ||
-        HEROUI_PACKAGES.includes(peerPkg as (typeof HEROUI_PACKAGES)[number])
-      )
-        continue;
-      seen.add(peerPkg);
+    const {currentVersion} = getVersionAndMode(allDependencies, peerPkg);
+    const minVersion = transformPeerVersion(peerVersion);
 
-      if (!allDependenciesKeys.has(peerPkg)) {
-        missingPeerDeps.push(`${peerPkg} (${peerVersion})`);
-      } else {
-        const {currentVersion} = getVersionAndMode(allDependencies, peerPkg);
-        const minVersion = transformPeerVersion(peerVersion);
-
-        if (compareVersions(currentVersion, minVersion) < 0) {
-          missingPeerDeps.push(`${peerPkg} (${peerVersion}, current: ${currentVersion})`);
-        }
-      }
+    if (compareVersions(currentVersion, minVersion) < 0) {
+      missingPeerDeps.push(`${peerPkg} (${peerVersion}, current: ${currentVersion})`);
     }
   }
 
