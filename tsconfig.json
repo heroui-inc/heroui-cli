@@ -37,5 +37,5 @@
     }
   },
   "include": ["**/*.js", "**/*.cjs", "**/*.mjs", "**/*.ts", "**/*.tsx", "**/*.d.ts"],
-  "exclude": [".github", ".husky", "dist", "node_modules"]
+  "exclude": [".github", ".husky", "**/dist", "**/node_modules"]
 }
