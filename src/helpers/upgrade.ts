@@ -23,6 +23,7 @@ import {
   getVersionAndMode,
   isMajorUpdate,
   isMinorUpdate,
+  safeJsonParse,
   strip,
   transformPeerVersion
 } from './utils';
@@ -162,10 +163,10 @@ export async function getPackagePeerDep(
 ): Promise<UpgradeOption[]> {
   peerDependencies =
     peerDependencies ||
-    JSON.parse(
-      (await getCacheExecData(`npm show ${packageName} peerDependencies --json`)) as SAFE_ANY
-    ) ||
-    {};
+    safeJsonParse<Dependencies>(
+      await getCacheExecData(`npm show ${packageName} peerDependencies --json`),
+      {}
+    );
 
   if (!peerDependencies || !Object.keys(peerDependencies).length) {
     return [];

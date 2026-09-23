@@ -11,7 +11,11 @@ import {getPackageVersion} from './cache/cache';
 export type Dependencies = Record<string, string>;
 
 /**
- * Compare two versions
+ * Compare two versions.
+ *
+ * Specs that are not plain semver (`workspace:*`, `catalog:`, `npm:` aliases,
+ * ranges such as `>=19`, git URLs) cannot be ordered. They compare equal so
+ * that a monorepo does not report every linked package as outdated.
  * @example compareVersions('1.0.0', '1.0.1') // -1
  * compareVersions('1.0.1', '1.0.0') // 1
  * compareVersions('1.0.0', '1.0.0') // 0
@@ -19,9 +23,10 @@ export type Dependencies = Record<string, string>;
  * @param version2
  */
 export function compareVersions(version1 = '', version2 = '') {
-  if (!validate(version1)) {
-    return -1;
+  if (!validate(version1) || !validate(version2)) {
+    return 0;
   }
+
   try {
     return InternalCompareVersions(version1, version2);
   } catch {
