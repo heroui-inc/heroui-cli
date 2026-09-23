@@ -1,6 +1,6 @@
 import type {SAFE_ANY} from '@helpers/type';
 
-import {existsSync, mkdirSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
+import {existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync} from 'node:fs';
 
 import {resolve} from 'pathe';
 
@@ -114,6 +114,11 @@ export function cacheData(
   },
   existingCache?: CacheData
 ): void {
+  // `--no-cache` disables reads via isExpired, it must disable writes too
+  if (noCache) {
+    return;
+  }
+
   const cache = ensureCache();
 
   if (!cache) {
@@ -124,6 +129,13 @@ export function cacheData(
   const now = new Date();
   const expiredDate = +now + CACHE_TTL_MS;
 
+  // Drop entries that already expired, otherwise the file grows without bound
+  for (const [key, entry] of Object.entries(data)) {
+    if (key !== packageName && entry?.expiredDate && +now > entry.expiredDate) {
+      delete data[key];
+    }
+  }
+
   data[packageName] = {
     ...(packageData as SAFE_ANY),
     date: now,
@@ -133,7 +145,12 @@ export function cacheData(
   };
 
   try {
-    writeFileSync(cache.path, JSON.stringify(data, undefined, 2), 'utf-8');
+    // Write to a private temp file and rename, so concurrent CLI invocations
+    // cannot leave a half-written JSON document behind
+    const tempPath = `${cache.path}.${process.pid}.tmp`;
+
+    writeFileSync(tempPath, JSON.stringify(data, undefined, 2), 'utf-8');
+    renameSync(tempPath, cache.path);
   } catch {
     // Caching is best-effort, never fail a command because the cache is unwritable
   }

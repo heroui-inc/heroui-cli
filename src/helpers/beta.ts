@@ -1,6 +1,7 @@
 import {getCacheExecData} from 'src/scripts/cache/cache';
 
 import {Logger} from './logger';
+import {safeJsonParse} from './utils';
 
 export async function getBetaVersionData(component: string) {
   const data = await getCacheExecData<string>(
@@ -13,11 +14,13 @@ export async function getBetaVersionData(component: string) {
 
 export async function getBetaVersion(componentName: string) {
   const data = await getBetaVersionData(componentName);
+  const distTags = safeJsonParse<Record<string, string>>(data, {});
+  const betaVersion = distTags['beta'];
 
-  try {
-    return JSON.parse(data).beta;
-  } catch (error) {
-    Logger.error(`Get beta version error: ${error}`);
+  if (!betaVersion) {
+    Logger.error(`Could not read the beta dist-tag of ${componentName} from npm`);
     process.exit(1);
   }
+
+  return betaVersion;
 }
