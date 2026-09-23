@@ -135,8 +135,6 @@ export function outputComponents({
       outputData += value + padEnd;
     }
 
-    outputData;
-
     acc.push(outputData);
 
     return acc;
@@ -292,9 +290,6 @@ export function outputBox({
 
     const padFir = spaceFir > 0 ? ' '.repeat(spaceFir) : '';
     const padSec = spaceSec > 0 ? ' '.repeat(spaceSec) : '';
-
-    // Over 2 cause one vertical line == 2 spaces
-    // paddingLength = Math.floor(Math.max(paddingLength, spaceFir, spaceSec) / 2);
 
     if (center) {
       acc.push(

@@ -4,7 +4,7 @@ import {readFileSync, statSync} from 'node:fs';
 
 import {resolve} from 'pathe';
 
-import {HEROUI_PREFIX, HERO_UI} from 'src/constants/required';
+import {HERO_UI} from 'src/constants/required';
 import {getCacheExecData} from 'src/scripts/cache/cache';
 import {getLatestVersion} from 'src/scripts/helpers';
 
@@ -65,31 +65,6 @@ export function getPackageInfo(packagePath: string) {
     isAllComponents,
     packageJson: pkg
   };
-}
-
-/**
- * Get installed @heroui/* packages from package.json
- */
-export function getInstalledHeroUIPackages(
-  allDependencies: Record<string, string>
-): PackageComponent[] {
-  return Object.keys(allDependencies)
-    .filter((dep) => dep.startsWith(HEROUI_PREFIX))
-    .map((dep) => {
-      const {currentVersion, versionMode} = getVersionAndMode(allDependencies, dep);
-
-      return {
-        description: '',
-        docs: '',
-        name: dep,
-        package: dep,
-        peerDependencies: {},
-        status: 'stable',
-        style: '',
-        version: currentVersion,
-        versionMode
-      };
-    });
 }
 
 /**

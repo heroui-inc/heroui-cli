@@ -17,7 +17,6 @@ export interface CommandOptions {
   appPath?: string;
   prettier?: boolean;
   all?: boolean;
-  beta?: boolean;
   debug?: boolean;
 }
 
