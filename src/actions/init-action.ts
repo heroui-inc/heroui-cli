@@ -12,7 +12,6 @@ import {downloadTemplate} from '@helpers/fetch';
 import {checkInitOptions} from '@helpers/init';
 import {getPackageManagerInfo} from '@helpers/utils';
 import {selectClack, taskClack, textClack} from 'src/prompts/clack';
-import {resolver} from 'src/scripts/path';
 
 import {ROOT} from '../../src/constants/path';
 import {
@@ -37,8 +36,30 @@ export const templatesMap: Record<Required<InitOptions>['template'], string> = {
   vite: VITE_NAME
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-declare let _exhaustiveCheck: never;
+/**
+ * `declare let _exhaustiveCheck: never` emitted nothing but left the assignment
+ * behind, which throws a ReferenceError in an ESM module instead of failing the
+ * build. A function keeps the compile-time check without the runtime trap.
+ */
+function assertNeverTemplate(template: never): never {
+  throw new Error(`Unsupported template: ${String(template)}`);
+}
+
+/**
+ * Reject names that would escape the working directory or nest the project in
+ * a path the user did not ask for.
+ */
+function assertValidProjectName(projectName: string) {
+  if (!projectName || projectName === '.' || projectName === '..') {
+    p.cancel(`The project name ${chalk.redBright(projectName)} is not valid`);
+    process.exit(1);
+  }
+
+  if (/[/\\]/.test(projectName)) {
+    p.cancel(`The project name ${chalk.redBright(projectName)} must not contain a path separator`);
+    process.exit(1);
+  }
+}
 
 export async function initAction(_projectName?: string, options: InitOptions = {}) {
   const {package: _package, template: _template} = options;
@@ -58,30 +79,32 @@ export async function initAction(_projectName?: string, options: InitOptions = {
   const {run} = getPackageManagerInfo(packageName);
 
   /** ======================== Generate template ======================== */
+  assertValidProjectName(projectName);
+
   // Detect if the project name already exists
-  if (existsSync(resolver(`${ROOT}/${projectName}`))) {
+  if (existsSync(join(ROOT, projectName))) {
     p.cancel(`The project name ${chalk.redBright(projectName)} already exists`);
     process.exit(1);
   }
 
   if (template === 'app') {
-    await generateTemplate(APP_REPO);
+    await generateTemplate(APP_REPO, APP_DIR);
     renameTemplate(APP_DIR, projectName);
   } else if (template === 'pages') {
-    await generateTemplate(PAGES_REPO);
+    await generateTemplate(PAGES_REPO, PAGES_DIR);
     renameTemplate(PAGES_DIR, projectName);
   } else if (template === 'vite') {
-    await generateTemplate(VITE_REPO);
+    await generateTemplate(VITE_REPO, VITE_DIR);
     renameTemplate(VITE_DIR, projectName);
   } else if (template === 'react-router') {
-    await generateTemplate(REACT_ROUTER_REPO);
+    await generateTemplate(REACT_ROUTER_REPO, REACT_ROUTER_DIR);
     renameTemplate(REACT_ROUTER_DIR, projectName);
   } else {
     // If add new template and not update this template, it will be exhaustive check error
-    _exhaustiveCheck = template;
+    assertNeverTemplate(template);
   }
 
-  const npmrcFile = resolver(`${ROOT}/${projectName}/.npmrc`);
+  const npmrcFile = join(ROOT, projectName, '.npmrc');
 
   /** ======================== Change default npmrc content ======================== */
   changeNpmrc(npmrcFile);
@@ -98,7 +121,16 @@ export async function initAction(_projectName?: string, options: InitOptions = {
 }
 
 /** ======================== Helper function ======================== */
-async function generateTemplate(url: string) {
+async function generateTemplate(url: string, extractDir: string) {
+  // tar merges into an existing directory rather than failing, which would mix
+  // the download with whatever is already there
+  if (existsSync(join(ROOT, extractDir))) {
+    p.cancel(
+      `Cannot extract the template, ${chalk.redBright(extractDir)} already exists. Remove it and try again.`
+    );
+    process.exit(1);
+  }
+
   await taskClack({
     failText: 'Template creation failed',
     successText: 'Template created successfully!',
@@ -108,13 +140,20 @@ async function generateTemplate(url: string) {
 }
 
 function renameTemplate(originName: string, projectName: string) {
+  const target = join(ROOT, projectName);
+
+  // The download sits between the first existence check and this rename, so
+  // re-check rather than overwriting a directory created in the meantime
+  if (existsSync(target)) {
+    p.cancel(`The project name ${chalk.redBright(projectName)} already exists`);
+    process.exit(1);
+  }
+
   try {
-    renameSync(join(ROOT, originName), join(ROOT, projectName));
+    renameSync(join(ROOT, originName), target);
   } catch (error) {
-    if (error) {
-      p.cancel(`rename Error: ${error}`);
-      process.exit(1);
-    }
+    p.cancel(`rename Error: ${error}`);
+    process.exit(1);
   }
 }
 

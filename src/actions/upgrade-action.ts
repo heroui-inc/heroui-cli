@@ -1,5 +1,5 @@
 import type {UpgradeOption} from '@helpers/actions/upgrade/upgrade-types';
-import type {CommandOptions, SAFE_ANY} from '@helpers/type';
+import type {CommandOptions} from '@helpers/type';
 
 import chalk from 'chalk';
 
@@ -13,6 +13,7 @@ import {
   getColorVersion,
   getPackageManagerInfo,
   getVersionAndMode,
+  safeJsonParse,
   transformPeerVersion
 } from '@helpers/utils';
 import {resolver} from 'src/constants/path';
@@ -36,25 +37,25 @@ export async function upgradeAction(options: CommandOptions) {
     return;
   }
 
-  const upgradable: {pkg: string; current: string; latest: string}[] = [];
-
-  await Promise.all(
+  // Collect results positionally rather than pushing from concurrent callbacks,
+  // otherwise the row order of the upgrade table varies between runs
+  const checked = await Promise.all(
     installed.map(async (pkg) => {
       const {currentVersion} = getVersionAndMode(allDependencies, pkg);
       const latestVersion = await getLatestVersion(pkg);
 
-      if (compareVersions(currentVersion, latestVersion) < 0) {
-        upgradable.push({current: currentVersion, latest: latestVersion, pkg});
-      }
+      return {current: currentVersion, latest: latestVersion, pkg};
     })
   );
+
+  const upgradable = checked.filter((u) => compareVersions(u.current, u.latest) < 0);
 
   const peerUpgradable: {pkg: string; current: string; latest: string}[] = [];
   const seenPeers = new Set<string>();
 
   for (const pkg of installed) {
     const raw = await getCacheExecData(`npm show ${pkg} peerDependencies --json`);
-    const peerDeps: Record<string, string> = raw ? JSON.parse(raw as SAFE_ANY) : {};
+    const peerDeps = safeJsonParse<Record<string, string>>(raw, {});
 
     for (const [peerPkg, peerVersion] of Object.entries(peerDeps)) {
       if (seenPeers.has(peerPkg) || upgradable.some((u) => u.pkg === peerPkg)) continue;

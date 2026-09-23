@@ -1,5 +1,5 @@
 import type {UpgradeOption} from '@helpers/actions/upgrade/upgrade-types';
-import type {CommandOptions, SAFE_ANY} from '@helpers/type';
+import type {CommandOptions} from '@helpers/type';
 
 import chalk from 'chalk';
 
@@ -9,12 +9,30 @@ import {Logger} from '@helpers/logger';
 import {outputBox, outputComponents} from '@helpers/output-info';
 import {getPackageInfo, transformPackageDetail} from '@helpers/package';
 import {getUpgradeVersion} from '@helpers/upgrade';
-import {getVersionAndMode, strip} from '@helpers/utils';
+import {getVersionAndMode, safeJsonParse, strip} from '@helpers/utils';
 import {resolver} from 'src/constants/path';
 import {HEROUI_PACKAGES} from 'src/constants/required';
 import {getSelect} from 'src/prompts';
 import {getCacheExecData} from 'src/scripts/cache/cache';
 import {getLatestVersion} from 'src/scripts/helpers';
+
+/**
+ * Resolve the highest published version satisfying a peer range.
+ *
+ * Installing the `latest` dist-tag instead can violate the range the package
+ * actually declares. The spec is quoted because ranges contain characters the
+ * shell would otherwise interpret, and the resolved value is a plain version
+ * so it stays safe to interpolate into the install command.
+ */
+async function resolvePeerVersion(pkg: string, range: string): Promise<string> {
+  const raw = await getCacheExecData(
+    `npm view ${JSON.stringify(`${pkg}@${range}`)} version --json`
+  );
+  const parsed = safeJsonParse<string | string[] | undefined>(raw, undefined);
+  const resolved = Array.isArray(parsed) ? parsed.at(-1) : parsed;
+
+  return resolved || (await getLatestVersion(pkg));
+}
 
 async function getPeerDepOptions(
   packages: string[],
@@ -25,9 +43,9 @@ async function getPeerDepOptions(
 
   for (const pkg of packages) {
     const raw = await getCacheExecData(`npm show ${pkg} peerDependencies --json`);
-    const peerDeps: Record<string, string> = raw ? JSON.parse(raw as SAFE_ANY) : {};
+    const peerDeps = safeJsonParse<Record<string, string>>(raw, {});
 
-    for (const peerPkg of Object.keys(peerDeps)) {
+    for (const [peerPkg, peerRange] of Object.entries(peerDeps)) {
       if (seen.has(peerPkg)) continue;
       seen.add(peerPkg);
 
@@ -39,7 +57,7 @@ async function getPeerDepOptions(
 
       peerDepOptions.push({
         isLatest: isInstalled,
-        latestVersion: isInstalled ? currentVersion : await getLatestVersion(peerPkg),
+        latestVersion: isInstalled ? currentVersion : await resolvePeerVersion(peerPkg, peerRange),
         package: peerPkg,
         version: isInstalled ? currentVersion : 'Missing',
         versionMode

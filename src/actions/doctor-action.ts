@@ -1,10 +1,10 @@
-import type {DoctorCommandOptions, SAFE_ANY} from '@helpers/type';
+import type {DoctorCommandOptions} from '@helpers/type';
 
 import chalk from 'chalk';
 
 import {Logger, type PrefixLogType} from '@helpers/logger';
 import {getPackageInfo} from '@helpers/package';
-import {getVersionAndMode, transformPeerVersion} from '@helpers/utils';
+import {getVersionAndMode, safeJsonParse, transformPeerVersion} from '@helpers/utils';
 import {resolver} from 'src/constants/path';
 import {DOCS_INSTALLED, HEROUI_PACKAGES} from 'src/constants/required';
 import {getCacheExecData} from 'src/scripts/cache/cache';
@@ -58,7 +58,7 @@ export async function doctorAction(options: DoctorCommandOptions) {
 
   for (const pkg of installed) {
     const raw = await getCacheExecData(`npm show ${pkg} peerDependencies --json`);
-    const peerDeps: Record<string, string> = raw ? JSON.parse(raw as SAFE_ANY) : {};
+    const peerDeps = safeJsonParse<Record<string, string>>(raw, {});
 
     for (const [peerPkg, peerVersion] of Object.entries(peerDeps)) {
       if (

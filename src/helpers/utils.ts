@@ -4,7 +4,7 @@ import type {PascalCase, SAFE_ANY} from './type';
 import chalk from 'chalk';
 import {compareVersions} from 'compare-versions';
 
-import {VERSION_MODE_REGEX} from './constants';
+import {VERSION_MODE_GLOBAL_REGEX, VERSION_MODE_REGEX} from './constants';
 import {Logger} from './logger';
 import {colorMatchRegex} from './output-info';
 
@@ -84,13 +84,36 @@ export function isPatchUpdate(currentVersion: string, latestVersion: string) {
 }
 
 export function getVersionAndMode(allDependencies: Record<string, SAFE_ANY>, packageName: string) {
-  const currentVersion = allDependencies[packageName].replace(VERSION_MODE_REGEX, '');
-  const versionMode = allDependencies[packageName].match(VERSION_MODE_REGEX)?.[1] || '';
+  const spec = allDependencies[packageName];
+
+  if (typeof spec !== 'string') {
+    return {currentVersion: '', versionMode: ''};
+  }
+
+  const currentVersion = spec.replace(VERSION_MODE_GLOBAL_REGEX, '');
+  const versionMode = spec.match(VERSION_MODE_REGEX)?.[1] || '';
 
   return {
     currentVersion,
     versionMode
   };
+}
+
+/**
+ * Parse JSON produced by a subprocess. npm interleaves warnings, proxy errors
+ * and `npm error` banners with its `--json` output, so a parse failure is an
+ * expected runtime condition rather than a bug worth crashing over.
+ */
+export function safeJsonParse<T>(raw: unknown, fallback: T): T {
+  if (typeof raw !== 'string' || !raw.trim()) {
+    return fallback;
+  }
+
+  try {
+    return JSON.parse(raw) as T;
+  } catch {
+    return fallback;
+  }
 }
 
 export function getPackageManagerInfo<T extends Agent = Agent>(packageManager: T) {
