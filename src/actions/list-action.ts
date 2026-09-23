@@ -28,6 +28,8 @@ export async function listAction(options: CommandOptions) {
     outputComponents({components, message: 'Installed HeroUI packages:\n'});
   } catch (error) {
     Logger.prefix('error', `An error occurred while listing packages: ${error}`);
+
+    process.exit(1);
   }
 
   process.exit(0);

@@ -31,7 +31,7 @@ export async function doctorAction(options: DoctorCommandOptions) {
       )} found in your project. Please consult the installation guide at: https://heroui.com/docs/react/getting-started/quick-start`
     );
 
-    return;
+    process.exit(1);
   }
 
   const problemRecord: ProblemRecord[] = [];
@@ -122,5 +122,6 @@ export async function doctorAction(options: DoctorCommandOptions) {
     Logger.newLine();
   }
 
-  process.exit(0);
+  // Exit non-zero so `heroui doctor` is usable as a CI gate
+  process.exit(1);
 }

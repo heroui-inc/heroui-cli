@@ -6,8 +6,6 @@ import chalk from 'chalk';
 import {compareVersions as InternalCompareVersions, validate} from 'compare-versions';
 import ora from 'ora';
 
-import {Logger} from '@helpers/logger';
-
 import {getPackageVersion} from './cache/cache';
 
 export type Dependencies = Record<string, string>;
@@ -55,19 +53,21 @@ export async function oraExecCmd(cmd: string, text?: string): Promise<SAFE_ANY> 
 
   spinner.start();
 
-  const result = await new Promise((resolve) => {
-    exec(cmd, (error, stdout) => {
-      if (error) {
-        Logger.error(`Exec cmd ${cmd} error`);
-        process.exit(1);
-      }
-      resolve(stdout.trim());
+  try {
+    return await new Promise<SAFE_ANY>((resolve, reject) => {
+      exec(cmd, (error, stdout, stderr) => {
+        if (error) {
+          reject(new Error(`Failed to execute \`${cmd}\`: ${stderr.trim() || error.message}`));
+
+          return;
+        }
+
+        resolve(stdout.trim());
+      });
     });
-  });
-
-  spinner.stop();
-
-  return result;
+  } finally {
+    spinner.stop();
+  }
 }
 
 export async function getLatestVersion(packageName: string): Promise<string> {

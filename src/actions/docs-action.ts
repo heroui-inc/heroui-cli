@@ -422,6 +422,15 @@ export async function docsAction(options: DocsOptions) {
       fallbackMessage: 'Failed to run agents-md',
       properties: {duration: Date.now() - startTime}
     });
+
+    Logger.newLine();
+    Logger.prefix('error', '❌ Failed to download HeroUI documentation');
+    Logger.log(error instanceof Error ? error.message : String(error));
+    if (error instanceof Error && error.stack) {
+      Logger.grey(error.stack);
+    }
+    Logger.newLine();
+
     await shutdown();
     process.exit(1);
   }

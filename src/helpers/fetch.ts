@@ -14,6 +14,12 @@ import * as tar from 'tar';
 async function fetchTarStream(url: string) {
   const res = await fetch(url);
 
+  // Without this an error page is piped straight into `tar.x`, which then fails
+  // with an unrelated "unexpected end of file" instead of the real cause
+  if (!res.ok) {
+    throw new Error(`Failed to download ${url}: ${res.status} ${res.statusText}`);
+  }
+
   if (!res.body) {
     throw new Error(`Failed to download: ${url}`);
   }
