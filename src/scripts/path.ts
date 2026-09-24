@@ -1,11 +1,6 @@
 import {homedir, tmpdir} from 'node:os';
-import {fileURLToPath} from 'node:url';
 
 import {resolve} from 'pathe';
-
-export const ROOT = resolve(fileURLToPath(import.meta.url), '../..');
-
-export const resolver = (path: string) => resolve(ROOT, path);
 
 const CACHE_DIR_NAME = 'heroui-cli';
 

@@ -10,6 +10,9 @@ vi.mock('../../../src/scripts/helpers', () => ({
 
 let workspace: string;
 
+/** Root of the installed package, which the cache must never be written into */
+const PACKAGE_ROOT = resolve(__dirname, '../../..');
+
 /** A path that can never be created, `unwritable` is a file, not a directory */
 function unwritablePath(): string {
   const file = join(workspace, 'unwritable');
@@ -44,7 +47,7 @@ describe('cache location', () => {
   it('stores the cache outside of the package directory', async () => {
     const {path} = await importCache({});
 
-    expect(path.CACHE_DIR.startsWith(path.ROOT)).toBe(false);
+    expect(path.CACHE_DIR.startsWith(PACKAGE_ROOT)).toBe(false);
   });
 
   it('honors HEROUI_CACHE_DIR', async () => {

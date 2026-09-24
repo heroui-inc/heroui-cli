@@ -1,6 +1,7 @@
 import type {Command} from 'commander';
 
-import {initAction, templatesMap} from '../actions/init-action';
+import {initAction} from '../actions/init-action';
+import {templatesMap} from '../constants/templates';
 
 export function registerInitCommand(cmd: Command) {
   cmd

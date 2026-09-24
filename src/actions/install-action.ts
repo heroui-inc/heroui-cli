@@ -8,10 +8,11 @@ import {exec} from '@helpers/exec';
 import {Logger} from '@helpers/logger';
 import {outputBox, outputComponents} from '@helpers/output-info';
 import {getPackageInfo, transformPackageDetail} from '@helpers/package';
+import {collectPeerDependencies} from '@helpers/peer-deps';
 import {getUpgradeVersion} from '@helpers/upgrade';
 import {getVersionAndMode, safeJsonParse, strip} from '@helpers/utils';
 import {resolver} from 'src/constants/path';
-import {HEROUI_PACKAGES} from 'src/constants/required';
+import {HEROUI_PACKAGES, HEROUI_PACKAGES_LABEL} from 'src/constants/required';
 import {getSelect} from 'src/prompts';
 import {getCacheExecData} from 'src/scripts/cache/cache';
 import {getLatestVersion} from 'src/scripts/helpers';
@@ -38,31 +39,22 @@ async function getPeerDepOptions(
   packages: string[],
   allDependencies: Record<string, string>
 ): Promise<UpgradeOption[]> {
-  const seen = new Set<string>();
   const peerDepOptions: UpgradeOption[] = [];
 
-  for (const pkg of packages) {
-    const raw = await getCacheExecData(`npm show ${pkg} peerDependencies --json`);
-    const peerDeps = safeJsonParse<Record<string, string>>(raw, {});
+  for (const [peerPkg, peerRange] of await collectPeerDependencies(packages)) {
+    const isInstalled = peerPkg in allDependencies;
 
-    for (const [peerPkg, peerRange] of Object.entries(peerDeps)) {
-      if (seen.has(peerPkg)) continue;
-      seen.add(peerPkg);
+    const {currentVersion = '', versionMode = ''} = isInstalled
+      ? getVersionAndMode(allDependencies, peerPkg)
+      : {};
 
-      const isInstalled = peerPkg in allDependencies;
-
-      const {currentVersion = '', versionMode = ''} = isInstalled
-        ? getVersionAndMode(allDependencies, peerPkg)
-        : {};
-
-      peerDepOptions.push({
-        isLatest: isInstalled,
-        latestVersion: isInstalled ? currentVersion : await resolvePeerVersion(peerPkg, peerRange),
-        package: peerPkg,
-        version: isInstalled ? currentVersion : 'Missing',
-        versionMode
-      });
-    }
+    peerDepOptions.push({
+      isLatest: isInstalled,
+      latestVersion: isInstalled ? currentVersion : await resolvePeerVersion(peerPkg, peerRange),
+      package: peerPkg,
+      version: isInstalled ? currentVersion : 'Missing',
+      versionMode
+    });
   }
 
   return peerDepOptions;
@@ -76,7 +68,7 @@ export async function installAction(options: CommandOptions) {
   const missing = HEROUI_PACKAGES.filter((pkg) => !allDependenciesKeys.has(pkg));
 
   if (!missing.length) {
-    Logger.success('✅ @heroui/react and @heroui/styles are already installed');
+    Logger.success(`✅ ${HEROUI_PACKAGES_LABEL} are already installed`);
     process.exit(0);
   }
 
@@ -119,6 +111,6 @@ export async function installAction(options: CommandOptions) {
   await exec(`${currentPkgManager} ${runCmd} ${installTargets.join(' ')}`);
 
   Logger.newLine();
-  Logger.success('✅ @heroui/react and @heroui/styles installed successfully');
+  Logger.success(`✅ ${HEROUI_PACKAGES_LABEL} installed successfully`);
   process.exit(0);
 }

@@ -8,18 +8,17 @@ import {exec} from '@helpers/exec';
 import {Logger} from '@helpers/logger';
 import {outputBox} from '@helpers/output-info';
 import {getPackageInfo} from '@helpers/package';
+import {collectPeerDependencies} from '@helpers/peer-deps';
 import {getUpgradeVersion} from '@helpers/upgrade';
 import {
   getColorVersion,
   getPackageManagerInfo,
   getVersionAndMode,
-  safeJsonParse,
   transformPeerVersion
 } from '@helpers/utils';
 import {resolver} from 'src/constants/path';
-import {HEROUI_PACKAGES} from 'src/constants/required';
+import {HEROUI_PACKAGES, HEROUI_PACKAGES_LABEL} from 'src/constants/required';
 import {getSelect} from 'src/prompts';
-import {getCacheExecData} from 'src/scripts/cache/cache';
 import {compareVersions, getLatestVersion} from 'src/scripts/helpers';
 
 export async function upgradeAction(options: CommandOptions) {
@@ -31,7 +30,7 @@ export async function upgradeAction(options: CommandOptions) {
   if (!installed.length) {
     Logger.prefix(
       'error',
-      'No HeroUI packages found. Run `heroui install` to install @heroui/react and @heroui/styles.'
+      `No HeroUI packages found. Run \`heroui install\` to install ${HEROUI_PACKAGES_LABEL}.`
     );
 
     return;
@@ -51,26 +50,18 @@ export async function upgradeAction(options: CommandOptions) {
   const upgradable = checked.filter((u) => compareVersions(u.current, u.latest) < 0);
 
   const peerUpgradable: {pkg: string; current: string; latest: string}[] = [];
-  const seenPeers = new Set<string>();
 
-  for (const pkg of installed) {
-    const raw = await getCacheExecData(`npm show ${pkg} peerDependencies --json`);
-    const peerDeps = safeJsonParse<Record<string, string>>(raw, {});
+  for (const [peerPkg, peerVersion] of await collectPeerDependencies(installed)) {
+    if (upgradable.some((u) => u.pkg === peerPkg)) continue;
+    if (!(peerPkg in allDependencies)) continue;
 
-    for (const [peerPkg, peerVersion] of Object.entries(peerDeps)) {
-      if (seenPeers.has(peerPkg) || upgradable.some((u) => u.pkg === peerPkg)) continue;
-      seenPeers.add(peerPkg);
+    const {currentVersion} = getVersionAndMode(allDependencies, peerPkg);
+    const requiredMinVersion = transformPeerVersion(peerVersion);
 
-      if (!(peerPkg in allDependencies)) continue;
+    if (compareVersions(currentVersion, requiredMinVersion) < 0) {
+      const latestVersion = await getLatestVersion(peerPkg);
 
-      const {currentVersion} = getVersionAndMode(allDependencies, peerPkg);
-      const requiredMinVersion = transformPeerVersion(peerVersion);
-
-      if (compareVersions(currentVersion, requiredMinVersion) < 0) {
-        const latestVersion = await getLatestVersion(peerPkg);
-
-        peerUpgradable.push({current: currentVersion, latest: latestVersion, pkg: peerPkg});
-      }
+      peerUpgradable.push({current: currentVersion, latest: latestVersion, pkg: peerPkg});
     }
   }
 

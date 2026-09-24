@@ -78,41 +78,37 @@ export async function transformPackageDetail(
   allDependencies: Record<string, string>,
   transformVersion = true
 ): Promise<PackageComponent[]> {
-  const result: PackageComponent[] = [];
+  // Three independent registry lookups per component. Awaiting them one at a
+  // time made `env` and `list` take as long as the sum of every request.
+  const result = await Promise.all(
+    components.map(async (component): Promise<PackageComponent> => {
+      const isInstalled = component in allDependencies;
+      const {currentVersion = '', versionMode = ''} = isInstalled
+        ? getVersionAndMode(allDependencies, component)
+        : {};
 
-  for (const component of components) {
-    const isInstalled = component in allDependencies;
-    let currentVersion = isInstalled
-      ? getVersionAndMode(allDependencies, component).currentVersion
-      : '';
-    const versionMode = isInstalled
-      ? getVersionAndMode(allDependencies, component).versionMode
-      : '';
-    const docs = (
-      ((await getCacheExecData(`npm show ${component} homepage`)) || '') as string
-    ).replace(/\n/, '');
-    const description = (
-      ((await getCacheExecData(`npm show ${component} description`)) || '') as string
-    ).replace(/\n/, '');
-    const latestVersion = await getLatestVersion(component);
+      const [docs, description, latestVersion] = await Promise.all([
+        getCacheExecData(`npm show ${component} homepage`),
+        getCacheExecData(`npm show ${component} description`),
+        getLatestVersion(component)
+      ]);
 
-    currentVersion =
-      isInstalled && transformVersion ? `${currentVersion} new: ${latestVersion}` : latestVersion;
-
-    const detailPackageInfo: PackageComponent = {
-      description: description || '',
-      docs: docs || '',
-      name: component,
-      package: component,
-      peerDependencies: {},
-      status: 'stable',
-      style: '',
-      version: currentVersion,
-      versionMode
-    };
-
-    result.push(detailPackageInfo);
-  }
+      return {
+        description: ((description || '') as string).replace(/\n/, ''),
+        docs: ((docs || '') as string).replace(/\n/, ''),
+        name: component,
+        package: component,
+        peerDependencies: {},
+        status: 'stable',
+        style: '',
+        version:
+          isInstalled && transformVersion
+            ? `${currentVersion} new: ${latestVersion}`
+            : latestVersion,
+        versionMode
+      };
+    })
+  );
 
   return result;
 }

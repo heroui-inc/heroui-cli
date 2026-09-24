@@ -53,7 +53,9 @@ export class Logger {
     console.log(...args.map((item) => chalk.gray(item)));
   }
 
-  static gradient(content: string | number | boolean, options?: {colors?: tinycolor.ColorInput[]}) {
+  // Colors are hex strings. `tinycolor.ColorInput[]` relied on an ambient global
+  // that this package never imports.
+  static gradient(content: string | number | boolean, options?: {colors?: string[]}) {
     this.log(_gradientString(...(options?.colors ?? defaultColors))(String(content)));
   }
 

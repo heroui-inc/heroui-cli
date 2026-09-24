@@ -1,6 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+import {compareVersions} from 'src/scripts/helpers';
+
 export interface HerouiVersionsResult {
   react?: string;
   native?: string;
@@ -34,7 +36,11 @@ function detectWorkspace(cwd: string): WorkspaceInfo {
     const packages = parsePackageJsonWorkspaces(packageJsonPath);
 
     if (packages.length > 0) {
-      return {isMonorepo: true, packages, type: 'npm'};
+      // Both use the same `workspaces` field, so the lockfile is what tells
+      // them apart. Reporting yarn as npm mislabels the workspace downstream.
+      const isYarn = fs.existsSync(path.join(cwd, 'yarn.lock'));
+
+      return {isMonorepo: true, packages, type: isYarn ? 'yarn' : 'npm'};
     }
   }
 
@@ -71,19 +77,37 @@ function parsePnpmWorkspace(filePath: string): string[] {
     let inPackages = false;
 
     for (const line of lines) {
-      const trimmed = line.trim();
+      const trimmed = line.replace(/\s+#.*$/, '').trim();
+
+      if (!trimmed || trimmed.startsWith('#')) {
+        continue;
+      }
+
+      // `packages: ["a", "b"]` on one line is valid YAML and was previously
+      // missed entirely, leaving the workspace looking like it had no packages
+      const flow = trimmed.match(/^packages:\s*\[(.*)]$/);
+
+      if (flow?.[1] !== undefined) {
+        for (const entry of flow[1].split(',')) {
+          const value = entry.trim().replace(/^["']|["']$/g, '');
+
+          if (value) packages.push(value);
+        }
+
+        break;
+      }
 
       if (trimmed === 'packages:') {
         inPackages = true;
         continue;
       }
       if (inPackages) {
-        if (trimmed && !trimmed.startsWith('-') && !trimmed.startsWith('#')) {
+        if (!trimmed.startsWith('-')) {
           break;
         }
         const match = trimmed.match(/^-\s*["']?([^"']+)["']?$/);
 
-        if (match && match[1]) {
+        if (match?.[1]) {
           packages.push(match[1]);
         }
       }
@@ -295,28 +319,6 @@ function findHighestVersion(versions: string[]): string | null {
 
     return compareVersions(current, highest) > 0 ? current : highest;
   });
-}
-
-function compareVersions(a: string, b: string): number {
-  const parseVersion = (v: string): [number, number, number] => {
-    const match = v.match(/^(\d+)\.(\d+)\.(\d+)/);
-
-    if (!match) return [0, 0, 0];
-
-    return [
-      parseInt(match[1] ?? '0', 10),
-      parseInt(match[2] ?? '0', 10),
-      parseInt(match[3] ?? '0', 10)
-    ];
-  };
-
-  const [aMajor, aMinor, aPatch] = parseVersion(a);
-  const [bMajor, bMinor, bPatch] = parseVersion(b);
-
-  if (aMajor !== bMajor) return aMajor - bMajor;
-  if (aMinor !== bMinor) return aMinor - bMinor;
-
-  return aPatch - bPatch;
 }
 
 export function getHerouiVersions(cwd: string): HerouiVersionsResult {

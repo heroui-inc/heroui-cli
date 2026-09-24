@@ -3,7 +3,7 @@ import type {CommandOptions} from '../helpers/type';
 import {Logger} from '@helpers/logger';
 import {outputComponents} from '@helpers/output-info';
 import {getPackageInfo, transformPackageDetail} from '@helpers/package';
-import {HEROUI_PACKAGES} from 'src/constants/required';
+import {HEROUI_PACKAGES, HEROUI_PACKAGES_LABEL} from 'src/constants/required';
 
 import {resolver} from '../../src/constants/path';
 
@@ -17,7 +17,7 @@ export async function listAction(options: CommandOptions) {
 
     if (!installed.length) {
       Logger.warn(
-        'No HeroUI packages found. Run `heroui install` to install @heroui/react and @heroui/styles.'
+        `No HeroUI packages found. Run \`heroui install\` to install ${HEROUI_PACKAGES_LABEL}.`
       );
 
       return;
