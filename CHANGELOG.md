@@ -1,3 +1,13 @@
+## [3.0.5](https://github.com/heroui-inc/heroui-cli/compare/v3.0.4...v3.0.5) (2026-09-26)
+
+### Bug Fixes
+
+- **cache:** store cache in a writable per-user directory ([6f18ec0](https://github.com/heroui-inc/heroui-cli/commit/6f18ec05acb1a07b9d0379c5b7c7ab282bfefe64)), closes [#199](https://github.com/heroui-inc/heroui-cli/issues/199)
+- **cli:** correct cross-platform path and filesystem handling ([#202](https://github.com/heroui-inc/heroui-cli/issues/202)) ([8fd58a0](https://github.com/heroui-inc/heroui-cli/commit/8fd58a072d6b527917aa430cd50d0b7f3bbeecd7))
+- **cli:** correct version comparison, parsing and init safety ([#204](https://github.com/heroui-inc/heroui-cli/issues/204)) ([39cdaa6](https://github.com/heroui-inc/heroui-cli/commit/39cdaa60734df0b748fe3d5baed77bec5ec6e4d1))
+- **cli:** surface errors and return correct exit codes ([#201](https://github.com/heroui-inc/heroui-cli/issues/201)) ([4814f76](https://github.com/heroui-inc/heroui-cli/commit/4814f76260bbf37f5ede91b593966e7c10ebcacb))
+- **deps:** resolve dependabot security alerts ([#200](https://github.com/heroui-inc/heroui-cli/issues/200)) ([33ef9fa](https://github.com/heroui-inc/heroui-cli/commit/33ef9fa51439800781687ed7140809b16c4a4faf))
+
 ## [3.0.4](https://github.com/heroui-inc/heroui-cli/compare/v3.0.3...v3.0.4) (2026-07-06)
 
 ### Features
