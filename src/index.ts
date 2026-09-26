@@ -1,31 +1,17 @@
-import type {CommandName, SAFE_ANY} from '@helpers/type';
-
-import chalk from 'chalk';
 import {Command} from 'commander';
 
-import {Logger, gradientString} from '@helpers/logger';
-import {findMostMatchText} from '@helpers/math-diff';
-import {outputBox} from '@helpers/output-info';
 import {getCommandDescAndLog} from '@helpers/utils';
 
 import pkg from '../package.json';
 
-import {getAnalytics, shutdown} from './analytics';
 import {registerCommands} from './commands';
-import {getStore, store} from './constants/store';
-import {initCache} from './scripts/cache/cache';
-import {compareVersions} from './scripts/helpers';
-
-const commandList: CommandName[] = [
-  'install',
-  'agents-md',
-  'env',
-  'init',
-  'list',
-  'upgrade',
-  'doctor',
-  'uninstall'
-];
+import {
+  handleParseError,
+  handleUncaughtException,
+  handleUnhandledRejection,
+  runDefaultAction,
+  runPreAction
+} from './program';
 
 const heroui = new Command();
 
@@ -42,138 +28,21 @@ heroui
   )
   .option('-d, --debug', 'Debug mode will not install dependencies')
   .action(async (_, command) => {
-    let isArgs = false;
-
-    if (command) {
-      const args = command.args?.[0];
-
-      if (args && !commandList.includes(args as CommandName)) {
-        isArgs = true;
-
-        const matchCommand = findMostMatchText(commandList, args);
-
-        if (matchCommand) {
-          Logger.error(
-            `Unknown command '${args}', Did you mean '${chalk.underline(matchCommand)}'?`
-          );
-        } else {
-          Logger.error(`Unknown command '${args}'`);
-        }
-      }
-    }
-
-    if (!isArgs) {
-      const helpInfo = heroui.helpInformation();
-
-      let helpInfoArr = helpInfo.split('\n');
-
-      helpInfoArr = helpInfoArr.filter((info) => info && !info.includes('HeroUI CLI v'));
-      // Add command name color
-      helpInfoArr = helpInfoArr.map((info) => {
-        const command = info.match(/(\w+)\s\[/)?.[1];
-
-        if (command) {
-          return info.replace(command, chalk.cyan(command));
-        }
-
-        return info;
-      });
-
-      Logger.log(helpInfoArr.join('\n'));
-    }
-    process.exit(isArgs ? 1 : 0);
+    await runDefaultAction(heroui, command);
   });
 
 registerCommands(heroui);
 
 heroui.hook('preAction', async (command) => {
-  const commandName = command.args?.[0];
-  const options = (command as SAFE_ANY).rawArgs.slice(2);
-  const noCache = options.includes('--no-cache');
-  const debug = options.includes('--debug') || options.includes('-d');
-
-  if (!commandName) {
-    return;
-  }
-
-  // Init cache
-  initCache(noCache);
-  // Init debug
-  store.debug = debug;
-
-  // The upgrade notice is a convenience, never a requirement. Registry lookups fail
-  // offline or behind a proxy, and that must not stop the command from running.
-  let cliLatestVersion = '';
-
-  try {
-    cliLatestVersion = await getStore('cliLatestVersion');
-  } catch {
-    return;
-  }
-
-  // Init latest version
-  store.cliLatestVersion = cliLatestVersion;
-
-  // Add HeroUI CLI version check preAction
-  const currentVersion = pkg.version;
-
-  if (compareVersions(currentVersion, cliLatestVersion) === -1) {
-    outputBox({
-      center: true,
-      color: 'yellow',
-      padding: 1,
-      text: `${chalk.gray(
-        `Available upgrade: v${currentVersion} -> ${chalk.greenBright(
-          `v${cliLatestVersion}`
-        )}\nRun \`${chalk.cyan(
-          'npm install -g heroui-cli@latest'
-        )}\` to upgrade\nChangelog: ${chalk.underline(
-          'https://github.com/heroui-inc/heroui-cli/releases'
-        )}`
-      )}`,
-      title: gradientString('HeroUI CLI')
-    });
-    Logger.newLine();
-  }
+  await runPreAction(command);
 });
 
 // parseAsync only sees rejections from the command it ran. Anything thrown from
 // a detached promise or a callback would otherwise exit silently.
-process.on('unhandledRejection', (reason) => {
-  Logger.newLine();
-  Logger.error('Unhandled promise rejection:');
-  Logger.log(reason instanceof Error ? reason.message : String(reason));
-  process.exit(1);
-});
+process.on('unhandledRejection', handleUnhandledRejection);
 
-process.on('uncaughtException', (error) => {
-  Logger.newLine();
-  Logger.error('Uncaught exception:');
-  Logger.log(error.message);
-  process.exit(1);
-});
+process.on('uncaughtException', handleUncaughtException);
 
 heroui.parseAsync(process.argv).catch(async (error: Error) => {
-  const isAgentsMd = process.argv.includes('agents-md');
-
-  if (isAgentsMd) {
-    const analytics = getAnalytics();
-
-    analytics?.trackError({
-      error,
-      errorEvent: 'AGENTS_MD_ERROR',
-      fallbackMessage: 'Unexpected error in agents-md',
-      properties: {}
-    });
-    await shutdown();
-  }
-
-  Logger.newLine();
-  Logger.error('Unexpected error. Please report it as a bug:');
-  Logger.log(error.message);
-  if (error.stack) {
-    Logger.grey(error.stack);
-  }
-  Logger.newLine();
-  process.exit(1);
+  await handleParseError(error);
 });
