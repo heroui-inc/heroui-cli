@@ -1,7 +1,7 @@
 import {existsSync, mkdtempSync, rmSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 
-import {join, resolve} from 'pathe';
+import {join, resolve, sep} from 'pathe';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 vi.mock('../../../src/scripts/helpers', () => ({
@@ -47,7 +47,9 @@ describe('cache location', () => {
   it('stores the cache outside of the package directory', async () => {
     const {path} = await importCache({});
 
-    expect(path.CACHE_DIR.startsWith(PACKAGE_ROOT)).toBe(false);
+    expect(
+      path.CACHE_DIR === PACKAGE_ROOT || path.CACHE_DIR.startsWith(`${PACKAGE_ROOT}${sep}`)
+    ).toBe(false);
   });
 
   it('honors HEROUI_CACHE_DIR', async () => {
@@ -96,5 +98,111 @@ describe('unwritable cache location', () => {
     expect(() => cache.initCache()).not.toThrow();
     expect(() => cache.cacheData('@heroui/react', {version: '3.0.0'})).not.toThrow();
     expect(cache.getCacheData()).toEqual({});
+  });
+});
+
+describe('cache contents', () => {
+  it('prefers HEROUI_CACHE_DIR over XDG_CACHE_HOME', async () => {
+    const cacheDir = join(workspace, 'custom-cache');
+    const {path} = await importCache({
+      HEROUI_CACHE_DIR: cacheDir,
+      XDG_CACHE_HOME: join(workspace, 'xdg')
+    });
+
+    expect(path.CACHE_DIR).toBe(resolve(cacheDir));
+  });
+
+  it('skips reads and writes when caching is disabled', async () => {
+    const {cache} = await importCache({HEROUI_CACHE_DIR: join(workspace, 'custom-cache')});
+
+    cache.initCache(true);
+    cache.cacheData('@heroui/react', {version: '3.0.0'});
+
+    expect(cache.getCacheData()).toEqual({});
+    expect(cache.isExpired('@heroui/react')).toBe(true);
+  });
+
+  it('treats a fresh entry as current and a past expiry as expired', async () => {
+    const cacheDir = join(workspace, 'custom-cache');
+    const {cache} = await importCache({HEROUI_CACHE_DIR: cacheDir});
+
+    cache.initCache();
+    cache.cacheData('@heroui/react', {version: '3.0.0'});
+
+    expect(cache.isExpired('@heroui/react')).toBe(false);
+
+    const data = cache.getCacheData();
+
+    data['@heroui/react']!.expiredDate = Date.now() - 1;
+    writeFileSync(join(cacheDir, 'data.json'), JSON.stringify(data), 'utf8');
+
+    expect(cache.isExpired('@heroui/react')).toBe(true);
+  });
+
+  it('drops already expired entries when writing a new one', async () => {
+    const cacheDir = join(workspace, 'custom-cache');
+    const {cache} = await importCache({HEROUI_CACHE_DIR: cacheDir});
+
+    cache.initCache();
+    cache.cacheData('old', {version: '1.0.0'});
+
+    const data = cache.getCacheData();
+
+    data['old']!.expiredDate = Date.now() - 1;
+    writeFileSync(join(cacheDir, 'data.json'), JSON.stringify(data), 'utf8');
+    cache.cacheData('next', {version: '2.0.0'});
+
+    const next = cache.getCacheData();
+
+    expect(next['old']).toBeUndefined();
+    expect(next['next']?.version).toBe('2.0.0');
+  });
+
+  it('returns an empty cache when the file is corrupt', async () => {
+    const cacheDir = join(workspace, 'custom-cache');
+    const {cache} = await importCache({HEROUI_CACHE_DIR: cacheDir});
+
+    cache.initCache();
+    writeFileSync(join(cacheDir, 'data.json'), '{', 'utf8');
+
+    expect(cache.getCacheData()).toEqual({});
+  });
+
+  it('fetches a package version and then reuses it', async () => {
+    const {cache} = await importCache({HEROUI_CACHE_DIR: join(workspace, 'custom-cache')});
+    const {oraExecCmd} = await import('../../../src/scripts/helpers');
+
+    vi.mocked(oraExecCmd).mockClear();
+    cache.initCache();
+
+    await expect(cache.getPackageVersion('@heroui/react')).resolves.toEqual({version: ''});
+    await expect(cache.getPackageVersion('@heroui/react')).resolves.toEqual({version: ''});
+    expect(oraExecCmd).toHaveBeenCalledTimes(1);
+  });
+
+  it('caches command output', async () => {
+    const {cache} = await importCache({HEROUI_CACHE_DIR: join(workspace, 'custom-cache')});
+
+    cache.initCache();
+
+    await expect(cache.getCacheExecData('npm view heroui-cli version')).resolves.toBe('');
+    await expect(cache.getCacheExecData('npm view heroui-cli version')).resolves.toBe('');
+  });
+
+  it('removes the stubbed cache directories', async () => {
+    const cacheDir = join(workspace, 'custom-cache');
+    const fallbackDir = join(workspace, 'fallback');
+    const {cache} = await importCache({
+      HEROUI_CACHE_DIR: cacheDir,
+      TEMP: fallbackDir,
+      TMP: fallbackDir,
+      TMPDIR: fallbackDir
+    });
+
+    cache.initCache();
+    cache.cacheData('@heroui/react', {version: '3.0.0'});
+    cache.removeCache();
+
+    expect(existsSync(cacheDir)).toBe(false);
   });
 });
