@@ -35,3 +35,5 @@ jobs:
         run: pnpm check:prettier
       - name: Check type
         run: pnpm check:types
+      - name: Run tests
+        run: pnpm test

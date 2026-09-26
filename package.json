@@ -51,6 +51,7 @@
     "lint:fix": "eslint . --max-warnings=0 --fix",
     "check:prettier": "prettier --check .",
     "check:types": "tsc --noEmit",
+    "test": "pnpm --filter heroui-cli-test test:run",
     "changelog": "npx conventional-changelog -p angular -i CHANGELOG.md -s --commit-path .",
     "release": "bumpp --execute='pnpm run changelog' --all",
     "prepare": "husky install",
