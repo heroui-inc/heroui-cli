@@ -46,14 +46,7 @@ export type AppendKeyValue<T extends SAFE_ANY, K extends keyof any, V extends SA
 };
 
 export type CommandName =
-  | 'init'
-  | 'list'
-  | 'env'
-  | 'upgrade'
-  | 'uninstall'
-  | 'install'
-  | 'doctor'
-  | 'agents-md';
+  'init' | 'list' | 'env' | 'upgrade' | 'uninstall' | 'install' | 'doctor' | 'agents-md';
 
 /**
  * @example RequiredKey<{a?: 1, b?: 2}, a> => {a: 1, b?: 2}
