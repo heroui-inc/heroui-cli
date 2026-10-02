@@ -1,14 +1,6 @@
 import type {SAFE_ANY} from '@helpers/type';
 
-import {
-  type ConfirmOptions,
-  spinner as _spinner,
-  cancel,
-  confirm,
-  isCancel,
-  select,
-  text
-} from '@clack/prompts';
+import {spinner as _spinner, cancel, confirm, isCancel, select, text} from '@clack/prompts';
 import chalk from 'chalk';
 
 export const cancelClack = (value: SAFE_ANY) => {
@@ -63,7 +55,7 @@ export const taskClack = async <T>(opts: TaskClackOptions<T>) => {
   return result;
 };
 
-export const confirmClack = async (opts: ConfirmOptions) => {
+export const confirmClack: typeof confirm = async (opts) => {
   const result = await confirm(opts);
 
   cancelClack(result);
