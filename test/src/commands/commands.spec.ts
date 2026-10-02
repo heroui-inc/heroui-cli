@@ -3,6 +3,7 @@ import {registerCommands} from 'src/commands';
 import {registerAgentsMdCommand} from 'src/commands/agents-md';
 import {registerDoctorCommand} from 'src/commands/doctor';
 import {registerEnvCommand} from 'src/commands/env';
+import {registerInfoCommand} from 'src/commands/info';
 import {registerInitCommand} from 'src/commands/init';
 import {registerInstallCommand} from 'src/commands/install';
 import {registerListCommand} from 'src/commands/list';
@@ -28,6 +29,7 @@ describe('command registration', () => {
       'upgrade',
       'uninstall',
       'list',
+      'info',
       'env',
       'doctor',
       'agents-md'
@@ -38,6 +40,9 @@ describe('command registration', () => {
     expect(flags('upgrade', program)?.join(' ')).toContain('--packagePath');
     expect(flags('uninstall', program)?.join(' ')).toContain('--packagePath');
     expect(flags('list', program)?.join(' ')).toContain('--packagePath');
+    expect(program.commands.find((command) => command.name() === 'info')?.description()).toBe(
+      'Shows the API Reference for a HeroUI React component'
+    );
     expect(flags('env', program)?.join(' ')).toContain('--packagePath');
     expect(flags('doctor', program)?.join(' ')).toContain('--packagePath');
     expect(flags('agents-md', program)?.join(' ')).toContain('--react');
@@ -52,6 +57,7 @@ describe('command registration', () => {
       registerUpgradeCommand,
       registerUninstallCommand,
       registerListCommand,
+      registerInfoCommand,
       registerEnvCommand,
       registerDoctorCommand,
       registerAgentsMdCommand

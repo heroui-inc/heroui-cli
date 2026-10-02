@@ -51,6 +51,7 @@ Commands:
   upgrade [options]              Upgrades @heroui/react and @heroui/styles to the latest versions
   uninstall [options]            Uninstalls @heroui/react and @heroui/styles from the project
   list [options]                 Lists installed HeroUI packages (@heroui/react, @heroui/styles)
+  info <component>               Shows the API Reference for a HeroUI React component
   env [options]                  Displays debugging information for the local environment
   doctor [options]               Checks for issues in the project
   agents-md [options]            Downloads HeroUI documentation for AI coding agents
@@ -286,6 +287,22 @@ Current installed packages:
 │   @heroui/styles   │   3.0.0 🚀latest   │   stable   │   https://heroui.com          │
 ╰──────────────────────────────────────────────────────────────────────────────────────╯
 ```
+
+### Info
+
+Show the API Reference section from the HeroUI React documentation for a component.
+
+```bash
+heroui info <component>
+```
+
+##### Example
+
+```bash
+heroui info button
+```
+
+`Button` and `button-group` are accepted as well. The command prints the `API Reference` section from the component page.
 
 ### Doctor
 
