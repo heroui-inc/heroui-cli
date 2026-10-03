@@ -52,6 +52,7 @@ Commands:
   uninstall [options]            Uninstalls @heroui/react and @heroui/styles from the project
   list [options]                 Lists installed HeroUI packages (@heroui/react, @heroui/styles)
   info <component>               Shows the API Reference for a HeroUI React component
+  doc <component>                Shows the documentation for a HeroUI React component
   env [options]                  Displays debugging information for the local environment
   doctor [options]               Checks for issues in the project
   agents-md [options]            Downloads HeroUI documentation for AI coding agents
@@ -303,6 +304,22 @@ heroui info button
 ```
 
 `Button` and `button-group` are accepted as well. The command prints the `API Reference` section from the component page.
+
+### Doc
+
+Show the full documentation page for a HeroUI React component.
+
+```bash
+heroui doc <component>
+```
+
+##### Example
+
+```bash
+heroui doc button
+```
+
+`Button` and `button-group` are accepted as well. The command prints the component page as published in the docs.
 
 ### Doctor
 
