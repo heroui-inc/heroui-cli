@@ -1,26 +1,13 @@
 import retry from 'async-retry';
 import chalk from 'chalk';
-import ora from 'ora';
+import {createSpinner} from 'nanospinner';
 
 export async function fetchPackageLatestVersion(packageName: string): Promise<string> {
   const text = `Fetching ${packageName} version`;
-  const spinner = ora({
-    discardStdin: false,
-    spinner: {
-      frames: [
-        `⠋ ${chalk.gray(`${text}.`)}`,
-        `⠙ ${chalk.gray(`${text}..`)}`,
-        `⠹ ${chalk.gray(`${text}...`)}`,
-        `⠸ ${chalk.gray(`${text}.`)}`,
-        `⠼ ${chalk.gray(`${text}..`)}`,
-        `⠴ ${chalk.gray(`${text}...`)}`,
-        `⠦ ${chalk.gray(`${text}.`)}`,
-        `⠧ ${chalk.gray(`${text}..`)}`,
-        `⠇ ${chalk.gray(`${text}...`)}`,
-        `⠏ ${chalk.gray(`${text}.`)}`
-      ],
-      interval: 150
-    }
+  const spinner = createSpinner(chalk.gray(text), {
+    color: 'gray',
+    frames: ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'],
+    interval: 150
   });
 
   spinner.start();

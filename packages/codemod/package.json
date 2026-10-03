@@ -65,7 +65,7 @@
     "empathic": "2.1.0",
     "gradient-string": "2.0.2",
     "jscodeshift": "17.1.1",
-    "ora": "8.0.1",
+    "nanospinner": "1.2.2",
     "pathe": "1.1.2",
     "tinyglobby": "0.2.17"
   },
