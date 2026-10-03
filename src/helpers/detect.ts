@@ -1,6 +1,6 @@
 import type {SAFE_ANY} from './type';
 
-import {findUp} from 'find-up';
+import * as find from 'empathic/find';
 import path from 'pathe';
 
 import {ROOT} from 'src/constants/path';
@@ -26,7 +26,7 @@ export const LOCKS: Record<string, Agent> = {
 
 export async function detect(cwd = ROOT) {
   let agent: Agent;
-  const lockPath = await findUp(Object.keys(LOCKS), {cwd});
+  const lockPath = find.any(Object.keys(LOCKS), {cwd, type: 'file'});
 
   // detect based on lock
   if (lockPath) {
