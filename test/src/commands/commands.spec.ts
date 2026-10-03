@@ -48,7 +48,7 @@ describe('command registration', () => {
     expect(program.commands.find((command) => command.name() === 'doc')?.description()).toBe(
       'Shows the documentation for a HeroUI React component'
     );
-    expect(flags('env', program)?.join(' ')).toContain('--packagePath');
+    expect(flags('env', program)).toEqual([]);
     expect(flags('doctor', program)?.join(' ')).toContain('--packagePath');
     expect(flags('agents-md', program)?.join(' ')).toContain('--react');
     expect(flags('agents-md', program)?.join(' ')).toContain('--output');

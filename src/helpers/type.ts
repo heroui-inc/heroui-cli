@@ -20,10 +20,6 @@ export interface CommandOptions {
   debug?: boolean;
 }
 
-export interface EnvOptions extends CommandOptions {
-  packagePath?: string;
-}
-
 export interface DoctorCommandOptions extends CommandOptions {
   packagePath?: string;
 }

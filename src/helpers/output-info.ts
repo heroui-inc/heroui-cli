@@ -1,6 +1,7 @@
 import type {ChalkColor, CommandName} from './type';
 
 import chalk from 'chalk';
+import envinfo from 'envinfo';
 
 import {boxRound} from 'src/constants/box';
 
@@ -179,17 +180,82 @@ export function outputComponents({
   Logger.log(transformComponentsOutput.join('\n'));
 }
 
+const NOT_FOUND = 'Not Found';
+
+type EnvInfoValue = string | {installed?: string | string[]; path?: string; version?: string};
+
+function envInfoVersion(value: EnvInfoValue) {
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+
+    return trimmed === NOT_FOUND ? trimmed : (trimmed.split(' - ')[0] ?? trimmed);
+  }
+
+  if (typeof value.version === 'string') {
+    return value.version;
+  }
+
+  if (Array.isArray(value.installed)) {
+    return value.installed.join(', ');
+  }
+
+  return typeof value.installed === 'string' ? value.installed.trim() : undefined;
+}
+
+const envInfoSections: {color: (text: string) => string; name: string}[] = [
+  {color: chalk.blueBright, name: 'System'},
+  {color: chalk.greenBright, name: 'Binaries'},
+  {color: chalk.magentaBright, name: 'Browsers'},
+  {color: chalk.cyanBright, name: 'npmPackages'}
+];
+
 /**
  * Output the environment information e.g. OS, CPU, Node version, etc.
  */
-export function outputInfo() {
+export async function outputInfo() {
+  const raw = await envinfo.run(
+    {
+      Binaries: ['Node', 'Yarn', 'npm', 'pnpm', 'bun', 'Deno'],
+      Browsers: ['Chrome', 'Firefox', 'Safari', 'Edge'],
+      System: ['OS', 'CPU'],
+      npmPackages:
+        '{@heroui/*,react-aria,react-aria-components,@react-aria/*,@internationalized/date,tailwindcss}'
+    },
+    {json: true, showNotFound: false}
+  );
+  const report = JSON.parse(raw) as Record<string, Record<string, EnvInfoValue>>;
+
   Logger.newLine();
   Logger.log(chalk.redBright('Environment Info:'));
-  Logger.log(chalk.blueBright('  System:'));
-  Logger.log(chalk.blueBright('    OS:'), process.platform);
-  Logger.log(chalk.blueBright('    CPU:'), process.arch);
-  Logger.log(chalk.greenBright('  Binaries:'));
-  Logger.log(chalk.greenBright('    Node:'), process.version);
+
+  for (const {color, name} of envInfoSections) {
+    const section = report[name];
+
+    if (!section) {
+      continue;
+    }
+
+    const entries = Object.entries(section).flatMap(([key, value]) => {
+      const version = envInfoVersion(value);
+
+      if (!version || version === NOT_FOUND) {
+        return [];
+      }
+
+      return [[key, version] as const];
+    });
+
+    if (!entries.length) {
+      continue;
+    }
+
+    Logger.log(color(`  ${name}:`));
+
+    for (const [key, version] of entries) {
+      Logger.log(color(`    ${key}:`), version);
+    }
+  }
+
   Logger.newLine();
 }
 

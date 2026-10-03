@@ -53,7 +53,7 @@ Commands:
   list [options]                 Lists installed HeroUI packages (@heroui/react, @heroui/styles)
   info <component>               Shows the API Reference for a HeroUI React component
   doc <component>                Shows the documentation for a HeroUI React component
-  env [options]                  Displays debugging information for the local environment
+  env                            Displays debugging information for the local environment
   doctor [options]               Checks for issues in the project
   agents-md [options]            Downloads HeroUI documentation for AI coding agents
   help [command]                 Display help for command
@@ -374,12 +374,8 @@ HeroUI CLI <version>
 Display debug information about the local environment.
 
 ```bash
-heroui env [options]
+heroui env
 ```
-
-#### Env Options
-
-- `-p --packagePath` [string] The path to the package.json file
 
 ##### Example
 
@@ -392,21 +388,23 @@ Output:
 ```bash
 HeroUI CLI <version>
 
-Current installed packages:
-
-╭──────────────────────────────────────────────────────────────────────────────────────╮
-│   Package          │   Version          │   Status   │   Docs                        │
-│──────────────────────────────────────────────────────────────────────────────────────│
-│   @heroui/react    │   3.0.0 🚀latest   │   stable   │   https://heroui.com          │
-│   @heroui/styles   │   3.0.0 🚀latest   │   stable   │   https://heroui.com          │
-╰──────────────────────────────────────────────────────────────────────────────────────╯
-
 Environment Info:
   System:
-    OS: darwin
-    CPU: arm64
+    OS: macOS 26.3
+    CPU: (8) arm64 Apple M1 Pro
   Binaries:
-    Node: v25.8.1
+    Node: 26.8.1
+    Yarn: 1.22.22
+    npm: 11.19.0
+    pnpm: 12.5.1
+    bun: 1.3.12
+  Browsers:
+    Safari: 26.3
+  npmPackages:
+    @heroui/react: 3.2.6
+    @heroui/styles: 3.2.6
+    react-aria-components: 1.21.1
+    tailwindcss: 4.1.11
 ```
 
 ### Agents-md
