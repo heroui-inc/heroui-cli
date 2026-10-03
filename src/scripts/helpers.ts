@@ -4,7 +4,7 @@ import {exec} from 'node:child_process';
 
 import chalk from 'chalk';
 import {compareVersions as InternalCompareVersions, validate} from 'compare-versions';
-import ora from 'ora';
+import {createSpinner} from 'nanospinner';
 
 import {getPackageVersion} from './cache/cache';
 
@@ -37,23 +37,10 @@ export function compareVersions(version1 = '', version2 = '') {
 export async function oraExecCmd(cmd: string, text?: string): Promise<SAFE_ANY> {
   text = text ?? `Executing ${cmd}`;
 
-  const spinner = ora({
-    discardStdin: false,
-    spinner: {
-      frames: [
-        `⠋ ${chalk.gray(`${text}.`)}`,
-        `⠙ ${chalk.gray(`${text}..`)}`,
-        `⠹ ${chalk.gray(`${text}...`)}`,
-        `⠸ ${chalk.gray(`${text}.`)}`,
-        `⠼ ${chalk.gray(`${text}..`)}`,
-        `⠴ ${chalk.gray(`${text}...`)}`,
-        `⠦ ${chalk.gray(`${text}.`)}`,
-        `⠧ ${chalk.gray(`${text}..`)}`,
-        `⠇ ${chalk.gray(`${text}...`)}`,
-        `⠏ ${chalk.gray(`${text}.`)}`
-      ],
-      interval: 150
-    }
+  const spinner = createSpinner(chalk.gray(text), {
+    color: 'gray',
+    frames: ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'],
+    interval: 150
   });
 
   spinner.start();

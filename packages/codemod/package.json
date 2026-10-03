@@ -62,12 +62,12 @@
     "cli-progress": "3.12.0",
     "commander": "11.0.0",
     "compare-versions": "6.1.1",
-    "fast-glob": "3.3.2",
-    "find-up": "7.0.0",
+    "empathic": "2.1.0",
     "gradient-string": "2.0.2",
     "jscodeshift": "17.1.1",
-    "ora": "8.0.1",
-    "pathe": "1.1.2"
+    "nanospinner": "1.2.2",
+    "pathe": "1.1.2",
+    "tinyglobby": "0.2.17"
   },
   "engines": {
     "pnpm": ">=9.x"

@@ -50,8 +50,8 @@ vi.mock('@helpers/detect', () => ({
   detect
 }));
 
-vi.mock('ora', () => ({
-  default: () => ({
+vi.mock('nanospinner', () => ({
+  createSpinner: () => ({
     start: vi.fn(),
     stop: vi.fn()
   })

@@ -1,22 +1,25 @@
-import fg from 'fast-glob';
+import type {GlobOptions} from 'tinyglobby';
 
-interface FindFilesOptions extends fg.Options {
+import {glob} from 'tinyglobby';
+
+interface FindFilesOptions extends GlobOptions {
   ext?: string;
 }
 
 export const findFiles = async (paths: string[], options: FindFilesOptions = {}) => {
-  const {ext, ...fgOptions} = options;
+  const {ext, ...globOptions} = options;
 
   if (ext) {
     paths = paths.map((path) => `${path}.${ext}`);
   }
 
-  const files = await fg.glob(paths, {
+  const files = await glob(paths, {
     absolute: true,
     cwd: process.cwd(),
+    expandDirectories: false,
     ignore: ['**/node_modules', '**/dist', '**/*.d.ts', '**/build', '**/output'],
     onlyFiles: true,
-    ...fgOptions
+    ...globOptions
   });
 
   return files;

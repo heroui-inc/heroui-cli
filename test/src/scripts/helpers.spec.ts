@@ -6,8 +6,8 @@ import {afterEach, describe, expect, it, vi} from 'vitest';
 
 const exec = vi.hoisted(() => vi.fn());
 
-vi.mock('ora', () => ({
-  default: () => ({
+vi.mock('nanospinner', () => ({
+  createSpinner: () => ({
     start: vi.fn(),
     stop: vi.fn()
   })
