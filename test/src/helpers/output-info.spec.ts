@@ -4,6 +4,27 @@ import {Logger} from '@helpers/logger';
 import {outputBox, outputComponents, outputInfo} from '@helpers/output-info';
 import {describe, expect, it, vi} from 'vitest';
 
+const runEnvinfo = vi.hoisted(() =>
+  vi.fn(async () =>
+    JSON.stringify({
+      Binaries: {
+        Node: {path: '/Users/me/.nvm/versions/node/v22.22.0/bin/node', version: '22.22.0'}
+      },
+      System: {CPU: 'arm64', OS: 'macOS'},
+      npmPackages: {
+        '@heroui/react': {installed: '3.0.0', wanted: '^3.0.0'},
+        tailwindcss: {installed: '4.0.0', wanted: '^4.0.0'}
+      }
+    })
+  )
+);
+
+vi.mock('envinfo', () => ({
+  default: {
+    run: runEnvinfo
+  }
+}));
+
 function component(overrides: Partial<PackageComponent> = {}): PackageComponent {
   return {
     description: 'Button',
@@ -46,12 +67,30 @@ describe('output-info', () => {
     info.mockRestore();
   });
 
-  it('prints environment info', () => {
+  it('prints environment info', async () => {
     const log = vi.spyOn(Logger, 'log').mockImplementation(() => {});
 
-    outputInfo();
+    await outputInfo();
 
-    expect(log.mock.calls.flat().join(' ')).toContain('Environment Info:');
+    const printed = log.mock.calls.flat().join(' ');
+
+    expect(printed).toContain('Environment Info:');
+    expect(printed).toContain('System:');
+    expect(printed).toContain('22.22.0');
+    expect(printed).not.toContain('.nvm');
+    expect(printed).not.toContain('Managers:');
+    expect(printed).not.toContain('Not Found');
+    expect(printed).toContain('@heroui/react');
+    expect(printed).toContain('3.0.0');
+    expect(printed).toContain('tailwindcss');
+    expect(printed).not.toContain('^3.0.0');
+    expect(runEnvinfo).toHaveBeenCalledWith(
+      expect.objectContaining({
+        npmPackages:
+          '{@heroui/*,react-aria,react-aria-components,@react-aria/*,@internationalized/date,tailwindcss}'
+      }),
+      {json: true, showNotFound: false}
+    );
     log.mockRestore();
   });
 

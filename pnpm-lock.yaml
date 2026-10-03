@@ -207,6 +207,9 @@ importers:
       compare-versions:
         specifier: 6.1.1
         version: 6.1.1
+      envinfo:
+        specifier: 7.21.0
+        version: 7.21.0
       fast-glob:
         specifier: 3.3.3
         version: 3.3.3
@@ -238,6 +241,9 @@ importers:
       '@types/async-retry':
         specifier: 1.4.9
         version: 1.4.9
+      '@types/envinfo':
+        specifier: 7.8.4
+        version: 7.8.4
       '@types/gradient-string':
         specifier: 1.1.6
         version: 1.1.6
@@ -1430,6 +1436,9 @@ packages:
   '@types/deep-eql@4.0.2':
     resolution: {integrity: sha512-c9h9dVVMigMPc4bwTvC5dxqtqJZwQPePsWjPlpSOnojbor6pGqdk541lfA7AqFQr5pB1BRdq0juY9db81BwyFw==}
 
+  '@types/envinfo@7.8.4':
+    resolution: {integrity: sha512-K5WaRgSlqjc408IyPbxOFnz7rVG9E8ELhj7XR3Ncui15EgeyIXTcCfmwrRnU4uEOCJQhzZRAQurYznEEc1dD2g==}
+
   '@types/estree@1.0.8':
     resolution: {integrity: sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==}
 
@@ -2174,6 +2183,11 @@ packages:
   env-paths@2.2.1:
     resolution: {integrity: sha512-+h1lkLKhZMTYjog1VEpJNG7NZJWcuc2DDk/qsqSTRRCOXiLjeQ1d1/udrUGhqMxUgAlwKNZ0cf2uqan5GLuS2A==}
     engines: {node: '>=6'}
+
+  envinfo@7.21.0:
+    resolution: {integrity: sha512-Lw7I8Zp5YKHFCXL7+Dz95g4CcbMEpgvqZNNq3AmlT5XAV6CgAAk6gyAMqn2zjw08K9BHfcNuKrMiCPLByGafow==}
+    engines: {node: '>=4'}
+    hasBin: true
 
   environment@1.1.0:
     resolution: {integrity: sha512-xUtoPkMggbz0MPyPiIWr1Kp4aeWJjDZ6SMvURhimjdZgsRuDplF5/s9hcgGhyXMhs+6vpnuoiZ2kFiu3FMnS8Q==}
@@ -5203,6 +5217,8 @@ snapshots:
 
   '@types/deep-eql@4.0.2': {}
 
+  '@types/envinfo@7.8.4': {}
+
   '@types/estree@1.0.8': {}
 
   '@types/estree@1.0.9': {}
@@ -5974,6 +5990,8 @@ snapshots:
   emoji-regex@9.2.2: {}
 
   env-paths@2.2.1: {}
+
+  envinfo@7.21.0: {}
 
   environment@1.1.0: {}
 
