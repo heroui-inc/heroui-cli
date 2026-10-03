@@ -19,6 +19,7 @@ const commandList: CommandName[] = [
   'init',
   'list',
   'info',
+  'doc',
   'upgrade',
   'doctor',
   'uninstall'

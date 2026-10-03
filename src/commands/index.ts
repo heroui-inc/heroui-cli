@@ -1,6 +1,7 @@
 import type {Command} from 'commander';
 
 import {registerAgentsMdCommand} from './agents-md';
+import {registerDocCommand} from './doc';
 import {registerDoctorCommand} from './doctor';
 import {registerEnvCommand} from './env';
 import {registerInfoCommand} from './info';
@@ -17,6 +18,7 @@ export function registerCommands(cmd: Command) {
   registerUninstallCommand(cmd);
   registerListCommand(cmd);
   registerInfoCommand(cmd);
+  registerDocCommand(cmd);
   registerEnvCommand(cmd);
   registerDoctorCommand(cmd);
   registerAgentsMdCommand(cmd);
