@@ -2,6 +2,7 @@ import type {CommandName, SAFE_ANY} from '@helpers/type';
 
 import chalk from 'chalk';
 
+import {isJsonMode, printJson} from '@helpers/json-output';
 import {Logger, gradientString} from '@helpers/logger';
 import {findMostMatchText} from '@helpers/math-diff';
 import {outputBox} from '@helpers/output-info';
@@ -79,6 +80,7 @@ export async function runPreAction(command: {args?: string[]; rawArgs?: string[]
   const options = ((command as SAFE_ANY).rawArgs ?? []).slice(2);
   const noCache = options.includes('--no-cache');
   const debug = options.includes('--debug') || options.includes('-d');
+  const json = options.includes('--json');
 
   if (!commandName) {
     return;
@@ -86,6 +88,7 @@ export async function runPreAction(command: {args?: string[]; rawArgs?: string[]
 
   initCache(noCache);
   store.debug = debug;
+  store.json = json;
 
   let cliLatestVersion = '';
 
@@ -99,7 +102,7 @@ export async function runPreAction(command: {args?: string[]; rawArgs?: string[]
 
   const currentVersion = pkg.version;
 
-  if (compareVersions(currentVersion, cliLatestVersion) === -1) {
+  if (!store.json && compareVersions(currentVersion, cliLatestVersion) === -1) {
     outputBox({
       center: true,
       color: 'yellow',
@@ -119,14 +122,27 @@ export async function runPreAction(command: {args?: string[]; rawArgs?: string[]
   }
 }
 
+function exitFatalJson(error: string): void {
+  if (!isJsonMode()) {
+    return;
+  }
+
+  printJson({error, ok: false});
+  process.exit(1);
+}
+
 export function handleUnhandledRejection(reason: unknown): void {
+  const message = reason instanceof Error ? reason.message : String(reason);
+
+  exitFatalJson(`Unhandled promise rejection: ${message}`);
   Logger.newLine();
   Logger.error('Unhandled promise rejection:');
-  Logger.log(reason instanceof Error ? reason.message : String(reason));
+  Logger.log(message);
   process.exit(1);
 }
 
 export function handleUncaughtException(error: Error): void {
+  exitFatalJson(`Uncaught exception: ${error.message}`);
   Logger.newLine();
   Logger.error('Uncaught exception:');
   Logger.log(error.message);
@@ -148,6 +164,7 @@ export async function handleParseError(error: Error): Promise<void> {
     await shutdown();
   }
 
+  exitFatalJson(`Unexpected error. Please report it as a bug: ${error.message}`);
   Logger.newLine();
   Logger.error('Unexpected error. Please report it as a bug:');
   Logger.log(error.message);

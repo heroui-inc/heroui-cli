@@ -11,6 +11,7 @@ describe('store', () => {
   afterEach(() => {
     store.cliLatestVersion = '';
     store.debug = false;
+    store.json = false;
     getLatestVersion.mockClear();
   });
 

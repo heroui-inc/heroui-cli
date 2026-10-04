@@ -36,6 +36,7 @@ describe('cli program handlers', () => {
     process.argv = argv;
     store.cliLatestVersion = '';
     store.debug = false;
+    store.json = false;
     vi.clearAllMocks();
   });
 
@@ -89,8 +90,35 @@ describe('cli program handlers', () => {
 
     expect(initCache).toHaveBeenCalledWith(true);
     expect(store.debug).toBe(true);
+    expect(store.json).toBe(false);
     expect(log).toHaveBeenCalled();
     expect(store.cliLatestVersion).toBe('9.0.0');
+  });
+
+  it('stores --json and skips the upgrade notice', async () => {
+    const log = vi.spyOn(Logger, 'log').mockImplementation(() => {});
+
+    await runPreAction({
+      args: ['doctor'],
+      rawArgs: ['node', 'heroui', 'doctor', '--json']
+    });
+
+    expect(store.json).toBe(true);
+    expect(log).not.toHaveBeenCalled();
+  });
+
+  it('prints unhandled rejections as JSON when --json is set', () => {
+    installExitMock();
+    store.json = true;
+    const write = vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
+    const error = vi.spyOn(Logger, 'error').mockImplementation(() => {});
+
+    expect(() => handleUnhandledRejection(new Error('boom'))).toThrow(ExitError);
+    expect(error).not.toHaveBeenCalled();
+    expect(JSON.parse(String(write.mock.calls.at(-1)?.[0]))).toEqual({
+      error: 'Unhandled promise rejection: boom',
+      ok: false
+    });
   });
 
   it('stops the upgrade lookup when the registry call fails', async () => {

@@ -8,7 +8,7 @@ import {HERO_UI} from 'src/constants/required';
 import {getCacheExecData} from 'src/scripts/cache/cache';
 import {getLatestVersion} from 'src/scripts/helpers';
 
-import {Logger} from './logger';
+import {commandFromArgv, fail} from './json-output';
 import {colorMatchRegex} from './output-info';
 import {getVersionAndMode} from './utils';
 
@@ -30,8 +30,7 @@ export type PackageComponent = {
  */
 export function getPackageInfo(packagePath: string) {
   if (!packagePath || typeof packagePath !== 'string') {
-    Logger.prefix('error', 'Invalid package.json path. Please provide a valid file path.');
-    process.exit(1);
+    fail(commandFromArgv(), 'Invalid package.json path. Please provide a valid file path.');
   }
 
   try {
@@ -47,8 +46,7 @@ export function getPackageInfo(packagePath: string) {
   try {
     pkg = JSON.parse(readFileSync(packagePath, 'utf-8'));
   } catch (error) {
-    Logger.prefix('error', `Error reading package.json file: ${packagePath} \nError: ${error}`);
-    process.exit(1);
+    fail(commandFromArgv(), `Error reading package.json file: ${packagePath} \nError: ${error}`);
   }
 
   const devDependencies = pkg.devDependencies || {};
