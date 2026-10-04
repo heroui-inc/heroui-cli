@@ -4,9 +4,11 @@ import path from 'node:path';
 
 import {Logger} from '@helpers/logger';
 import {listAction} from 'src/actions/list-action';
+import {store} from 'src/constants/store';
 import {afterEach, describe, expect, it, vi} from 'vitest';
 
 import {installExitMock} from 'test/helpers/exit';
+import {captureStdout} from 'test/helpers/stdout';
 
 const getCacheExecData = vi.hoisted(() => vi.fn(async () => 'docs'));
 const getLatestVersion = vi.hoisted(() => vi.fn(async () => '3.2.0'));
@@ -25,6 +27,7 @@ describe('listAction', () => {
   let workspace = '';
 
   afterEach(() => {
+    store.json = false;
     vi.clearAllMocks();
     vi.restoreAllMocks();
     getLatestVersion.mockResolvedValue('3.2.0');
@@ -49,6 +52,31 @@ describe('listAction', () => {
       listAction({packagePath: writePackage({dependencies: {}})})
     ).resolves.toBeUndefined();
     expect(warn).toHaveBeenCalledWith(expect.stringContaining('No HeroUI packages'));
+  });
+
+  it('prints installed packages as JSON', async () => {
+    installExitMock();
+    store.json = true;
+    const read = captureStdout();
+
+    await expect(
+      listAction({
+        packagePath: writePackage({dependencies: {'@heroui/react': '^3.0.0'}})
+      })
+    ).rejects.toMatchObject({code: 0});
+    expect(JSON.parse(read())).toEqual({
+      command: 'list',
+      ok: true,
+      packages: [
+        {
+          description: 'docs',
+          docs: 'docs',
+          latest: '3.2.0',
+          package: '@heroui/react',
+          version: '3.0.0'
+        }
+      ]
+    });
   });
 
   it('lists installed packages', async () => {

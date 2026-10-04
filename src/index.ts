@@ -1,5 +1,6 @@
 import {Command} from 'commander';
 
+import {JSON_OPTION_DESCRIPTION} from '@helpers/json-output';
 import {getCommandDescAndLog} from '@helpers/utils';
 
 import pkg from '../package.json';
@@ -27,6 +28,7 @@ heroui
     'Disable cache, by default data will be cached for 30m after the first request'
   )
   .option('-d, --debug', 'Debug mode will not install dependencies')
+  .option('--json', JSON_OPTION_DESCRIPTION, false)
   .action(async (_, command) => {
     await runDefaultAction(heroui, command);
   });

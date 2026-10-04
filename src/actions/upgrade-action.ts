@@ -5,6 +5,7 @@ import chalk from 'chalk';
 
 import {detect} from '@helpers/detect';
 import {exec} from '@helpers/exec';
+import {exitWithJson, isJsonMode, printJson} from '@helpers/json-output';
 import {Logger} from '@helpers/logger';
 import {outputBox} from '@helpers/output-info';
 import {getPackageInfo} from '@helpers/package';
@@ -28,10 +29,15 @@ export async function upgradeAction(options: CommandOptions) {
   const installed = HEROUI_PACKAGES.filter((pkg) => allDependenciesKeys.has(pkg));
 
   if (!installed.length) {
-    Logger.prefix(
-      'error',
-      `No HeroUI packages found. Run \`heroui install\` to install ${HEROUI_PACKAGES_LABEL}.`
-    );
+    const message = `No HeroUI packages found. Run \`heroui install\` to install ${HEROUI_PACKAGES_LABEL}.`;
+
+    if (isJsonMode()) {
+      printJson({command: 'upgrade', error: message, ok: false});
+
+      return;
+    }
+
+    Logger.prefix('error', message);
 
     return;
   }
@@ -65,12 +71,19 @@ export async function upgradeAction(options: CommandOptions) {
     }
   }
 
+  const packages = [...upgradable, ...peerUpgradable].map((item) => ({
+    from: item.current,
+    package: item.pkg,
+    to: item.latest
+  }));
+
   if (!upgradable.length && !peerUpgradable.length) {
+    exitWithJson({command: 'upgrade', ok: true, packages: [], upgraded: false}, 0);
     Logger.success('✅ All packages are up to date');
     process.exit(0);
   }
 
-  if (upgradable.length) {
+  if (!isJsonMode() && upgradable.length) {
     const upgradeOptions: UpgradeOption[] = upgradable.map((u) => ({
       isLatest: false,
       latestVersion: getColorVersion(u.current, u.latest),
@@ -85,7 +98,7 @@ export async function upgradeAction(options: CommandOptions) {
     Logger.newLine();
   }
 
-  if (peerUpgradable.length) {
+  if (!isJsonMode() && peerUpgradable.length) {
     const peerOptions: UpgradeOption[] = peerUpgradable.map((u) => ({
       isLatest: false,
       latestVersion: getColorVersion(u.current, u.latest),
@@ -107,6 +120,7 @@ export async function upgradeAction(options: CommandOptions) {
   ]);
 
   if (!isConfirmed) {
+    exitWithJson({cancelled: true, command: 'upgrade', ok: true, packages}, 0);
     process.exit(0);
   }
 
@@ -117,6 +131,7 @@ export async function upgradeAction(options: CommandOptions) {
 
   await exec(`${packageManager} ${install} ${installCmd}`);
 
+  exitWithJson({command: 'upgrade', ok: true, packages, upgraded: true}, 0);
   Logger.newLine();
   Logger.success('✅ Upgrade complete');
   process.exit(0);

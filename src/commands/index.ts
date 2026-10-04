@@ -1,5 +1,7 @@
 import type {Command} from 'commander';
 
+import {JSON_OPTION_DESCRIPTION} from '@helpers/json-output';
+
 import {registerAgentsMdCommand} from './agents-md';
 import {registerDocCommand} from './doc';
 import {registerDoctorCommand} from './doctor';
@@ -22,4 +24,8 @@ export function registerCommands(cmd: Command) {
   registerEnvCommand(cmd);
   registerDoctorCommand(cmd);
   registerAgentsMdCommand(cmd);
+
+  for (const command of cmd.commands) {
+    command.option('--json', JSON_OPTION_DESCRIPTION, false);
+  }
 }

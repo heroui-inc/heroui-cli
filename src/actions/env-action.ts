@@ -1,13 +1,16 @@
-import {Logger} from '@helpers/logger';
-import {outputInfo} from '@helpers/output-info';
+import {exitWithJson, fail, isJsonMode, rethrowIfExit} from '@helpers/json-output';
+import {collectEnvironment, outputInfo} from '@helpers/output-info';
 
 export async function envAction() {
   try {
-    await outputInfo();
+    if (isJsonMode()) {
+      exitWithJson({command: 'env', environment: await collectEnvironment(), ok: true}, 0);
+    } else {
+      await outputInfo();
+    }
   } catch (error) {
-    Logger.prefix('error', `An error occurred while reading the environment: ${error}`);
-
-    process.exit(1);
+    rethrowIfExit(error);
+    fail('env', `An error occurred while reading the environment: ${error}`);
   }
 
   process.exit(0);

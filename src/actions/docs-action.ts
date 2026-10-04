@@ -18,6 +18,7 @@ import {
   pullDocs
 } from '@helpers/agents-docs/heroui-agents-md';
 import {ValidationError} from '@helpers/errors';
+import {exitWithJson, isJsonMode, rethrowIfExit} from '@helpers/json-output';
 import {Logger} from '@helpers/logger';
 import {getAnalytics, shutdown} from 'src/analytics';
 import {showAnalyticsNotice} from 'src/analytics/notice';
@@ -157,15 +158,17 @@ async function confirmRequirements(cwd: string, selection: DocSelection): Promis
     return true;
   }
 
-  Logger.warn('\n⚠️  HeroUI v3 requirements not met:');
-  for (const warning of validation.warnings) {
-    Logger.warn(`  • ${warning}`);
+  if (!isJsonMode()) {
+    Logger.warn('\n⚠️  HeroUI v3 requirements not met:');
+    for (const warning of validation.warnings) {
+      Logger.warn(`  • ${warning}`);
+    }
+    Logger.newLine();
+    Logger.log(
+      'The downloaded documentation is for HeroUI v3 and may not be compatible with your current setup.'
+    );
+    Logger.newLine();
   }
-  Logger.newLine();
-  Logger.log(
-    'The downloaded documentation is for HeroUI v3 and may not be compatible with your current setup.'
-  );
-  Logger.newLine();
 
   const confirmed = await getConfirm('Do you want to continue anyway?');
 
@@ -177,7 +180,7 @@ export async function docsAction(options: DocsOptions) {
   const analytics = getAnalytics();
   const cwd = process.cwd();
 
-  if (analytics) {
+  if (analytics && !isJsonMode()) {
     showAnalyticsNotice();
   }
 
@@ -218,11 +221,15 @@ export async function docsAction(options: DocsOptions) {
       } else if (hasReact) {
         // Only React found - use it automatically
         selection = 'react';
-        Logger.log(chalk.dim('Detected @heroui/react, using HeroUI React v3 docs'));
+        if (!isJsonMode()) {
+          Logger.log(chalk.dim('Detected @heroui/react, using HeroUI React v3 docs'));
+        }
       } else if (hasNative) {
         // Only Native found - use it automatically
         selection = 'native';
-        Logger.log(chalk.dim('Detected heroui-native, using HeroUI Native docs'));
+        if (!isJsonMode()) {
+          Logger.log(chalk.dim('Detected heroui-native, using HeroUI Native docs'));
+        }
       } else {
         // Neither found - prompt for selection with warning
         if (options.output) {
@@ -255,15 +262,16 @@ export async function docsAction(options: DocsOptions) {
     const canContinue = await confirmRequirements(cwd, selection);
 
     if (!canContinue) {
-      Logger.warn('\nCancelled.');
-      process.exit(0);
+      cancelDocs();
     }
 
     const docsPath = path.join(cwd, DOCS_DIR_NAME);
 
     const selectionText = formatSelectionText(selection);
 
-    Logger.log(`\nDownloading ${selectionText} documentation to ${chalk.cyan(DOCS_DIR_NAME)}...`);
+    if (!isJsonMode()) {
+      Logger.log(`\nDownloading ${selectionText} documentation to ${chalk.cyan(DOCS_DIR_NAME)}...`);
+    }
 
     const pullResult = await pullDocs({
       cwd,
@@ -371,36 +379,40 @@ export async function docsAction(options: DocsOptions) {
 
       const sizeAfter = Buffer.byteLength(newContent, 'utf-8');
 
-      const action = isNewFile ? 'Created' : 'Updated';
-      const sizeInfo = isNewFile
-        ? formatSize(sizeAfter)
-        : `${formatSize(sizeBefore)} → ${formatSize(sizeAfter)}`;
+      if (!isJsonMode()) {
+        const action = isNewFile ? 'Created' : 'Updated';
+        const sizeInfo = isNewFile
+          ? formatSize(sizeAfter)
+          : `${formatSize(sizeBefore)} → ${formatSize(sizeAfter)}`;
 
-      Logger.success(`✓ ${action} ${chalk.bold(outputFile)} (${sizeInfo})`);
+        Logger.success(`✓ ${action} ${chalk.bold(outputFile)} (${sizeInfo})`);
+      }
     }
 
-    if (gitignoreResult.updated) {
-      Logger.success(`✓ Added ${chalk.bold(DOCS_DIR_NAME)} to .gitignore`);
-    }
-    Logger.newLine();
+    if (!isJsonMode()) {
+      if (gitignoreResult.updated) {
+        Logger.success(`✓ Added ${chalk.bold(DOCS_DIR_NAME)} to .gitignore`);
+      }
+      Logger.newLine();
 
-    // Show description of what was installed
-    Logger.log(chalk.cyan('📚 What was installed:'));
-    Logger.log(`  • Documentation files downloaded to ${chalk.bold(`${DOCS_DIR_NAME}/`)}`);
-    Logger.log(`  • Index generated in ${chalk.bold(outputFiles.join(', '))}`);
-    if (selection === 'react') {
-      Logger.log(`  • Demo files included for React code examples`);
+      // Show description of what was installed
+      Logger.log(chalk.cyan('📚 What was installed:'));
+      Logger.log(`  • Documentation files downloaded to ${chalk.bold(`${DOCS_DIR_NAME}/`)}`);
+      Logger.log(`  • Index generated in ${chalk.bold(outputFiles.join(', '))}`);
+      if (selection === 'react') {
+        Logger.log(`  • Demo files included for React code examples`);
+      }
+      Logger.newLine();
+      Logger.log(chalk.cyan('💡 How it works:'));
+      Logger.log(
+        `  • AI assistants (like Claude, Cursor) can now reference ${selectionText} docs directly`
+      );
+      Logger.log(
+        `  • The index in ${chalk.bold(outputFiles[0])} helps assistants find relevant documentation`
+      );
+      Logger.log(`  • Run ${chalk.bold('heroui agents-md')} again to update docs`);
+      Logger.newLine();
     }
-    Logger.newLine();
-    Logger.log(chalk.cyan('💡 How it works:'));
-    Logger.log(
-      `  • AI assistants (like Claude, Cursor) can now reference ${selectionText} docs directly`
-    );
-    Logger.log(
-      `  • The index in ${chalk.bold(outputFiles[0])} helps assistants find relevant documentation`
-    );
-    Logger.log(`  • Run ${chalk.bold('heroui agents-md')} again to update docs`);
-    Logger.newLine();
 
     analytics?.track({
       event: 'AGENTS_MD_SUCCESS',
@@ -412,8 +424,19 @@ export async function docsAction(options: DocsOptions) {
       }
     });
     await shutdown();
+    exitWithJson(
+      {
+        command: 'agents-md',
+        gitignoreUpdated: gitignoreResult.updated,
+        ok: true,
+        outputFiles,
+        selection
+      },
+      0
+    );
     process.exit(0);
   } catch (error) {
+    rethrowIfExit(error);
     analytics?.trackError({
       error,
       errorEvent: 'AGENTS_MD_ERROR',
@@ -421,6 +444,15 @@ export async function docsAction(options: DocsOptions) {
       properties: {duration: Date.now() - startTime}
     });
 
+    await shutdown();
+    exitWithJson(
+      {
+        command: 'agents-md',
+        error: error instanceof Error ? error.message : String(error),
+        ok: false
+      },
+      1
+    );
     Logger.newLine();
     Logger.prefix('error', '❌ Failed to download HeroUI documentation');
     Logger.log(error instanceof Error ? error.message : String(error));
@@ -428,14 +460,18 @@ export async function docsAction(options: DocsOptions) {
       Logger.grey(error.stack);
     }
     Logger.newLine();
-
-    await shutdown();
     process.exit(1);
   }
 }
 
+function cancelDocs(): never {
+  exitWithJson({cancelled: true, command: 'agents-md', ok: true}, 0);
+  Logger.warn('\nCancelled.');
+  process.exit(0);
+}
+
 async function promptForLibrarySelection(neitherFound: boolean = false): Promise<DocSelection> {
-  if (neitherFound) {
+  if (neitherFound && !isJsonMode()) {
     Logger.warn('Neither @heroui/react nor heroui-native is installed in this project.');
     Logger.newLine();
   }
@@ -447,8 +483,7 @@ async function promptForLibrarySelection(neitherFound: boolean = false): Promise
   ]);
 
   if (selection === undefined) {
-    Logger.warn('\nCancelled.');
-    process.exit(0);
+    cancelDocs();
   }
 
   return selection as DocSelection;
@@ -458,8 +493,10 @@ async function promptForOptions(neitherFound?: boolean): Promise<{
   selection: DocSelection;
   targetFiles: string[];
 }> {
-  Logger.log(chalk.cyan('HeroUI Documentation for AI Agents'));
-  Logger.info('Download the latest HeroUI documentation for AI agents to the current project\n');
+  if (!isJsonMode()) {
+    Logger.log(chalk.cyan('HeroUI Documentation for AI Agents'));
+    Logger.info('Download the latest HeroUI documentation for AI agents to the current project\n');
+  }
 
   const selection = await promptForLibrarySelection(neitherFound ?? false);
   const targetFile = await promptForOutputFile();
@@ -480,8 +517,7 @@ async function promptForOutputFile(): Promise<string | string[]> {
   ]);
 
   if (targetFileSelect === undefined) {
-    Logger.warn('\nCancelled.');
-    process.exit(0);
+    cancelDocs();
   }
 
   if (targetFileSelect === '__both__') {
@@ -494,8 +530,7 @@ async function promptForOutputFile(): Promise<string | string[]> {
     const customFile = await getText('Enter custom file path', 'AGENTS.md');
 
     if (customFile === undefined || !customFile.trim()) {
-      Logger.warn('\nCancelled.');
-      process.exit(0);
+      cancelDocs();
     }
 
     targetFile = customFile.trim();

@@ -2,10 +2,11 @@ import type {DoctorCommandOptions} from '@helpers/type';
 
 import chalk from 'chalk';
 
+import {exitWithJson} from '@helpers/json-output';
 import {Logger, type PrefixLogType} from '@helpers/logger';
 import {getPackageInfo} from '@helpers/package';
 import {collectPeerDependencies} from '@helpers/peer-deps';
-import {getVersionAndMode, transformPeerVersion} from '@helpers/utils';
+import {getVersionAndMode, strip, transformPeerVersion} from '@helpers/utils';
 import {resolver} from 'src/constants/path';
 import {DOCS_INSTALLED, HEROUI_PACKAGES} from 'src/constants/required';
 import {compareVersions} from 'src/scripts/helpers';
@@ -24,21 +25,32 @@ export async function doctorAction(options: DoctorCommandOptions) {
   const installed = HEROUI_PACKAGES.filter((pkg) => allDependenciesKeys.has(pkg));
 
   if (!installed.length) {
-    Logger.prefix(
-      'error',
-      `❌ No ${chalk.underline(
-        'HeroUI packages'
-      )} found in your project. Please consult the installation guide at: https://heroui.com/docs/react/getting-started/quick-start`
-    );
+    const message = `❌ No ${chalk.underline(
+      'HeroUI packages'
+    )} found in your project. Please consult the installation guide at: https://heroui.com/docs/react/getting-started/quick-start`;
+
+    exitWithJson({command: 'doctor', error: strip(message), ok: false}, 1);
+    Logger.prefix('error', message);
 
     process.exit(1);
   }
 
+  const issues: {
+    dependencies?: string[];
+    level: Extract<PrefixLogType, 'error' | 'warn'>;
+    name: string;
+    packages?: string[];
+  }[] = [];
   const problemRecord: ProblemRecord[] = [];
 
   const missing = HEROUI_PACKAGES.filter((pkg) => !allDependenciesKeys.has(pkg));
 
   if (missing.length) {
+    issues.push({
+      level: 'warn',
+      name: 'missingHeroUIPackages',
+      packages: [...missing]
+    });
     problemRecord.push({
       level: 'warn',
       name: 'missingHeroUIPackages',
@@ -71,6 +83,11 @@ export async function doctorAction(options: DoctorCommandOptions) {
   }
 
   if (missingPeerDeps.length) {
+    issues.push({
+      dependencies: missingPeerDeps,
+      level: 'error',
+      name: 'missingDependencies'
+    });
     problemRecord.push({
       level: 'error',
       name: 'missingDependencies',
@@ -88,11 +105,14 @@ export async function doctorAction(options: DoctorCommandOptions) {
   }
 
   if (!problemRecord.length) {
+    exitWithJson({command: 'doctor', issues: [], ok: true}, 0);
     Logger.newLine();
     Logger.success('✅ Your project has no detected issues.');
 
     return;
   }
+
+  exitWithJson({command: 'doctor', issues, ok: false}, 1);
 
   Logger.prefix(
     'error',

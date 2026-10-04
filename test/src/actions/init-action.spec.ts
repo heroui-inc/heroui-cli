@@ -5,10 +5,12 @@ import * as p from '@clack/prompts';
 import {downloadTemplate} from '@helpers/fetch';
 import {initAction} from 'src/actions/init-action';
 import {ROOT} from 'src/constants/path';
+import {store} from 'src/constants/store';
 import {selectClack, taskClack, textClack} from 'src/prompts/clack';
 import {afterEach, describe, expect, it, vi} from 'vitest';
 
 import {ExitError, installExitMock} from 'test/helpers/exit';
+import {captureStdout} from 'test/helpers/stdout';
 
 const fsState = vi.hoisted(() => ({
   existsSync: undefined as ((target: unknown) => boolean) | undefined,
@@ -63,6 +65,7 @@ describe('initAction', () => {
   const created: string[] = [];
 
   afterEach(() => {
+    store.json = false;
     vi.clearAllMocks();
     fsState.existsSync = undefined;
     fsState.renameSync = undefined;
@@ -128,6 +131,26 @@ describe('initAction', () => {
     }
 
     expect(downloadTemplate).toHaveBeenCalledTimes(4);
+    expect(p.outro).toHaveBeenCalled();
+  });
+
+  it('prints the created project as JSON', async () => {
+    installExitMock();
+    store.json = true;
+    const read = captureStdout();
+
+    allowProject('json-app', 'vite-template-main');
+
+    await expect(initAction('json-app', {package: 'pnpm', template: 'vite'})).rejects.toMatchObject(
+      {code: 0}
+    );
+    expect(JSON.parse(read())).toEqual({
+      command: 'init',
+      ok: true,
+      packageManager: 'pnpm',
+      projectName: 'json-app',
+      template: 'vite'
+    });
     expect(p.outro).toHaveBeenCalled();
   });
 

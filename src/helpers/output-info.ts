@@ -210,9 +210,9 @@ const envInfoSections: {color: (text: string) => string; name: string}[] = [
 ];
 
 /**
- * Output the environment information e.g. OS, CPU, Node version, etc.
+ * Environment sections with not-found entries removed.
  */
-export async function outputInfo() {
+export async function collectEnvironment(): Promise<Record<string, Record<string, string>>> {
   const raw = await envinfo.run(
     {
       Binaries: ['Node', 'Yarn', 'npm', 'pnpm', 'bun', 'Deno'],
@@ -224,34 +224,54 @@ export async function outputInfo() {
     {json: true, showNotFound: false}
   );
   const report = JSON.parse(raw) as Record<string, Record<string, EnvInfoValue>>;
+  const environment: Record<string, Record<string, string>> = {};
 
-  Logger.newLine();
-  Logger.log(chalk.redBright('Environment Info:'));
-
-  for (const {color, name} of envInfoSections) {
+  for (const {name} of envInfoSections) {
     const section = report[name];
 
     if (!section) {
       continue;
     }
 
-    const entries = Object.entries(section).flatMap(([key, value]) => {
+    const entries: Record<string, string> = {};
+
+    for (const [key, value] of Object.entries(section)) {
       const version = envInfoVersion(value);
 
       if (!version || version === NOT_FOUND) {
-        return [];
+        continue;
       }
 
-      return [[key, version] as const];
-    });
+      entries[key] = version;
+    }
 
-    if (!entries.length) {
+    if (Object.keys(entries).length) {
+      environment[name] = entries;
+    }
+  }
+
+  return environment;
+}
+
+/**
+ * Output the environment information e.g. OS, CPU, Node version, etc.
+ */
+export async function outputInfo() {
+  const environment = await collectEnvironment();
+
+  Logger.newLine();
+  Logger.log(chalk.redBright('Environment Info:'));
+
+  for (const {color, name} of envInfoSections) {
+    const section = environment[name];
+
+    if (!section) {
       continue;
     }
 
     Logger.log(color(`  ${name}:`));
 
-    for (const [key, version] of entries) {
+    for (const [key, version] of Object.entries(section)) {
       Logger.log(color(`    ${key}:`), version);
     }
   }

@@ -6,12 +6,14 @@ import {HEROUI_CLI} from './required';
 
 export type Store = {
   debug: boolean;
+  json: boolean;
   cliLatestVersion: string;
 };
 
 /* eslint-disable sort-keys-fix/sort-keys-fix, sort-keys */
 export const store = {
   debug: false,
+  json: false,
   cliLatestVersion: ''
 } as Store;
 /* eslint-enable sort-keys-fix/sort-keys-fix, sort-keys */

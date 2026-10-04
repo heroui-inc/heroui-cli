@@ -43,6 +43,7 @@ Options:
   -v, --version                  Output the current version
   --no-cache                     Disable cache, by default data will be cached for 30m after the first request
   -d, --debug                    Debug mode will not install dependencies
+  --json                         Output the result as JSON
   -h --help                      Display help information for commands
 
 Commands:
