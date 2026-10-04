@@ -1,9 +1,11 @@
 import {Logger} from '@helpers/logger';
 import {docAction} from 'src/actions/doc-action';
+import {store} from 'src/constants/store';
 import {cacheData, getCacheData, isExpired} from 'src/scripts/cache/cache';
 import {afterEach, describe, expect, it, vi} from 'vitest';
 
 import {ExitError, installExitMock} from 'test/helpers/exit';
+import {captureStdout} from 'test/helpers/stdout';
 
 vi.mock('src/scripts/cache/cache', () => ({
   cacheData: vi.fn(),
@@ -37,6 +39,7 @@ function mockDocs(pages: Record<string, string> = {'(buttons)/button.mdx': butto
 
 describe('docAction', () => {
   afterEach(() => {
+    store.json = false;
     vi.unstubAllGlobals();
     vi.clearAllMocks();
     vi.mocked(isExpired).mockReturnValue(true);
@@ -53,6 +56,22 @@ describe('docAction', () => {
     expect(log).toHaveBeenCalledWith(expect.stringContaining('## Usage'));
     expect(log).toHaveBeenCalledWith(expect.stringContaining('## API Reference'));
     expect(cacheData).toHaveBeenCalled();
+  });
+
+  it('prints the documentation page as JSON', async () => {
+    installExitMock();
+    store.json = true;
+    const read = captureStdout();
+
+    vi.stubGlobal('fetch', mockDocs());
+
+    await expect(docAction('Button')).rejects.toMatchObject({code: 0});
+    expect(JSON.parse(read())).toMatchObject({
+      command: 'doc',
+      component: 'button',
+      ok: true
+    });
+    expect(JSON.parse(read()).markdown).toContain('## Usage');
   });
 
   it('suggests a close component name', async () => {

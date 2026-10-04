@@ -3,9 +3,11 @@ import {tmpdir} from 'node:os';
 import path from 'node:path';
 
 import {installAction} from 'src/actions/install-action';
+import {store} from 'src/constants/store';
 import {afterEach, describe, expect, it, vi} from 'vitest';
 
 import {ExitError, installExitMock} from 'test/helpers/exit';
+import {captureStdout} from 'test/helpers/stdout';
 
 const getCacheExecData = vi.hoisted(() =>
   vi.fn<(cmd: string) => Promise<string>>(async () => '{}')
@@ -44,6 +46,7 @@ describe('installAction', () => {
   let workspace = '';
 
   afterEach(() => {
+    store.json = false;
     vi.clearAllMocks();
     vi.restoreAllMocks();
     getSelect.mockResolvedValue(true);
@@ -95,6 +98,42 @@ describe('installAction', () => {
 
     await expect(installAction({packagePath})).rejects.toBeInstanceOf(ExitError);
     expect(exec).toHaveBeenCalledWith('pnpm add @heroui/react @heroui/styles react@19.0.0');
+  });
+
+  it('prints installed packages and peers as JSON', async () => {
+    installExitMock();
+    store.json = true;
+    const read = captureStdout();
+
+    getCacheExecData.mockImplementation(async (cmd: string) => {
+      if (cmd.includes('peerDependencies')) {
+        return JSON.stringify({react: '>=19.0.0'});
+      }
+      if (cmd.includes('homepage')) {
+        return 'https://heroui.com';
+      }
+      if (cmd.includes('description')) {
+        return 'components';
+      }
+      if (cmd.includes('version')) {
+        return JSON.stringify('19.0.0');
+      }
+
+      return '{}';
+    });
+
+    await expect(
+      installAction({packagePath: writePackage({dependencies: {}})})
+    ).rejects.toMatchObject({
+      code: 0
+    });
+    expect(JSON.parse(read())).toEqual({
+      command: 'install',
+      installed: true,
+      ok: true,
+      packages: ['@heroui/react', '@heroui/styles'],
+      peerDependencies: ['react@19.0.0']
+    });
   });
 
   it('stops when installation is declined', async () => {

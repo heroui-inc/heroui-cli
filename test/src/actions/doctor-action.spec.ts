@@ -4,9 +4,11 @@ import path from 'node:path';
 
 import {Logger} from '@helpers/logger';
 import {doctorAction} from 'src/actions/doctor-action';
+import {store} from 'src/constants/store';
 import {afterEach, describe, expect, it, vi} from 'vitest';
 
 import {installExitMock} from 'test/helpers/exit';
+import {captureStdout} from 'test/helpers/stdout';
 
 const getCacheExecData = vi.hoisted(() => vi.fn(async () => '{}'));
 
@@ -18,6 +20,7 @@ describe('doctorAction', () => {
   let workspace = '';
 
   afterEach(() => {
+    store.json = false;
     vi.clearAllMocks();
     vi.restoreAllMocks();
     getCacheExecData.mockResolvedValue('{}');
@@ -42,6 +45,25 @@ describe('doctorAction', () => {
       doctorAction({packagePath: writePackage({dependencies: {}})})
     ).rejects.toMatchObject({
       code: 1
+    });
+  });
+
+  it('prints a healthy project as JSON', async () => {
+    installExitMock();
+    store.json = true;
+    const read = captureStdout();
+
+    await expect(
+      doctorAction({
+        packagePath: writePackage({
+          dependencies: {'@heroui/react': '3.0.0', '@heroui/styles': '3.0.0'}
+        })
+      })
+    ).rejects.toMatchObject({code: 0});
+    expect(JSON.parse(read())).toEqual({
+      command: 'doctor',
+      issues: [],
+      ok: true
     });
   });
 

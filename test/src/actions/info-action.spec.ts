@@ -1,9 +1,11 @@
 import {Logger} from '@helpers/logger';
 import {infoAction} from 'src/actions/info-action';
+import {store} from 'src/constants/store';
 import {cacheData, getCacheData, isExpired} from 'src/scripts/cache/cache';
 import {afterEach, describe, expect, it, vi} from 'vitest';
 
 import {ExitError, installExitMock} from 'test/helpers/exit';
+import {captureStdout} from 'test/helpers/stdout';
 
 vi.mock('src/scripts/cache/cache', () => ({
   cacheData: vi.fn(),
@@ -37,6 +39,7 @@ function mockDocs(pages: Record<string, string> = {'(buttons)/button.mdx': butto
 
 describe('infoAction', () => {
   afterEach(() => {
+    store.json = false;
     vi.unstubAllGlobals();
     vi.clearAllMocks();
     vi.mocked(isExpired).mockReturnValue(true);
@@ -53,6 +56,22 @@ describe('infoAction', () => {
     expect(log).toHaveBeenCalledWith(expect.stringContaining('## API Reference'));
     expect(log).not.toHaveBeenCalledWith(expect.stringContaining('## Usage'));
     expect(cacheData).toHaveBeenCalled();
+  });
+
+  it('prints the API reference as JSON', async () => {
+    installExitMock();
+    store.json = true;
+    const read = captureStdout();
+
+    vi.stubGlobal('fetch', mockDocs());
+
+    await expect(infoAction('Button')).rejects.toMatchObject({code: 0});
+    expect(JSON.parse(read())).toMatchObject({
+      command: 'info',
+      component: 'button',
+      ok: true
+    });
+    expect(JSON.parse(read()).api).toContain('## API Reference');
   });
 
   it('suggests a close component name', async () => {

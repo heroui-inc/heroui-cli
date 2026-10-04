@@ -10,7 +10,8 @@ import {join} from 'pathe';
 import {changeNpmrc} from '@helpers/actions/init/change-npmrc';
 import {downloadTemplate} from '@helpers/fetch';
 import {checkInitOptions} from '@helpers/init';
-import {getPackageManagerInfo} from '@helpers/utils';
+import {exitWithJson} from '@helpers/json-output';
+import {getPackageManagerInfo, strip} from '@helpers/utils';
 import {selectClack, taskClack, textClack} from 'src/prompts/clack';
 
 import {ROOT} from '../../src/constants/path';
@@ -39,15 +40,19 @@ function assertNeverTemplate(template: never): never {
  * Reject names that would escape the working directory or nest the project in
  * a path the user did not ask for.
  */
+function abortInit(message: string): never {
+  p.cancel(message);
+  exitWithJson({command: 'init', error: strip(message), ok: false}, 1);
+  process.exit(1);
+}
+
 function assertValidProjectName(projectName: string) {
   if (!projectName || projectName === '.' || projectName === '..') {
-    p.cancel(`The project name ${chalk.redBright(projectName)} is not valid`);
-    process.exit(1);
+    abortInit(`The project name ${chalk.redBright(projectName)} is not valid`);
   }
 
   if (/[/\\]/.test(projectName)) {
-    p.cancel(`The project name ${chalk.redBright(projectName)} must not contain a path separator`);
-    process.exit(1);
+    abortInit(`The project name ${chalk.redBright(projectName)} must not contain a path separator`);
   }
 }
 
@@ -73,8 +78,7 @@ export async function initAction(_projectName?: string, options: InitOptions = {
 
   // Detect if the project name already exists
   if (existsSync(join(ROOT, projectName))) {
-    p.cancel(`The project name ${chalk.redBright(projectName)} already exists`);
-    process.exit(1);
+    abortInit(`The project name ${chalk.redBright(projectName)} already exists`);
   }
 
   if (template === 'app') {
@@ -107,6 +111,7 @@ export async function initAction(_projectName?: string, options: InitOptions = {
 
   p.outro(`🚀 Get started with ${chalk.cyanBright(`${packageName} ${run} dev`)}`);
 
+  exitWithJson({command: 'init', ok: true, packageManager: packageName, projectName, template}, 0);
   process.exit(0);
 }
 
@@ -115,10 +120,9 @@ async function generateTemplate(url: string, extractDir: string) {
   // tar merges into an existing directory rather than failing, which would mix
   // the download with whatever is already there
   if (existsSync(join(ROOT, extractDir))) {
-    p.cancel(
+    abortInit(
       `Cannot extract the template, ${chalk.redBright(extractDir)} already exists. Remove it and try again.`
     );
-    process.exit(1);
   }
 
   await taskClack({
@@ -135,15 +139,13 @@ function renameTemplate(originName: string, projectName: string) {
   // The download sits between the first existence check and this rename, so
   // re-check rather than overwriting a directory created in the meantime
   if (existsSync(target)) {
-    p.cancel(`The project name ${chalk.redBright(projectName)} already exists`);
-    process.exit(1);
+    abortInit(`The project name ${chalk.redBright(projectName)} already exists`);
   }
 
   try {
     renameSync(join(ROOT, originName), target);
   } catch (error) {
-    p.cancel(`rename Error: ${error}`);
-    process.exit(1);
+    abortInit(`rename Error: ${error}`);
   }
 }
 

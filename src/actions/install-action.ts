@@ -5,6 +5,7 @@ import chalk from 'chalk';
 
 import {detect} from '@helpers/detect';
 import {exec} from '@helpers/exec';
+import {exitWithJson, isJsonMode} from '@helpers/json-output';
 import {Logger} from '@helpers/logger';
 import {outputBox, outputComponents} from '@helpers/output-info';
 import {getPackageInfo, transformPackageDetail} from '@helpers/package';
@@ -68,20 +69,25 @@ export async function installAction(options: CommandOptions) {
   const missing = HEROUI_PACKAGES.filter((pkg) => !allDependenciesKeys.has(pkg));
 
   if (!missing.length) {
+    exitWithJson(
+      {alreadyInstalled: true, command: 'install', ok: true, packages: [...HEROUI_PACKAGES]},
+      0
+    );
     Logger.success(`✅ ${HEROUI_PACKAGES_LABEL} are already installed`);
     process.exit(0);
   }
 
   const components = await transformPackageDetail([...missing], allDependencies);
-
-  outputComponents({
-    components,
-    message: chalk.cyanBright('📦 Packages to be installed:')
-  });
-
   const peerDepOptions = await getPeerDepOptions([...missing], allDependencies);
 
-  if (peerDepOptions.length) {
+  if (!isJsonMode()) {
+    outputComponents({
+      components,
+      message: chalk.cyanBright('📦 Packages to be installed:')
+    });
+  }
+
+  if (!isJsonMode() && peerDepOptions.length) {
     const peerDepOutput = getUpgradeVersion(peerDepOptions);
 
     if (peerDepOutput.length) {
@@ -96,6 +102,7 @@ export async function installAction(options: CommandOptions) {
   ]);
 
   if (!isConfirmed) {
+    exitWithJson({cancelled: true, command: 'install', ok: true}, 0);
     process.exit(0);
   }
 
@@ -110,6 +117,16 @@ export async function installAction(options: CommandOptions) {
 
   await exec(`${currentPkgManager} ${runCmd} ${installTargets.join(' ')}`);
 
+  exitWithJson(
+    {
+      command: 'install',
+      installed: true,
+      ok: true,
+      packages: [...missing],
+      peerDependencies: missingPeerDeps
+    },
+    0
+  );
   Logger.newLine();
   Logger.success(`✅ ${HEROUI_PACKAGES_LABEL} installed successfully`);
   process.exit(0);

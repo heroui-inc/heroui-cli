@@ -4,10 +4,12 @@ import path from 'node:path';
 
 import {pullDocs} from '@helpers/agents-docs/heroui-agents-md';
 import {docsAction} from 'src/actions/docs-action';
+import {store} from 'src/constants/store';
 import {getConfirm, getSelect, getText} from 'src/prompts';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {ExitError, installExitMock} from 'test/helpers/exit';
+import {captureStdout} from 'test/helpers/stdout';
 
 vi.mock('@helpers/agents-docs/heroui-agents-md', async () => {
   const actual = await vi.importActual('@helpers/agents-docs/heroui-agents-md');
@@ -49,6 +51,7 @@ describe('docsAction', () => {
   });
 
   afterEach(() => {
+    store.json = false;
     process.chdir(previous);
     vi.unstubAllEnvs();
     vi.clearAllMocks();
@@ -82,6 +85,23 @@ describe('docsAction', () => {
       'HEROUI-REACT-AGENTS-MD-START'
     );
     expect(fs.readFileSync(path.join(workspace, '.gitignore'), 'utf-8')).toContain('.heroui-docs/');
+  });
+
+  it('prints the agents-md result as JSON', async () => {
+    installExitMock();
+    store.json = true;
+    const read = captureStdout();
+
+    writePackage({'@heroui/react': '3.0.0', react: '19.0.0', tailwindcss: '4.0.0'});
+
+    await expect(docsAction({output: 'AGENTS.md', react: true})).rejects.toMatchObject({code: 0});
+    expect(JSON.parse(read())).toEqual({
+      command: 'agents-md',
+      gitignoreUpdated: true,
+      ok: true,
+      outputFiles: ['AGENTS.md'],
+      selection: 'react'
+    });
   });
 
   it('stops when requirements are not accepted', async () => {

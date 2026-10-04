@@ -4,9 +4,11 @@ import path from 'node:path';
 
 import {Logger} from '@helpers/logger';
 import {upgradeAction} from 'src/actions/upgrade-action';
+import {store} from 'src/constants/store';
 import {afterEach, describe, expect, it, vi} from 'vitest';
 
 import {ExitError, installExitMock} from 'test/helpers/exit';
+import {captureStdout} from 'test/helpers/stdout';
 
 const getCacheExecData = vi.hoisted(() => vi.fn(async () => '{}'));
 const getLatestVersion = vi.hoisted(() =>
@@ -42,6 +44,7 @@ describe('upgradeAction', () => {
   let workspace = '';
 
   afterEach(() => {
+    store.json = false;
     vi.clearAllMocks();
     vi.restoreAllMocks();
     getCacheExecData.mockResolvedValue('{}');
@@ -101,6 +104,35 @@ describe('upgradeAction', () => {
     expect(exec).toHaveBeenCalledWith(
       'pnpm add @heroui/react@4.0.0 @heroui/styles@4.0.0 react@19.0.0'
     );
+  });
+
+  it('prints upgraded packages as JSON', async () => {
+    installExitMock();
+    store.json = true;
+    const read = captureStdout();
+
+    getLatestVersion.mockImplementation(async (pkg: string) =>
+      pkg === 'react' ? '19.0.0' : '4.0.0'
+    );
+    getCacheExecData.mockResolvedValue(JSON.stringify({react: '>=19.0.0'}));
+
+    await expect(
+      upgradeAction({
+        packagePath: writePackage({
+          dependencies: {'@heroui/react': '^3.0.0', '@heroui/styles': '^3.0.0', react: '18.0.0'}
+        })
+      })
+    ).rejects.toMatchObject({code: 0});
+    expect(JSON.parse(read())).toEqual({
+      command: 'upgrade',
+      ok: true,
+      packages: [
+        {from: '3.0.0', package: '@heroui/react', to: '4.0.0'},
+        {from: '3.0.0', package: '@heroui/styles', to: '4.0.0'},
+        {from: '18.0.0', package: 'react', to: '19.0.0'}
+      ],
+      upgraded: true
+    });
   });
 
   it('stops when the upgrade is declined', async () => {

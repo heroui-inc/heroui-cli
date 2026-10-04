@@ -3,9 +3,11 @@ import {tmpdir} from 'node:os';
 import path from 'node:path';
 
 import {uninstallAction} from 'src/actions/uninstall-action';
+import {store} from 'src/constants/store';
 import {afterEach, describe, expect, it, vi} from 'vitest';
 
 import {ExitError, installExitMock} from 'test/helpers/exit';
+import {captureStdout} from 'test/helpers/stdout';
 
 const getCacheExecData = vi.hoisted(() => vi.fn(async () => 'docs'));
 const getLatestVersion = vi.hoisted(() => vi.fn(async () => '3.2.0'));
@@ -39,6 +41,7 @@ describe('uninstallAction', () => {
   let workspace = '';
 
   afterEach(() => {
+    store.json = false;
     vi.clearAllMocks();
     vi.restoreAllMocks();
     getSelect.mockResolvedValue(true);
@@ -78,6 +81,26 @@ describe('uninstallAction', () => {
       })
     ).rejects.toBeInstanceOf(ExitError);
     expect(exec).toHaveBeenCalledWith('npm uninstall @heroui/react @heroui/styles');
+  });
+
+  it('prints uninstalled packages as JSON', async () => {
+    installExitMock();
+    store.json = true;
+    const read = captureStdout();
+
+    await expect(
+      uninstallAction({
+        packagePath: writePackage({
+          dependencies: {'@heroui/react': '3.0.0', '@heroui/styles': '3.0.0'}
+        })
+      })
+    ).rejects.toMatchObject({code: 0});
+    expect(JSON.parse(read())).toEqual({
+      command: 'uninstall',
+      ok: true,
+      packages: ['@heroui/react', '@heroui/styles'],
+      uninstalled: true
+    });
   });
 
   it('stops when uninstallation is declined', async () => {
