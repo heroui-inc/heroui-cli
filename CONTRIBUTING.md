@@ -72,8 +72,12 @@ https://www.conventionalcommits.org/ or check out the
    As you develop, you can run `pnpm lint` and
    `pnpm build` e.g. `pnpm lint && pnpm build` to make sure everything works as expected.
 
-4. Please note that you might have to run `git fetch origin main:master` (where
-   origin will be your fork on GitHub).
+4. Update your branch with the latest `main` before you open the pull request:
+
+   ```bash
+   git fetch origin
+   git rebase origin/main
+   ```
 
 ## Development Setup
 
@@ -92,7 +96,7 @@ After cloning the repository, execute the following commands in the root folder:
 2. Run dev to start development
 
    ```bash
-   ## Start the dev babel server of HeroUI CLI
+   ## Start the HeroUI CLI dev build (tsup watch)
    pnpm dev
    ```
 
@@ -114,11 +118,11 @@ After cloning the repository, execute the following commands in the root folder:
 
    ```bash
    ## make sure pnpm dev is running
-   npm link
-   ## then run heroui-cli locally and test
+   pnpm link:cli
+   ## then run heroui locally and test
    ```
 
-   > Note: ensure your version of Node is 20.19.x or higher to run scripts
+   > Note: Node.js 22.22.0 or higher is required. `.nvmrc` pins the version used in CI.
 
 5. Build the CLI
 
