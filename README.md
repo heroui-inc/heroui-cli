@@ -352,7 +352,7 @@ If there is a problem in your project, the `doctor` command will display the pro
 ```bash
 HeroUI CLI <version>
 
-HeroUI CLI: ❌ Your project has 1 issue that require attention
+HeroUI CLI: ❌ Your project has 1 issue that requires attention
 
 ❗️Issue 1: missingHeroUIPackages
 
