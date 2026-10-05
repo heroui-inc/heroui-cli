@@ -200,20 +200,20 @@ heroui Codemod v0.0.1
 
 ### Community
 
-We're excited to see the community adopt NextUI CLI, raise issues, and provide feedback.
+We're excited to see the community adopt HeroUI CLI, raise issues, and provide feedback.
 Whether it's a feature request, bug report, or a project to showcase, please get involved!
 
 - [Discord](https://discord.gg/9b6yyZKmH4)
-- [Twitter](https://twitter.com/getnextui)
-- [GitHub Discussions](https://github.com/nextui-org/nextui-cli/discussions)
+- [Twitter](https://twitter.com/hero_ui)
+- [GitHub Discussions](https://github.com/heroui-inc/heroui-cli/discussions)
 
 ## Contributing
 
 Contributions are always welcome!
 
-See [CONTRIBUTING.md](https://github.com/nextui-org/nextui-cli/blob/main/CONTRIBUTING.md) for ways to get started.
+See [CONTRIBUTING.md](https://github.com/heroui-inc/heroui-cli/blob/main/CONTRIBUTING.md) for ways to get started.
 
-Please adhere to this project's [CODE_OF_CONDUCT](https://github.com/nextui-org/nextui-cli/blob/main/CODE_OF_CONDUCT.md).
+Please adhere to this project's [CODE_OF_CONDUCT](https://github.com/heroui-inc/heroui-cli/blob/main/CODE_OF_CONDUCT.md).
 
 ## License
 
