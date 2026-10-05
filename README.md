@@ -4,7 +4,7 @@
       <h1 align="center">HeroUI CLI</h1>
   </a>
 </p>
-</br>
+<br />
 <p align="center">
   <a href="https://github.com/heroui-inc/heroui-cli/blob/main/license">
     <img src="https://img.shields.io/npm/l/heroui-cli?style=flat" alt="License">
@@ -44,7 +44,7 @@ Options:
   --no-cache                     Disable cache, by default data will be cached for 30m after the first request
   -d, --debug                    Debug mode will not install dependencies
   --json                         Output the result as JSON
-  -h, --help                     Display help information for commands
+  -h, --help                     Display help for command
 
 Commands:
   init [options] [projectName]   Initializes a new project
@@ -59,6 +59,19 @@ Commands:
   agents-md [options]            Downloads HeroUI documentation for AI coding agents
   help [command]                 Display help for command
 ```
+
+## JSON output
+
+`--json` prints one JSON object and skips prompts. `install`, `upgrade`, and `uninstall` continue without asking for confirmation.
+
+`init` and `agents-md` still need the answers a prompt would collect:
+
+```bash
+heroui init my-heroui-app --template app --package pnpm --json
+heroui agents-md --react --output AGENTS.md --json
+```
+
+`agents-md --json` also needs `--react`, `--native`, or `--migration` when the project has both `@heroui/react` and `heroui-native`, or neither of them.
 
 ## Cache
 
@@ -76,7 +89,7 @@ Registry lookups are cached for 30 minutes in a per-user cache directory:
 
 The `agents-md` command collects anonymous usage data.
 
-**What we collect:** Selection (react/native/both), output file names, duration, success or error. No file paths, or project contents are collected.
+**What we collect:** The selected docs (`react`, `native`, or `migration`), the output paths passed to the command, how many files were written, how long the command took, and whether it succeeded. A failure also includes the error message. Project contents are not collected.
 
 **Opt out:** Set `HEROUI_ANALYTICS_DISABLED=1` in your environment or shell profile.
 
@@ -144,7 +157,7 @@ HeroUI CLI <version>
 
 ### Install
 
-Install `@heroui/react` and `@heroui/styles` in your project, along with their peer dependencies. If they are already installed, the command does nothing.
+Install `@heroui/react` and `@heroui/styles` in your project, along with peer dependencies that are missing or below the required range. If both packages are already installed, the command prints a confirmation and exits.
 
 ```bash
 heroui install [options]
@@ -174,9 +187,9 @@ HeroUI CLI <version>
 ╰─────────────────────────────────────────────────────────────────────────────╯
 
 ╭─────────────── PeerDependencies ────────────────╮
-│  react@18.3.1                      latest       │
-│  react-dom@18.3.1                  latest       │
-│  tailwindcss@4.2.2                 latest       │
+│  react@^19.1.0                     latest       │
+│  react-dom@^19.1.0                 latest       │
+│  tailwindcss@^4.1.11               latest       │
 ╰─────────────────────────────────────────────────╯
 ? Proceed with installation? › - Use arrow-keys. Return to submit.
 ❯   Yes
@@ -187,7 +200,7 @@ HeroUI CLI <version>
 
 ### Upgrade
 
-Upgrade `@heroui/react` and `@heroui/styles` with their peer dependencies to the latest versions.
+Upgrade `@heroui/react` and `@heroui/styles` to the latest versions. An installed peer dependency is included only when it is below the range those packages require. When nothing needs upgrading, the command prints `All packages are up to date` and does not prompt.
 
 ```bash
 heroui upgrade [options]
@@ -217,7 +230,7 @@ HeroUI CLI <version>
 ❯   Yes
     No
 
-✅ Upgrade complete. All packages are up to date.
+✅ Upgrade complete
 ```
 
 ### Uninstall
@@ -280,7 +293,7 @@ Output:
 ```bash
 HeroUI CLI <version>
 
-Current installed packages:
+Installed HeroUI packages:
 
 ╭──────────────────────────────────────────────────────────────────────────────────────╮
 │   Package          │   Version          │   Status   │   Docs                        │
@@ -370,6 +383,8 @@ HeroUI CLI <version>
 ✅ Your project has no detected issues.
 ```
 
+The command exits with status `1` when it reports an issue, including when the project has no HeroUI packages installed.
+
 ### Env
 
 Display debug information about the local environment.
@@ -433,7 +448,7 @@ heroui agents-md [options]
 
 #### Example
 
-Run the command without any flags to enter interactive mode:
+With no library flags, the command checks the project. Only `@heroui/react` selects the React docs, and only `heroui-native` selects the Native docs. It then asks for the output file unless you pass `--output`. When both packages are installed, or neither is, it asks which docs to download.
 
 ```bash
 heroui agents-md
@@ -492,13 +507,17 @@ your-project/
 - The command always downloads the latest documentation from the `v3` branch
 - Documentation is stored in `.heroui-docs/` which is automatically added to `.gitignore`
 
+### Migrating from NextUI
+
+[`@heroui/codemod`](./packages/codemod/README.md) renames `@nextui-org/*` packages and APIs to `@heroui/*`. It does not upgrade a project to HeroUI v3. For the v3 migration guides, run `heroui agents-md --migration`.
+
 ### Community
 
 We're excited to see the community adopt HeroUI CLI, raise issues, and provide feedback.
 Whether it's a feature request, bug report, or a project to showcase, please get involved!
 
 - [Discord](https://discord.gg/9b6yyZKmH4)
-- [Twitter](https://twitter.com/hero_ui)
+- [X](https://x.com/hero_ui)
 - [GitHub Discussions](https://github.com/heroui-inc/heroui-cli/discussions)
 
 ## Contributing
@@ -511,4 +530,4 @@ Please adhere to this project's [CODE_OF_CONDUCT](https://github.com/heroui-inc/
 
 ## License
 
-[MIT](https://choosealicense.com/licenses/mit/)
+[MIT](https://github.com/heroui-inc/heroui-cli/blob/main/license)
