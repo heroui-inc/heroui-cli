@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://heroui.com">
-      <img width="20%" src="https://raw.githubusercontent.com/heroui-inc/heroui/main/apps/docs/public/isotipo.png" alt="nextui" />
+      <img width="20%" src="https://raw.githubusercontent.com/heroui-inc/heroui/v3/apps/docs/public/icons/readme-logo.png" alt="heroui" />
       <h1 align="center">@heroui/codemod</h1>
   </a>
 </p>
@@ -11,7 +11,7 @@ The CLI provides a comprehensive suite of tools to migrate your codebase from Ne
 
 ## Quick Start
 
-> **Note**: The heroui CLI requires [Node.js](https://nodejs.org/en) _20.19.x_ or later
+> **Note**: `@heroui/codemod` requires [Node.js](https://nodejs.org/en) 22.22.0 or later
 >
 > **Note**: If running in monorepo, you need to run the command in the root of your monorepo
 
