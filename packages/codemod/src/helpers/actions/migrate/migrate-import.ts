@@ -31,8 +31,11 @@ export function migrateImportPackageWithPaths(paths: string[]) {
         writeFileAndUpdateStore(path, 'parsedContent', parsedContent);
         updateAffectedFiles(path);
       }
-      // eslint-disable-next-line no-empty
-    } catch {}
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : String(error);
+
+      throw new Error(`Failed to migrate imports in ${path}: ${reason}`);
+    }
   }
 }
 
