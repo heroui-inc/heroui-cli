@@ -1,7 +1,7 @@
 import type {Agent} from '@helpers/detect';
 import type {GetUnionLastValue, InitOptions} from '@helpers/type';
 
-import {existsSync, renameSync} from 'node:fs';
+import {existsSync, renameSync, rmSync} from 'node:fs';
 
 import * as p from '@clack/prompts';
 import chalk from 'chalk';
@@ -139,18 +139,24 @@ async function generateTemplate(url: string, extractDir: string) {
   });
 }
 
+function removeExtract(originName: string) {
+  rmSync(join(ROOT, originName), {force: true, recursive: true});
+}
+
 function renameTemplate(originName: string, projectName: string) {
   const target = join(ROOT, projectName);
 
   // The download sits between the first existence check and this rename, so
   // re-check rather than overwriting a directory created in the meantime
   if (existsSync(target)) {
+    removeExtract(originName);
     abortInit(`The project name ${chalk.redBright(projectName)} already exists`);
   }
 
   try {
     renameSync(join(ROOT, originName), target);
   } catch (error) {
+    removeExtract(originName);
     abortInit(`rename Error: ${error}`);
   }
 }

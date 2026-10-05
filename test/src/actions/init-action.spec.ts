@@ -200,6 +200,9 @@ describe('initAction', () => {
   it('exits when renaming the template fails', async () => {
     installExitMock();
     allowProject('rename-fail', 'next-app-template-main');
+    const extractPath = path.join(ROOT, 'next-app-template-main');
+
+    fs.mkdirSync(extractPath, {recursive: true});
     fsState.renameSync = () => {
       throw new Error('busy');
     };
@@ -207,6 +210,7 @@ describe('initAction', () => {
     await expect(
       initAction('rename-fail', {package: 'npm', template: 'app'})
     ).rejects.toMatchObject({code: 1});
+    expect(fsState.realExistsSync?.(extractPath)).toBe(false);
   });
 
   it('exits for an unknown template before downloading', async () => {
