@@ -1,4 +1,4 @@
-import {mkdtempSync, readdirSync, rmSync, writeFileSync} from 'node:fs';
+import {mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
 import {Writable} from 'node:stream';
@@ -79,6 +79,32 @@ describe('downloadTemplate', () => {
       'truncated'
     );
     expect(readdirSync(workspace)).toEqual([]);
+  });
+
+  it('does not replace a directory that is already in the project', async () => {
+    workspace = mkdtempSync(path.join(tmpdir(), 'heroui-fetch-'));
+    const existing = path.join(workspace, 'next-app-template-main');
+
+    mkdirSync(existing);
+    writeFileSync(path.join(existing, 'keep.txt'), 'mine');
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => new Response('template', {status: 200, statusText: 'OK'}))
+    );
+    tarExtract.mockImplementation((options: {cwd: string}) => {
+      mkdirSync(path.join(options.cwd, 'next-app-template-main'));
+
+      return new Writable({
+        write(_chunk, _encoding, callback) {
+          callback();
+        }
+      });
+    });
+
+    await expect(
+      downloadTemplate(workspace, 'https://example.com/template.tar.gz')
+    ).rejects.toThrow('already exists');
+    expect(readFileSync(path.join(existing, 'keep.txt'), 'utf8')).toBe('mine');
   });
 
   it('throws when the response has no body', async () => {

@@ -1,5 +1,4 @@
-import {mkdtempSync, readdirSync, renameSync, rmSync} from 'node:fs';
-import {tmpdir} from 'node:os';
+import {existsSync, mkdtempSync, readdirSync, renameSync, rmSync} from 'node:fs';
 import {Readable} from 'node:stream';
 import {pipeline} from 'node:stream/promises';
 
@@ -36,9 +35,11 @@ async function fetchTarStream(url: string) {
 export async function downloadTemplate(root: string, url: string) {
   await retry(
     async () => {
-      // Extract into a private directory. A retry must not merge a second
-      // tarball into files left behind by a failed attempt.
-      const staging = mkdtempSync(join(tmpdir(), 'heroui-template-'));
+      // Stage next to the project. os.tmpdir() can be another volume, and
+      // rename across volumes fails with EXDEV. A retry must not merge into
+      // files left by a failed attempt, and it must not delete a directory
+      // the user already had.
+      const staging = mkdtempSync(join(root, '.heroui-template-'));
       const moved: string[] = [];
 
       try {
@@ -52,7 +53,12 @@ export async function downloadTemplate(root: string, url: string) {
         for (const entry of readdirSync(staging)) {
           const destination = join(root, entry);
 
-          rmSync(destination, {force: true, recursive: true});
+          if (existsSync(destination)) {
+            throw new Error(
+              `Cannot extract the template, ${entry} already exists. Remove it and try again.`
+            );
+          }
+
           renameSync(join(staging, entry), destination);
           moved.push(destination);
         }
