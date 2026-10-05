@@ -9,9 +9,9 @@ export function registerInitCommand(cmd: Command) {
     .description('Initializes a new project')
     .argument('[projectName]', 'Name of the project to initialize')
     .option(
-      '-t --template [string]',
+      '-t, --template [string]',
       `Specify a template for the new project, e.g. ${Object.keys(templatesMap).join(', ')}`
     )
-    .option('-p --package [string]', 'The package manager to use for the new project')
+    .option('-p, --package [string]', 'The package manager to use for the new project')
     .action(initAction);
 }

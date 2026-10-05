@@ -8,6 +8,6 @@ export function registerUpgradeCommand(cmd: Command) {
   cmd
     .command('upgrade')
     .description(`Upgrades ${HEROUI_PACKAGES_LABEL} to the latest versions`)
-    .option('-p --packagePath [string]', 'Specify the path to the package.json file')
+    .option('-p, --packagePath [string]', 'Specify the path to the package.json file')
     .action(upgradeAction);
 }
