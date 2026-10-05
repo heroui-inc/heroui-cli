@@ -114,10 +114,12 @@ export async function upgradeAction(options: CommandOptions) {
     Logger.newLine();
   }
 
-  const isConfirmed = await getSelect('Would you like to proceed with the upgrade?', [
-    {title: 'Yes', value: true},
-    {title: 'No', value: false}
-  ]);
+  const isConfirmed = isJsonMode()
+    ? true
+    : await getSelect('Would you like to proceed with the upgrade?', [
+        {title: 'Yes', value: true},
+        {title: 'No', value: false}
+      ]);
 
   if (!isConfirmed) {
     exitWithJson({cancelled: true, command: 'upgrade', ok: true, packages}, 0);

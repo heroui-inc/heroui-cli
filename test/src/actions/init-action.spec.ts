@@ -151,7 +151,19 @@ describe('initAction', () => {
       projectName: 'json-app',
       template: 'vite'
     });
-    expect(p.outro).toHaveBeenCalled();
+    expect(p.intro).not.toHaveBeenCalled();
+    expect(p.outro).not.toHaveBeenCalled();
+  });
+
+  it('fails in JSON mode when the template or package manager is missing', async () => {
+    installExitMock();
+    store.json = true;
+    const read = captureStdout();
+
+    await expect(initAction('json-app', {package: 'pnpm'})).rejects.toMatchObject({code: 1});
+    expect(JSON.parse(read())).toMatchObject({command: 'init', ok: false});
+    expect(selectClack).not.toHaveBeenCalled();
+    expect(downloadTemplate).not.toHaveBeenCalled();
   });
 
   it('prompts for missing template, name, and package manager', async () => {

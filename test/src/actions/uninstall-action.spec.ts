@@ -101,6 +101,7 @@ describe('uninstallAction', () => {
       packages: ['@heroui/react', '@heroui/styles'],
       uninstalled: true
     });
+    expect(getSelect).not.toHaveBeenCalled();
   });
 
   it('stops when uninstallation is declined', async () => {

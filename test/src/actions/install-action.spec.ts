@@ -134,6 +134,7 @@ describe('installAction', () => {
       packages: ['@heroui/react', '@heroui/styles'],
       peerDependencies: ['react@19.0.0']
     });
+    expect(getSelect).not.toHaveBeenCalled();
   });
 
   it('stops when installation is declined', async () => {

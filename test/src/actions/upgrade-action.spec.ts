@@ -133,6 +133,7 @@ describe('upgradeAction', () => {
       ],
       upgraded: true
     });
+    expect(getSelect).not.toHaveBeenCalled();
   });
 
   it('stops when the upgrade is declined', async () => {

@@ -3,9 +3,16 @@ import type {SAFE_ANY} from '@helpers/type';
 import {spinner as _spinner, cancel, confirm, isCancel, select, text} from '@clack/prompts';
 import chalk from 'chalk';
 
+import {commandFromArgv, exitWithJson, isJsonMode} from '@helpers/json-output';
+
 export const cancelClack = (value: SAFE_ANY) => {
   if (isCancel(value)) {
-    cancel(`${chalk.red('✖')} Operation cancelled`);
+    const command = commandFromArgv();
+
+    exitWithJson({cancelled: true, ...(command ? {command} : {}), ok: true}, 0);
+    if (!isJsonMode()) {
+      cancel(`${chalk.red('✖')} Operation cancelled`);
+    }
     process.exit(0);
   }
 };

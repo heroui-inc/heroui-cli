@@ -96,10 +96,12 @@ export async function installAction(options: CommandOptions) {
     }
   }
 
-  const isConfirmed = await getSelect('Proceed with installation?', [
-    {title: 'Yes', value: true},
-    {title: 'No', value: false}
-  ]);
+  const isConfirmed = isJsonMode()
+    ? true
+    : await getSelect('Proceed with installation?', [
+        {title: 'Yes', value: true},
+        {title: 'No', value: false}
+      ]);
 
   if (!isConfirmed) {
     exitWithJson({cancelled: true, command: 'install', ok: true}, 0);

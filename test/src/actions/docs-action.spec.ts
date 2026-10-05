@@ -190,4 +190,44 @@ describe('docsAction', () => {
       'HEROUI-MIGRATION-AGENTS-MD-START'
     );
   });
+
+  it('does not prompt in JSON mode when the flags are complete', async () => {
+    installExitMock();
+    store.json = true;
+    writePackage({});
+
+    await expect(docsAction({migration: true, output: 'AGENTS.md'})).rejects.toMatchObject({
+      code: 0
+    });
+    expect(getConfirm).not.toHaveBeenCalled();
+    expect(getSelect).not.toHaveBeenCalled();
+  });
+
+  it('fails in JSON mode when the library or output is missing', async () => {
+    installExitMock();
+    store.json = true;
+    const read = captureStdout();
+
+    writePackage({});
+
+    await expect(docsAction({})).rejects.toMatchObject({code: 1});
+    expect(JSON.parse(read())).toMatchObject({
+      command: 'agents-md',
+      ok: false
+    });
+    expect(getSelect).not.toHaveBeenCalled();
+  });
+
+  it('fails in JSON mode when HeroUI v3 requirements are not met', async () => {
+    installExitMock();
+    store.json = true;
+    const read = captureStdout();
+
+    writePackage({'@heroui/react': '2.0.0', react: '18.0.0', tailwindcss: '3.4.0'});
+
+    await expect(docsAction({output: 'AGENTS.md', react: true})).rejects.toMatchObject({code: 1});
+    expect(JSON.parse(read())).toMatchObject({command: 'agents-md', ok: false});
+    expect(getConfirm).not.toHaveBeenCalled();
+    expect(pullDocs).not.toHaveBeenCalled();
+  });
 });
