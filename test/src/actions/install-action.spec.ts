@@ -46,6 +46,7 @@ describe('installAction', () => {
   let workspace = '';
 
   afterEach(() => {
+    store.debug = false;
     store.json = false;
     vi.clearAllMocks();
     vi.restoreAllMocks();
@@ -135,6 +136,26 @@ describe('installAction', () => {
       peerDependencies: ['react@19.0.0']
     });
     expect(getSelect).not.toHaveBeenCalled();
+  });
+
+  it('skips the package manager in debug mode', async () => {
+    installExitMock();
+    store.debug = true;
+    getCacheExecData.mockImplementation(async (cmd: string) => {
+      if (cmd.includes('peerDependencies')) {
+        return JSON.stringify({react: '>=19.0.0'});
+      }
+      if (cmd.includes('version')) {
+        return JSON.stringify('19.0.0');
+      }
+
+      return '{}';
+    });
+
+    await expect(
+      installAction({packagePath: writePackage({dependencies: {}})})
+    ).rejects.toMatchObject({code: 0});
+    expect(exec).not.toHaveBeenCalled();
   });
 
   it('stops when installation is declined', async () => {

@@ -44,6 +44,7 @@ describe('upgradeAction', () => {
   let workspace = '';
 
   afterEach(() => {
+    store.debug = false;
     store.json = false;
     vi.clearAllMocks();
     vi.restoreAllMocks();
@@ -134,6 +135,19 @@ describe('upgradeAction', () => {
       upgraded: true
     });
     expect(getSelect).not.toHaveBeenCalled();
+  });
+
+  it('skips the package manager in debug mode', async () => {
+    installExitMock();
+    store.debug = true;
+    getLatestVersion.mockResolvedValue('4.0.0');
+
+    await expect(
+      upgradeAction({
+        packagePath: writePackage({dependencies: {'@heroui/react': '3.0.0'}})
+      })
+    ).rejects.toMatchObject({code: 0});
+    expect(exec).not.toHaveBeenCalled();
   });
 
   it('stops when the upgrade is declined', async () => {

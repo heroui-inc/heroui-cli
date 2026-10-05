@@ -14,6 +14,7 @@ import {getUpgradeVersion} from '@helpers/upgrade';
 import {getVersionAndMode, safeJsonParse, strip} from '@helpers/utils';
 import {resolver} from 'src/constants/path';
 import {HEROUI_PACKAGES, HEROUI_PACKAGES_LABEL} from 'src/constants/required';
+import {store} from 'src/constants/store';
 import {getSelect} from 'src/prompts';
 import {getCacheExecData} from 'src/scripts/cache/cache';
 import {getLatestVersion} from 'src/scripts/helpers';
@@ -116,8 +117,26 @@ export async function installAction(options: CommandOptions) {
     .map((p) => `${p.package}@${strip(p.latestVersion)}`);
 
   const installTargets = [...missing, ...missingPeerDeps];
+  const installCommand = `${currentPkgManager} ${runCmd} ${installTargets.join(' ')}`;
 
-  await exec(`${currentPkgManager} ${runCmd} ${installTargets.join(' ')}`);
+  if (store.debug) {
+    exitWithJson(
+      {
+        command: 'install',
+        debug: true,
+        installed: false,
+        ok: true,
+        packages: [...missing],
+        peerDependencies: missingPeerDeps
+      },
+      0
+    );
+    Logger.newLine();
+    Logger.log(`Debug mode skipped dependency installation:\n${installCommand}`);
+    process.exit(0);
+  }
+
+  await exec(installCommand);
 
   exitWithJson(
     {

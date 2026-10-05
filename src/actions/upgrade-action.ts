@@ -19,6 +19,7 @@ import {
 } from '@helpers/utils';
 import {resolver} from 'src/constants/path';
 import {HEROUI_PACKAGES, HEROUI_PACKAGES_LABEL} from 'src/constants/required';
+import {store} from 'src/constants/store';
 import {getSelect} from 'src/prompts';
 import {compareVersions, getLatestVersion} from 'src/scripts/helpers';
 
@@ -130,8 +131,16 @@ export async function upgradeAction(options: CommandOptions) {
   const {install} = getPackageManagerInfo(packageManager);
   const allUpgradable = [...upgradable, ...peerUpgradable];
   const installCmd = allUpgradable.map((u) => `${u.pkg}@${u.latest}`).join(' ');
+  const upgradeCommand = `${packageManager} ${install} ${installCmd}`;
 
-  await exec(`${packageManager} ${install} ${installCmd}`);
+  if (store.debug) {
+    exitWithJson({command: 'upgrade', debug: true, ok: true, packages, upgraded: false}, 0);
+    Logger.newLine();
+    Logger.log(`Debug mode skipped dependency installation:\n${upgradeCommand}`);
+    process.exit(0);
+  }
+
+  await exec(upgradeCommand);
 
   exitWithJson({command: 'upgrade', ok: true, packages, upgraded: true}, 0);
   Logger.newLine();
