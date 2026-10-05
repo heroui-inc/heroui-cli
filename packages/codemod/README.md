@@ -205,7 +205,7 @@ Whether it's a feature request, bug report, or a project to showcase, please get
 
 - [Discord](https://discord.gg/9b6yyZKmH4)
 - [Twitter](https://twitter.com/hero_ui)
-- [GitHub Discussions](https://github.com/nextui-org/nextui-cli/discussions)
+- [GitHub Discussions](https://github.com/heroui-inc/heroui-cli/discussions)
 
 ## Contributing
 
