@@ -1,5 +1,6 @@
 import {execSync} from 'node:child_process';
 
+import {CLIError} from '@helpers/errors';
 import {exec} from '@helpers/exec';
 import {Logger} from '@helpers/logger';
 import {afterEach, describe, expect, it, vi} from 'vitest';
@@ -32,5 +33,19 @@ describe('exec', () => {
 
     await expect(exec('true', {logCmd: false})).resolves.toBe('');
     expect(log).not.toHaveBeenCalled();
+  });
+
+  it('wraps a package-manager failure as a CLI error', async () => {
+    vi.mocked(execSync).mockImplementationOnce(() => {
+      throw new Error('npm ERR! code ETARGET');
+    });
+
+    await expect(exec('npm install', {logCmd: false})).rejects.toThrow(CLIError);
+    vi.mocked(execSync).mockImplementationOnce(() => {
+      throw new Error('npm ERR! code ETARGET');
+    });
+    await expect(exec('npm install', {logCmd: false})).rejects.toThrow(
+      'Command failed: npm install'
+    );
   });
 });
