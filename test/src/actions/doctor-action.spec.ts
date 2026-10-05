@@ -80,9 +80,25 @@ describe('doctorAction', () => {
     expect(success).toHaveBeenCalledWith(expect.stringContaining('no detected issues'));
   });
 
+  it('uses singular grammar when one issue is found', async () => {
+    installExitMock();
+    getCacheExecData.mockResolvedValue(JSON.stringify({react: '>=19.0.0'}));
+    const error = vi.spyOn(Logger, 'error').mockImplementation(() => {});
+
+    await expect(
+      doctorAction({
+        packagePath: writePackage({
+          dependencies: {'@heroui/react': '3.0.0', '@heroui/styles': '3.0.0'}
+        })
+      })
+    ).rejects.toMatchObject({code: 1});
+    expect(error.mock.calls.flat().join('\n')).toContain('requires attention');
+  });
+
   it('fails when a package or peer dependency is missing or too old', async () => {
     installExitMock();
     getCacheExecData.mockResolvedValue(JSON.stringify({react: '>=19.0.0'}));
+    const error = vi.spyOn(Logger, 'error').mockImplementation(() => {});
 
     await expect(
       doctorAction({
@@ -91,6 +107,7 @@ describe('doctorAction', () => {
         })
       })
     ).rejects.toMatchObject({code: 1});
+    expect(error.mock.calls.flat().join('\n')).toContain('issues that require attention');
 
     getCacheExecData.mockResolvedValue(JSON.stringify({react: '>=19.0.0'}));
     await expect(
