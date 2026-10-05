@@ -5,7 +5,7 @@
   </a>
 </p>
 
-</br>
+<br />
 
 The CLI provides a comprehensive suite of tools to migrate your codebase from NextUI to HeroUI. It renames `@nextui-org/*` packages and APIs to `@heroui/*`. It does not upgrade a project to HeroUI v3. For the v3 migration guides, run `heroui agents-md --migration`.
 
@@ -34,7 +34,7 @@ npm install -g @heroui/codemod
 ```bash
 Usage: @heroui/codemod [command]
 
-A CLI tool for migrating your codebase to heroui
+HeroUI Codemod provides transformations to help migrate your codebase from NextUI to HeroUI
 
 Arguments:
   codemod                Specify which codemod to run
@@ -47,7 +47,7 @@ Options:
   -f, --format           Format the affected files with Prettier
 
 Commands:
-  migrate [projectPath] Migrate your codebase to use heroui
+  migrate [projectPath] Migrates your codebase to use the heroui
 ```
 
 ## Codemod Arguments
@@ -66,7 +66,7 @@ Example:
 
 ### package-json-package-name
 
-Updates all package names in `package.json` from `@nextui-org/*` to `@heroui/*`.
+Renames `@nextui-org/*` entries in `dependencies` and `devDependencies` to `@heroui/*`, and sets each version to the latest release. If that lookup fails, the version is set to `latest`.
 
 ```bash
 heroui-codemod package-json-package-name
@@ -74,11 +74,11 @@ heroui-codemod package-json-package-name
 
 Example:
 
-1. `@nextui-org/button: x.xx.xxx` to `@heroui/button: x.xx.xxx`
+1. `"@nextui-org/button": "2.4.8"` to `"@heroui/button": "<latest>"`
 
 ### heroui-provider
 
-Migrate `NextUIProvider` to `HeroProvider`.
+Migrate `NextUIProvider` to `HeroUIProvider`.
 
 ```bash
 heroui-codemod heroui-provider
@@ -86,13 +86,13 @@ heroui-codemod heroui-provider
 
 Example:
 
-1. `import { NextUIProvider } from "@nextui-org/react"` to `import { HeroProvider } from "@heroui/react"`
+1. `import { NextUIProvider } from "@nextui-org/react"` to `import { HeroUIProvider } from "@heroui/react"`
 
-2. `<NextUIProvider>...</NextUIProvider>` to `<HeroProvider>...</HeroProvider>`
+2. `<NextUIProvider>...</NextUIProvider>` to `<HeroUIProvider>...</HeroUIProvider>`
 
 ### tailwindcss-heroui
 
-Migrate all the `tailwind.config.(j|t)s` file to use the `@heroui` package.
+Updates `tailwind.config.js` and `tailwind.config.ts` to use the `@heroui` package.
 
 ```bash
 heroui-codemod tailwindcss-heroui
@@ -106,11 +106,9 @@ Example:
 
 3. `content: ['./node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}']` to `content: ['./node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}']`
 
-4. `var(--nextui-primary-500)` to `var(--heroui-primary-500)`
-
 ### css-variables
 
-Migrate all the css variables in the file starting with `--nextui-` to `--heroui-`.
+Rewrites CSS variables that start with `--nextui-` to `--heroui-` in the scanned source files.
 
 ```bash
 heroui-codemod css-variables
@@ -134,7 +132,7 @@ Example:
 
 ## Migrate Command
 
-Migrate your entire codebase from NextUI to heroui. You can choose which codemods to run during the migration process.
+Migrate your entire codebase from NextUI to HeroUI. Each step asks before it changes files.
 
 ```bash
 heroui-codemod migrate [projectPath] [--format]
@@ -146,54 +144,61 @@ Example:
 heroui-codemod migrate ./my-nextui-app
 ```
 
+The npmrc step runs only for pnpm. Remaining `@nextui-org` references are offered when any are left. Formatting is offered unless you pass `--format`, which formats without asking. Dependencies are reinstalled only after `package.json` changes.
+
 Output:
 
 ```bash
-heroui Codemod v0.0.1
+HeroUI Codemod <version>
 
-┌   Starting to migrate nextui to heroui
+┌  Starting to migrate NextUI to HeroUI
 │
 ◇  1. Migrating "package.json"
 │
 ◇  Do you want to migrate package.json?
 │  Yes
 │
-◇  Migrated package.json
-│
 ◇  2. Migrating import "nextui" to "heroui"
 │
 ◇  Do you want to migrate import nextui to heroui?
 │  Yes
-│
-◇  Migrated import nextui to heroui
 │
 ◇  3. Migrating "NextUIProvider" to "HeroUIProvider"
 │
 ◇  Do you want to migrate NextUIProvider to HeroUIProvider?
 │  Yes
 │
-◇  Migrated NextUIProvider to HeroUIProvider
-│
 ◇  4. Migrating "tailwindcss"
 │
 ◇  Do you want to migrate tailwindcss?
 │  Yes
-│
-◇  Migrated tailwindcss
 │
 ◇  5. Migrating "css variables"
 │
 ◇  Do you want to migrate css variables?
 │  Yes
 │
-◇  Migrated css variables
-│
 ◇  6. Migrating "npmrc" (Pnpm only)
 │
 ◇  Do you want to migrate npmrc (Pnpm only) ?
 │  Yes
 │
-◇  Migrated npmrc
+◇  7. Remaining files with "@nextui-org" (1)
+│
+│  src/theme.ts
+│
+◇  Do you want to replace all remaining instances of "@nextui-org" with "@heroui"?
+│  Yes
+│
+◇  8. Formatting affected files (Optional)
+│
+◇  Do you want to format affected files? (12)
+│  Yes
+│
+◇  9. Reinstalling the dependencies
+│
+◇  Do you want to reinstall the dependencies?
+│  Yes
 │
 └  ✅ Migration completed!
 ```
@@ -204,7 +209,7 @@ We're excited to see the community adopt HeroUI CLI, raise issues, and provide f
 Whether it's a feature request, bug report, or a project to showcase, please get involved!
 
 - [Discord](https://discord.gg/9b6yyZKmH4)
-- [Twitter](https://twitter.com/hero_ui)
+- [X](https://x.com/hero_ui)
 - [GitHub Discussions](https://github.com/heroui-inc/heroui-cli/discussions)
 
 ## Contributing
@@ -217,4 +222,4 @@ Please adhere to this project's [CODE_OF_CONDUCT](https://github.com/heroui-inc/
 
 ## License
 
-[MIT](https://choosealicense.com/licenses/mit/)
+[MIT](https://github.com/heroui-inc/heroui-cli/blob/main/license)
