@@ -114,11 +114,13 @@ export async function doctorAction(options: DoctorCommandOptions) {
 
   exitWithJson({command: 'doctor', issues, ok: false}, 1);
 
+  const issueCount = problemRecord.length;
+  const issueLabel = issueCount === 1 ? 'issue' : 'issues';
+  const requireLabel = issueCount === 1 ? 'requires' : 'require';
+
   Logger.prefix(
     'error',
-    `❌ Your project has ${chalk.underline(problemRecord.length)} issue${
-      problemRecord.length === 1 ? '' : 's'
-    } that require attention`
+    `❌ Your project has ${chalk.underline(issueCount)} ${issueLabel} that ${requireLabel} attention`
   );
   Logger.newLine();
 
