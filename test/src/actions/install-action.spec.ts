@@ -101,6 +101,41 @@ describe('installAction', () => {
     expect(exec).toHaveBeenCalledWith('pnpm add @heroui/react @heroui/styles react@19.0.0');
   });
 
+  it('updates an installed peer that is below the declared range', async () => {
+    installExitMock();
+    getCacheExecData.mockImplementation(async (cmd: string) => {
+      if (cmd.includes('peerDependencies')) {
+        return JSON.stringify({react: '>=19.0.0'});
+      }
+      if (cmd.includes('version')) {
+        return JSON.stringify('19.0.0');
+      }
+
+      return '{}';
+    });
+
+    await expect(
+      installAction({packagePath: writePackage({dependencies: {react: '18.0.0'}})})
+    ).rejects.toBeInstanceOf(ExitError);
+    expect(exec).toHaveBeenCalledWith('pnpm add @heroui/react @heroui/styles react@19.0.0');
+  });
+
+  it('leaves an installed peer that already satisfies the range', async () => {
+    installExitMock();
+    getCacheExecData.mockImplementation(async (cmd: string) => {
+      if (cmd.includes('peerDependencies')) {
+        return JSON.stringify({react: '>=19.0.0'});
+      }
+
+      return '{}';
+    });
+
+    await expect(
+      installAction({packagePath: writePackage({dependencies: {react: '19.0.0'}})})
+    ).rejects.toBeInstanceOf(ExitError);
+    expect(exec).toHaveBeenCalledWith('pnpm add @heroui/react @heroui/styles');
+  });
+
   it('prints installed packages and peers as JSON', async () => {
     installExitMock();
     store.json = true;

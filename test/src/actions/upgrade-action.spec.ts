@@ -103,9 +103,18 @@ describe('upgradeAction', () => {
   it('upgrades confirmed packages and outdated peers', async () => {
     installExitMock();
     getLatestVersion.mockImplementation(async (pkg: string) =>
-      pkg === 'react' ? '19.0.0' : '4.0.0'
+      pkg === 'react' ? '20.0.0' : '4.0.0'
     );
-    getCacheExecData.mockResolvedValue(JSON.stringify({react: '>=19.0.0'}));
+    getCacheExecData.mockImplementation(async (cmd: string) => {
+      if (cmd.includes('peerDependencies')) {
+        return JSON.stringify({react: '>=19.0.0'});
+      }
+      if (cmd.includes('version')) {
+        return JSON.stringify('19.2.0');
+      }
+
+      return '{}';
+    });
 
     await expect(
       upgradeAction({
@@ -115,7 +124,7 @@ describe('upgradeAction', () => {
       })
     ).rejects.toBeInstanceOf(ExitError);
     expect(exec).toHaveBeenCalledWith(
-      'pnpm add @heroui/react@4.0.0 @heroui/styles@4.0.0 react@19.0.0'
+      'pnpm add @heroui/react@4.0.0 @heroui/styles@4.0.0 react@19.2.0'
     );
   });
 
@@ -125,9 +134,18 @@ describe('upgradeAction', () => {
     const read = captureStdout();
 
     getLatestVersion.mockImplementation(async (pkg: string) =>
-      pkg === 'react' ? '19.0.0' : '4.0.0'
+      pkg === 'react' ? '20.0.0' : '4.0.0'
     );
-    getCacheExecData.mockResolvedValue(JSON.stringify({react: '>=19.0.0'}));
+    getCacheExecData.mockImplementation(async (cmd: string) => {
+      if (cmd.includes('peerDependencies')) {
+        return JSON.stringify({react: '>=19.0.0'});
+      }
+      if (cmd.includes('version')) {
+        return JSON.stringify('19.2.0');
+      }
+
+      return '{}';
+    });
 
     await expect(
       upgradeAction({
@@ -142,7 +160,7 @@ describe('upgradeAction', () => {
       packages: [
         {from: '3.0.0', package: '@heroui/react', to: '4.0.0'},
         {from: '3.0.0', package: '@heroui/styles', to: '4.0.0'},
-        {from: '18.0.0', package: 'react', to: '19.0.0'}
+        {from: '18.0.0', package: 'react', to: '19.2.0'}
       ],
       upgraded: true
     });

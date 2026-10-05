@@ -9,7 +9,7 @@ import {exitWithJson, isJsonMode} from '@helpers/json-output';
 import {Logger} from '@helpers/logger';
 import {outputBox} from '@helpers/output-info';
 import {getPackageInfo} from '@helpers/package';
-import {collectPeerDependencies} from '@helpers/peer-deps';
+import {collectPeerDependencies, resolvePeerVersion} from '@helpers/peer-deps';
 import {getUpgradeVersion} from '@helpers/upgrade';
 import {
   getColorVersion,
@@ -60,9 +60,9 @@ export async function upgradeAction(options: CommandOptions) {
     const requiredMinVersion = transformPeerVersion(peerVersion);
 
     if (compareVersions(currentVersion, requiredMinVersion) < 0) {
-      const latestVersion = await getLatestVersion(peerPkg);
+      const resolvedVersion = await resolvePeerVersion(peerPkg, peerVersion);
 
-      peerUpgradable.push({current: currentVersion, latest: latestVersion, pkg: peerPkg});
+      peerUpgradable.push({current: currentVersion, latest: resolvedVersion, pkg: peerPkg});
     }
   }
 
