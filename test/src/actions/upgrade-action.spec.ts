@@ -10,7 +10,9 @@ import {afterEach, describe, expect, it, vi} from 'vitest';
 import {ExitError, installExitMock} from 'test/helpers/exit';
 import {captureStdout} from 'test/helpers/stdout';
 
-const getCacheExecData = vi.hoisted(() => vi.fn(async () => '{}'));
+const getCacheExecData = vi.hoisted(() =>
+  vi.fn<(cmd: string) => Promise<string>>(async () => '{}')
+);
 const getLatestVersion = vi.hoisted(() =>
   vi.fn<(pkg: string) => Promise<string>>(async () => '3.0.0')
 );
