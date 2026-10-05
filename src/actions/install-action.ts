@@ -9,32 +9,14 @@ import {exitWithJson, isJsonMode} from '@helpers/json-output';
 import {Logger} from '@helpers/logger';
 import {outputBox, outputComponents} from '@helpers/output-info';
 import {getPackageInfo, transformPackageDetail} from '@helpers/package';
-import {collectPeerDependencies} from '@helpers/peer-deps';
+import {collectPeerDependencies, resolvePeerVersion} from '@helpers/peer-deps';
 import {getUpgradeVersion} from '@helpers/upgrade';
-import {getVersionAndMode, safeJsonParse, strip} from '@helpers/utils';
+import {getVersionAndMode, strip, transformPeerVersion} from '@helpers/utils';
 import {resolver} from 'src/constants/path';
 import {HEROUI_PACKAGES, HEROUI_PACKAGES_LABEL} from 'src/constants/required';
+import {store} from 'src/constants/store';
 import {getSelect} from 'src/prompts';
-import {getCacheExecData} from 'src/scripts/cache/cache';
-import {getLatestVersion} from 'src/scripts/helpers';
-
-/**
- * Resolve the highest published version satisfying a peer range.
- *
- * Installing the `latest` dist-tag instead can violate the range the package
- * actually declares. The spec is quoted because ranges contain characters the
- * shell would otherwise interpret, and the resolved value is a plain version
- * so it stays safe to interpolate into the install command.
- */
-async function resolvePeerVersion(pkg: string, range: string): Promise<string> {
-  const raw = await getCacheExecData(
-    `npm view ${JSON.stringify(`${pkg}@${range}`)} version --json`
-  );
-  const parsed = safeJsonParse<string | string[] | undefined>(raw, undefined);
-  const resolved = Array.isArray(parsed) ? parsed.at(-1) : parsed;
-
-  return resolved || (await getLatestVersion(pkg));
-}
+import {compareVersions} from 'src/scripts/helpers';
 
 async function getPeerDepOptions(
   packages: string[],
@@ -49,9 +31,13 @@ async function getPeerDepOptions(
       ? getVersionAndMode(allDependencies, peerPkg)
       : {};
 
+    const belowRange =
+      isInstalled && compareVersions(currentVersion, transformPeerVersion(peerRange)) < 0;
+    const satisfied = isInstalled && !belowRange;
+
     peerDepOptions.push({
-      isLatest: isInstalled,
-      latestVersion: isInstalled ? currentVersion : await resolvePeerVersion(peerPkg, peerRange),
+      isLatest: satisfied,
+      latestVersion: satisfied ? currentVersion : await resolvePeerVersion(peerPkg, peerRange),
       package: peerPkg,
       version: isInstalled ? currentVersion : 'Missing',
       versionMode
@@ -96,10 +82,12 @@ export async function installAction(options: CommandOptions) {
     }
   }
 
-  const isConfirmed = await getSelect('Proceed with installation?', [
-    {title: 'Yes', value: true},
-    {title: 'No', value: false}
-  ]);
+  const isConfirmed = isJsonMode()
+    ? true
+    : await getSelect('Proceed with installation?', [
+        {title: 'Yes', value: true},
+        {title: 'No', value: false}
+      ]);
 
   if (!isConfirmed) {
     exitWithJson({cancelled: true, command: 'install', ok: true}, 0);
@@ -114,8 +102,26 @@ export async function installAction(options: CommandOptions) {
     .map((p) => `${p.package}@${strip(p.latestVersion)}`);
 
   const installTargets = [...missing, ...missingPeerDeps];
+  const installCommand = `${currentPkgManager} ${runCmd} ${installTargets.join(' ')}`;
 
-  await exec(`${currentPkgManager} ${runCmd} ${installTargets.join(' ')}`);
+  if (store.debug) {
+    exitWithJson(
+      {
+        command: 'install',
+        debug: true,
+        installed: false,
+        ok: true,
+        packages: [...missing],
+        peerDependencies: missingPeerDeps
+      },
+      0
+    );
+    Logger.newLine();
+    Logger.log(`Debug mode skipped dependency installation:\n${installCommand}`);
+    process.exit(0);
+  }
+
+  await exec(installCommand);
 
   exitWithJson(
     {

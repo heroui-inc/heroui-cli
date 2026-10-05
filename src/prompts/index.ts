@@ -1,11 +1,17 @@
 import prompts from '@winches/prompts';
 import chalk from 'chalk';
 
+import {commandFromArgv, exitWithJson, isJsonMode} from '@helpers/json-output';
 import {Logger} from '@helpers/logger';
 
 const defaultPromptOptions: prompts.Options = {
   onCancel: () => {
-    Logger.log(`${chalk.red('✖')} Operation cancelled`);
+    const command = commandFromArgv();
+
+    exitWithJson({cancelled: true, ...(command ? {command} : {}), ok: true}, 0);
+    if (!isJsonMode()) {
+      Logger.log(`${chalk.red('✖')} Operation cancelled`);
+    }
     process.exit(0);
   }
 };

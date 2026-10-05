@@ -33,10 +33,12 @@ export async function uninstallAction(options: CommandOptions) {
     });
   }
 
-  const isConfirmed = await getSelect('Confirm uninstallation of these packages:', [
-    {title: 'Yes', value: true},
-    {title: 'No', value: false}
-  ]);
+  const isConfirmed = isJsonMode()
+    ? true
+    : await getSelect('Confirm uninstallation of these packages:', [
+        {title: 'Yes', value: true},
+        {title: 'No', value: false}
+      ]);
 
   if (!isConfirmed) {
     exitWithJson({cancelled: true, command: 'uninstall', ok: true, packages: [...installed]}, 0);

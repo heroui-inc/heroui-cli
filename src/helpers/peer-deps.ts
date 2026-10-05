@@ -1,4 +1,5 @@
 import {getCacheExecData} from 'src/scripts/cache/cache';
+import {getLatestVersion} from 'src/scripts/helpers';
 
 import {safeJsonParse} from './utils';
 
@@ -35,4 +36,26 @@ export async function collectPeerDependencies(
   }
 
   return collected;
+}
+
+/**
+ * Resolve the highest published version satisfying a peer range.
+ *
+ * Installing the `latest` dist-tag instead can violate the range the package
+ * actually declares. The spec is quoted because ranges contain characters the
+ * shell would otherwise interpret, and the resolved value is a plain version
+ * so it stays safe to interpolate into the install command.
+ */
+export async function resolvePeerVersion(pkg: string, range: string): Promise<string> {
+  const raw = await getCacheExecData(
+    `npm view ${JSON.stringify(`${pkg}@${range}`)} version --json`
+  );
+  const parsed = safeJsonParse<string | string[] | undefined>(raw, undefined);
+  const resolved = Array.isArray(parsed) ? parsed.at(-1) : parsed;
+
+  if (typeof resolved === 'string' && resolved) {
+    return resolved;
+  }
+
+  return getLatestVersion(pkg);
 }

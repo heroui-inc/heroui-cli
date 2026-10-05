@@ -2,6 +2,7 @@ import type {CommandName, SAFE_ANY} from '@helpers/type';
 
 import chalk from 'chalk';
 
+import {CLIError} from '@helpers/errors';
 import {isJsonMode, printJson} from '@helpers/json-output';
 import {Logger, gradientString} from '@helpers/logger';
 import {findMostMatchText} from '@helpers/math-diff';
@@ -149,7 +150,21 @@ export function handleUncaughtException(error: Error): void {
   process.exit(1);
 }
 
+function isCommanderUsageError(error: Error): boolean {
+  const code = (error as {code?: unknown}).code;
+
+  return typeof code === 'string' && code.startsWith('commander.');
+}
+
 export async function handleParseError(error: Error): Promise<void> {
+  if (error instanceof CLIError || isCommanderUsageError(error)) {
+    exitFatalJson(error.message);
+    Logger.newLine();
+    Logger.error(error.message);
+    Logger.newLine();
+    process.exit(1);
+  }
+
   const isAgentsMd = process.argv.includes('agents-md');
 
   if (isAgentsMd) {

@@ -18,7 +18,7 @@ The CLI offers a suite of commands to initialize, manage, and improve your HeroU
 
 ## Quick Start
 
-> **Note**: The HeroUI CLI requires [Node.js](https://nodejs.org/en) _22+_ or later
+> **Note**: The HeroUI CLI requires [Node.js](https://nodejs.org/en) _22.22.0_ or later
 
 You can choose the following ways to start the HeroUI CLI.
 
@@ -44,7 +44,7 @@ Options:
   --no-cache                     Disable cache, by default data will be cached for 30m after the first request
   -d, --debug                    Debug mode will not install dependencies
   --json                         Output the result as JSON
-  -h --help                      Display help information for commands
+  -h, --help                     Display help information for commands
 
 Commands:
   init [options] [projectName]   Initializes a new project
@@ -70,7 +70,7 @@ Registry lookups are cached for 30 minutes in a per-user cache directory:
 | Linux    | `$XDG_CACHE_HOME/heroui-cli` or `~/.cache/heroui-cli` |
 | Windows  | `%LOCALAPPDATA%\heroui-cli\Cache`                     |
 
-Set `HEROUI_CACHE_DIR` to store the cache somewhere else, or pass `--no-cache` to skip it. When no location is writable, the CLI keeps working without caching.
+`XDG_CACHE_HOME` is checked on every platform, including macOS and Windows, before the default in the table. Set `HEROUI_CACHE_DIR` to store the cache somewhere else, or pass `--no-cache` to skip it. When no location is writable, the CLI keeps working without caching.
 
 ## Analytics
 
@@ -92,8 +92,8 @@ heroui init [projectName] [options]
 
 #### Init Options
 
-- `-t --template [string]` The template to use for the new project e.g. app, pages, vite, react-router
-- `-p --package [string]` The package manager to use for the new project
+- `-t, --template [string]` The template to use for the new project e.g. app, pages, vite, react-router
+- `-p, --package [string]` The package manager to use for the new project
 
 ##### Example
 
@@ -152,7 +152,7 @@ heroui install [options]
 
 #### Install Options
 
-- `-p --packagePath` [string] The path to the package.json file
+- `-p, --packagePath` [string] The path to the package.json file
 
 ##### Example
 
@@ -195,7 +195,7 @@ heroui upgrade [options]
 
 #### Upgrade Options
 
-- `-p --packagePath` [string] The path to the package.json file
+- `-p, --packagePath` [string] The path to the package.json file
 
 ##### Example
 
@@ -230,7 +230,7 @@ heroui uninstall [options]
 
 #### Uninstall Options
 
-- `-p --packagePath` [string] The path to the package.json file
+- `-p, --packagePath` [string] The path to the package.json file
 
 ##### Example
 
@@ -267,7 +267,7 @@ heroui list [options]
 
 #### List Options
 
-- `-p --packagePath` [string] The path to the package.json file
+- `-p, --packagePath` [string] The path to the package.json file
 
 ##### Example
 
@@ -337,7 +337,7 @@ heroui doctor [options]
 
 #### Doctor Options
 
-- `-p --packagePath` [string] The path to the package.json file
+- `-p, --packagePath` [string] The path to the package.json file
 
 ##### Example
 
@@ -428,7 +428,7 @@ heroui agents-md [options]
 - `--react` [boolean] Include React docs only (one library at a time)
 - `--native` [boolean] Include Native docs only
 - `--migration` [boolean] Include HeroUI v2 to v3 migration docs only
-- `--output <file>` [string] Target file path (e.g., `AGENTS.md`, `CLAUDE.md`)
+- `--output <file...>` [string] Target file path(s). Pass more than one path to update several files, for example `AGENTS.md CLAUDE.md`
 - `--ssh` [boolean] Use SSH instead of HTTPS for git clone
 
 #### Example

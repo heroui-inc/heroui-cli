@@ -1,7 +1,9 @@
+import {store} from 'src/constants/store';
 import {getConfirm, getSelect, getText} from 'src/prompts';
 import {afterEach, describe, expect, it, vi} from 'vitest';
 
 import {ExitError, installExitMock} from 'test/helpers/exit';
+import {captureStdout} from 'test/helpers/stdout';
 
 const prompts = vi.hoisted(() => vi.fn());
 
@@ -11,6 +13,7 @@ vi.mock('@winches/prompts', () => ({
 
 describe('prompts', () => {
   afterEach(() => {
+    store.json = false;
     prompts.mockReset();
     vi.restoreAllMocks();
   });
@@ -44,5 +47,22 @@ describe('prompts', () => {
     });
 
     await expect(getText('name')).rejects.toBeInstanceOf(ExitError);
+  });
+
+  it('prints a cancellation object when JSON mode is on', async () => {
+    installExitMock();
+    store.json = true;
+    const read = captureStdout();
+
+    prompts.mockImplementation(async (_question, options: {onCancel: () => void}) => {
+      options.onCancel();
+
+      return {value: undefined};
+    });
+
+    await expect(getSelect('manager', [{title: 'pnpm', value: 'pnpm'}])).rejects.toMatchObject({
+      code: 0
+    });
+    expect(JSON.parse(read())).toEqual({cancelled: true, ok: true});
   });
 });

@@ -1,7 +1,7 @@
 import type {Agent} from '@helpers/detect';
 import type {GetUnionLastValue, InitOptions} from '@helpers/type';
 
-import {existsSync, renameSync} from 'node:fs';
+import {existsSync, renameSync, rmSync} from 'node:fs';
 
 import * as p from '@clack/prompts';
 import chalk from 'chalk';
@@ -10,7 +10,7 @@ import {join} from 'pathe';
 import {changeNpmrc} from '@helpers/actions/init/change-npmrc';
 import {downloadTemplate} from '@helpers/fetch';
 import {checkInitOptions} from '@helpers/init';
-import {exitWithJson} from '@helpers/json-output';
+import {exitWithJson, isJsonMode} from '@helpers/json-output';
 import {getPackageManagerInfo, strip} from '@helpers/utils';
 import {selectClack, taskClack, textClack} from 'src/prompts/clack';
 
@@ -41,7 +41,9 @@ function assertNeverTemplate(template: never): never {
  * a path the user did not ask for.
  */
 function abortInit(message: string): never {
-  p.cancel(message);
+  if (!isJsonMode()) {
+    p.cancel(message);
+  }
   exitWithJson({command: 'init', error: strip(message), ok: false}, 1);
   process.exit(1);
 }
@@ -63,7 +65,9 @@ export async function initAction(_projectName?: string, options: InitOptions = {
   checkInitOptions(_template, _package);
 
   /** ======================== Welcome title ======================== */
-  p.intro(chalk.cyanBright('Create a new project'));
+  if (!isJsonMode()) {
+    p.intro(chalk.cyanBright('Create a new project'));
+  }
 
   /** ======================== Get the init info ======================== */
   const {packageName, projectName, template} = await getTableInfo(
@@ -104,12 +108,14 @@ export async function initAction(_projectName?: string, options: InitOptions = {
   changeNpmrc(npmrcFile);
 
   /** ======================== Add guide ======================== */
-  p.note(
-    `cd ${chalk.cyanBright(projectName)}\n${chalk.cyanBright(packageName)} install`,
-    'Next steps'
-  );
+  if (!isJsonMode()) {
+    p.note(
+      `cd ${chalk.cyanBright(projectName)}\n${chalk.cyanBright(packageName)} install`,
+      'Next steps'
+    );
 
-  p.outro(`🚀 Get started with ${chalk.cyanBright(`${packageName} ${run} dev`)}`);
+    p.outro(`🚀 Get started with ${chalk.cyanBright(`${packageName} ${run} dev`)}`);
+  }
 
   exitWithJson({command: 'init', ok: true, packageManager: packageName, projectName, template}, 0);
   process.exit(0);
@@ -133,18 +139,24 @@ async function generateTemplate(url: string, extractDir: string) {
   });
 }
 
+function removeExtract(originName: string) {
+  rmSync(join(ROOT, originName), {force: true, recursive: true});
+}
+
 function renameTemplate(originName: string, projectName: string) {
   const target = join(ROOT, projectName);
 
   // The download sits between the first existence check and this rename, so
   // re-check rather than overwriting a directory created in the meantime
   if (existsSync(target)) {
+    removeExtract(originName);
     abortInit(`The project name ${chalk.redBright(projectName)} already exists`);
   }
 
   try {
     renameSync(join(ROOT, originName), target);
   } catch (error) {
+    removeExtract(originName);
     abortInit(`rename Error: ${error}`);
   }
 }
@@ -183,6 +195,10 @@ async function getTableInfo(packageName?: string, projectName?: string, template
       value: 'react-router'
     }
   ];
+
+  if (isJsonMode() && (!template || !projectName || !packageName)) {
+    abortInit('Pass a project name, --template, and --package when using --json.');
+  }
 
   if (!template) {
     template = (await selectClack({

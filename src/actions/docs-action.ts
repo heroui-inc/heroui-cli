@@ -147,9 +147,11 @@ function validateRequirements(cwd: string, selection: DocSelection): ValidationR
 
 async function confirmRequirements(cwd: string, selection: DocSelection): Promise<boolean> {
   if (selection === 'migration') {
-    const confirmed = await getConfirm('Do you want to continue and install the migration docs?');
+    if (isJsonMode()) {
+      return true;
+    }
 
-    return confirmed;
+    return getConfirm('Do you want to continue and install the migration docs?');
   }
 
   const validation = validateRequirements(cwd, selection);
@@ -158,21 +160,21 @@ async function confirmRequirements(cwd: string, selection: DocSelection): Promis
     return true;
   }
 
-  if (!isJsonMode()) {
-    Logger.warn('\n⚠️  HeroUI v3 requirements not met:');
-    for (const warning of validation.warnings) {
-      Logger.warn(`  • ${warning}`);
-    }
-    Logger.newLine();
-    Logger.log(
-      'The downloaded documentation is for HeroUI v3 and may not be compatible with your current setup.'
-    );
-    Logger.newLine();
+  if (isJsonMode()) {
+    throw new ValidationError(validation.warnings.join('\n'));
   }
 
-  const confirmed = await getConfirm('Do you want to continue anyway?');
+  Logger.warn('\n⚠️  HeroUI v3 requirements not met:');
+  for (const warning of validation.warnings) {
+    Logger.warn(`  • ${warning}`);
+  }
+  Logger.newLine();
+  Logger.log(
+    'The downloaded documentation is for HeroUI v3 and may not be compatible with your current setup.'
+  );
+  Logger.newLine();
 
-  return confirmed;
+  return getConfirm('Do you want to continue anyway?');
 }
 
 export async function docsAction(options: DocsOptions) {
@@ -207,6 +209,10 @@ export async function docsAction(options: DocsOptions) {
     } else {
       // Autodetect installed packages
       const {hasNative, hasReact} = detectInstalledPackages(cwd);
+
+      if (isJsonMode() && hasReact === hasNative) {
+        throw new ValidationError('Pass --react, --native, or --migration when using --json.');
+      }
 
       if (hasReact && hasNative) {
         // Both found - prompt for selection
@@ -247,6 +253,8 @@ export async function docsAction(options: DocsOptions) {
     if (!outputFiles) {
       if (options.output) {
         outputFiles = Array.isArray(options.output) ? options.output : [options.output];
+      } else if (isJsonMode()) {
+        throw new ValidationError('Pass --output <file> when using --json.');
       } else {
         const promptedFile = await promptForOutputFile();
 

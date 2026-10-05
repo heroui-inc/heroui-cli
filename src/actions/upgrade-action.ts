@@ -5,11 +5,11 @@ import chalk from 'chalk';
 
 import {detect} from '@helpers/detect';
 import {exec} from '@helpers/exec';
-import {exitWithJson, isJsonMode, printJson} from '@helpers/json-output';
+import {exitWithJson, isJsonMode} from '@helpers/json-output';
 import {Logger} from '@helpers/logger';
 import {outputBox} from '@helpers/output-info';
 import {getPackageInfo} from '@helpers/package';
-import {collectPeerDependencies} from '@helpers/peer-deps';
+import {collectPeerDependencies, resolvePeerVersion} from '@helpers/peer-deps';
 import {getUpgradeVersion} from '@helpers/upgrade';
 import {
   getColorVersion,
@@ -19,6 +19,7 @@ import {
 } from '@helpers/utils';
 import {resolver} from 'src/constants/path';
 import {HEROUI_PACKAGES, HEROUI_PACKAGES_LABEL} from 'src/constants/required';
+import {store} from 'src/constants/store';
 import {getSelect} from 'src/prompts';
 import {compareVersions, getLatestVersion} from 'src/scripts/helpers';
 
@@ -31,15 +32,9 @@ export async function upgradeAction(options: CommandOptions) {
   if (!installed.length) {
     const message = `No HeroUI packages found. Run \`heroui install\` to install ${HEROUI_PACKAGES_LABEL}.`;
 
-    if (isJsonMode()) {
-      printJson({command: 'upgrade', error: message, ok: false});
-
-      return;
-    }
-
+    exitWithJson({command: 'upgrade', error: message, ok: false}, 1);
     Logger.prefix('error', message);
-
-    return;
+    process.exit(1);
   }
 
   // Collect results positionally rather than pushing from concurrent callbacks,
@@ -65,9 +60,9 @@ export async function upgradeAction(options: CommandOptions) {
     const requiredMinVersion = transformPeerVersion(peerVersion);
 
     if (compareVersions(currentVersion, requiredMinVersion) < 0) {
-      const latestVersion = await getLatestVersion(peerPkg);
+      const resolvedVersion = await resolvePeerVersion(peerPkg, peerVersion);
 
-      peerUpgradable.push({current: currentVersion, latest: latestVersion, pkg: peerPkg});
+      peerUpgradable.push({current: currentVersion, latest: resolvedVersion, pkg: peerPkg});
     }
   }
 
@@ -114,10 +109,12 @@ export async function upgradeAction(options: CommandOptions) {
     Logger.newLine();
   }
 
-  const isConfirmed = await getSelect('Would you like to proceed with the upgrade?', [
-    {title: 'Yes', value: true},
-    {title: 'No', value: false}
-  ]);
+  const isConfirmed = isJsonMode()
+    ? true
+    : await getSelect('Would you like to proceed with the upgrade?', [
+        {title: 'Yes', value: true},
+        {title: 'No', value: false}
+      ]);
 
   if (!isConfirmed) {
     exitWithJson({cancelled: true, command: 'upgrade', ok: true, packages}, 0);
@@ -128,8 +125,16 @@ export async function upgradeAction(options: CommandOptions) {
   const {install} = getPackageManagerInfo(packageManager);
   const allUpgradable = [...upgradable, ...peerUpgradable];
   const installCmd = allUpgradable.map((u) => `${u.pkg}@${u.latest}`).join(' ');
+  const upgradeCommand = `${packageManager} ${install} ${installCmd}`;
 
-  await exec(`${packageManager} ${install} ${installCmd}`);
+  if (store.debug) {
+    exitWithJson({command: 'upgrade', debug: true, ok: true, packages, upgraded: false}, 0);
+    Logger.newLine();
+    Logger.log(`Debug mode skipped dependency installation:\n${upgradeCommand}`);
+    process.exit(0);
+  }
+
+  await exec(upgradeCommand);
 
   exitWithJson({command: 'upgrade', ok: true, packages, upgraded: true}, 0);
   Logger.newLine();

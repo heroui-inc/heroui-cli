@@ -151,7 +151,19 @@ describe('initAction', () => {
       projectName: 'json-app',
       template: 'vite'
     });
-    expect(p.outro).toHaveBeenCalled();
+    expect(p.intro).not.toHaveBeenCalled();
+    expect(p.outro).not.toHaveBeenCalled();
+  });
+
+  it('fails in JSON mode when the template or package manager is missing', async () => {
+    installExitMock();
+    store.json = true;
+    const read = captureStdout();
+
+    await expect(initAction('json-app', {package: 'pnpm'})).rejects.toMatchObject({code: 1});
+    expect(JSON.parse(read())).toMatchObject({command: 'init', ok: false});
+    expect(selectClack).not.toHaveBeenCalled();
+    expect(downloadTemplate).not.toHaveBeenCalled();
   });
 
   it('prompts for missing template, name, and package manager', async () => {
@@ -188,6 +200,9 @@ describe('initAction', () => {
   it('exits when renaming the template fails', async () => {
     installExitMock();
     allowProject('rename-fail', 'next-app-template-main');
+    const extractPath = path.join(ROOT, 'next-app-template-main');
+
+    fs.mkdirSync(extractPath, {recursive: true});
     fsState.renameSync = () => {
       throw new Error('busy');
     };
@@ -195,6 +210,7 @@ describe('initAction', () => {
     await expect(
       initAction('rename-fail', {package: 'npm', template: 'app'})
     ).rejects.toMatchObject({code: 1});
+    expect(fsState.realExistsSync?.(extractPath)).toBe(false);
   });
 
   it('exits for an unknown template before downloading', async () => {

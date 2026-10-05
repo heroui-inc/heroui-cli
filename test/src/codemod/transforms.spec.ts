@@ -111,6 +111,16 @@ describe('codemod transforms', () => {
     expect(affectedFiles.has(file)).toBe(true);
   });
 
+  it('throws when a file cannot be transformed', () => {
+    const file = write('broken.tsx', 'const value = 1;');
+
+    updateStore(file, 'parsedContent', {} as never);
+
+    expect(() => migrateImportPackageWithPaths([file])).toThrow(
+      `Failed to migrate imports in ${file}`
+    );
+  });
+
   it('renames package.json dependencies and preserves indent', async () => {
     const json = {dependencies: {'@nextui-org/react': '1.0.0'}, devDependencies: {}};
 

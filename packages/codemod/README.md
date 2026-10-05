@@ -7,7 +7,7 @@
 
 </br>
 
-The CLI provides a comprehensive suite of tools to migrate your codebase from NextUI to HeroUI.
+The CLI provides a comprehensive suite of tools to migrate your codebase from NextUI to HeroUI. It renames `@nextui-org/*` packages and APIs to `@heroui/*`. It does not upgrade a project to HeroUI v3. For the v3 migration guides, run `heroui agents-md --migration`.
 
 ## Quick Start
 

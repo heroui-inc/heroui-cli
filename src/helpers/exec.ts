@@ -1,5 +1,6 @@
 import {type CommonExecOptions, execSync} from 'node:child_process';
 
+import {CLIError} from './errors';
 import {Logger} from './logger';
 
 /**
@@ -32,10 +33,16 @@ export async function exec(cmd: string, options?: ExecOptions): Promise<string> 
     Logger.log(`${cmd}`);
   }
 
-  const stdout = execSync(cmd, {
-    stdio: 'inherit',
-    ...execOptions
-  });
+  try {
+    const stdout = execSync(cmd, {
+      stdio: 'inherit',
+      ...execOptions
+    });
 
-  return stdout?.toString() ?? '';
+    return stdout?.toString() ?? '';
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error);
+
+    throw new CLIError(`Command failed: ${cmd}\n${detail}`);
+  }
 }

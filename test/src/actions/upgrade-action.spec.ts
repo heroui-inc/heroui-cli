@@ -10,7 +10,9 @@ import {afterEach, describe, expect, it, vi} from 'vitest';
 import {ExitError, installExitMock} from 'test/helpers/exit';
 import {captureStdout} from 'test/helpers/stdout';
 
-const getCacheExecData = vi.hoisted(() => vi.fn(async () => '{}'));
+const getCacheExecData = vi.hoisted(() =>
+  vi.fn<(cmd: string) => Promise<string>>(async () => '{}')
+);
 const getLatestVersion = vi.hoisted(() =>
   vi.fn<(pkg: string) => Promise<string>>(async () => '3.0.0')
 );
@@ -44,6 +46,7 @@ describe('upgradeAction', () => {
   let workspace = '';
 
   afterEach(() => {
+    store.debug = false;
     store.json = false;
     vi.clearAllMocks();
     vi.restoreAllMocks();
@@ -64,14 +67,26 @@ describe('upgradeAction', () => {
     return packagePath;
   }
 
-  it('returns when no HeroUI packages are installed', async () => {
+  it('fails when no HeroUI packages are installed', async () => {
+    installExitMock();
     const error = vi.spyOn(Logger, 'prefix').mockImplementation(() => {});
 
     await expect(
       upgradeAction({packagePath: writePackage({dependencies: {}})})
-    ).resolves.toBeUndefined();
+    ).rejects.toMatchObject({code: 1});
     expect(error).toHaveBeenCalled();
     expect(exec).not.toHaveBeenCalled();
+  });
+
+  it('prints a JSON error when no HeroUI packages are installed', async () => {
+    installExitMock();
+    store.json = true;
+    const read = captureStdout();
+
+    await expect(
+      upgradeAction({packagePath: writePackage({dependencies: {}})})
+    ).rejects.toMatchObject({code: 1});
+    expect(JSON.parse(read())).toMatchObject({command: 'upgrade', ok: false});
   });
 
   it('exits when every package is current', async () => {
@@ -90,9 +105,18 @@ describe('upgradeAction', () => {
   it('upgrades confirmed packages and outdated peers', async () => {
     installExitMock();
     getLatestVersion.mockImplementation(async (pkg: string) =>
-      pkg === 'react' ? '19.0.0' : '4.0.0'
+      pkg === 'react' ? '20.0.0' : '4.0.0'
     );
-    getCacheExecData.mockResolvedValue(JSON.stringify({react: '>=19.0.0'}));
+    getCacheExecData.mockImplementation(async (cmd: string) => {
+      if (cmd.includes('peerDependencies')) {
+        return JSON.stringify({react: '>=19.0.0'});
+      }
+      if (cmd.includes('version')) {
+        return JSON.stringify('19.2.0');
+      }
+
+      return '{}';
+    });
 
     await expect(
       upgradeAction({
@@ -102,7 +126,7 @@ describe('upgradeAction', () => {
       })
     ).rejects.toBeInstanceOf(ExitError);
     expect(exec).toHaveBeenCalledWith(
-      'pnpm add @heroui/react@4.0.0 @heroui/styles@4.0.0 react@19.0.0'
+      'pnpm add @heroui/react@4.0.0 @heroui/styles@4.0.0 react@19.2.0'
     );
   });
 
@@ -112,9 +136,18 @@ describe('upgradeAction', () => {
     const read = captureStdout();
 
     getLatestVersion.mockImplementation(async (pkg: string) =>
-      pkg === 'react' ? '19.0.0' : '4.0.0'
+      pkg === 'react' ? '20.0.0' : '4.0.0'
     );
-    getCacheExecData.mockResolvedValue(JSON.stringify({react: '>=19.0.0'}));
+    getCacheExecData.mockImplementation(async (cmd: string) => {
+      if (cmd.includes('peerDependencies')) {
+        return JSON.stringify({react: '>=19.0.0'});
+      }
+      if (cmd.includes('version')) {
+        return JSON.stringify('19.2.0');
+      }
+
+      return '{}';
+    });
 
     await expect(
       upgradeAction({
@@ -129,10 +162,24 @@ describe('upgradeAction', () => {
       packages: [
         {from: '3.0.0', package: '@heroui/react', to: '4.0.0'},
         {from: '3.0.0', package: '@heroui/styles', to: '4.0.0'},
-        {from: '18.0.0', package: 'react', to: '19.0.0'}
+        {from: '18.0.0', package: 'react', to: '19.2.0'}
       ],
       upgraded: true
     });
+    expect(getSelect).not.toHaveBeenCalled();
+  });
+
+  it('skips the package manager in debug mode', async () => {
+    installExitMock();
+    store.debug = true;
+    getLatestVersion.mockResolvedValue('4.0.0');
+
+    await expect(
+      upgradeAction({
+        packagePath: writePackage({dependencies: {'@heroui/react': '3.0.0'}})
+      })
+    ).rejects.toMatchObject({code: 0});
+    expect(exec).not.toHaveBeenCalled();
   });
 
   it('stops when the upgrade is declined', async () => {

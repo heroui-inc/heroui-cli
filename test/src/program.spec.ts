@@ -1,3 +1,4 @@
+import {CLIError} from '@helpers/errors';
 import {Logger} from '@helpers/logger';
 import {store} from 'src/constants/store';
 import {
@@ -153,5 +154,31 @@ describe('cli program handlers', () => {
 
     process.argv = ['node', 'heroui', 'init'];
     await expect(handleParseError(new Error('parse'))).rejects.toBeInstanceOf(ExitError);
+  });
+
+  it('prints a usage error without asking for a bug report', async () => {
+    installExitMock();
+    const error = vi.spyOn(Logger, 'error').mockImplementation(() => {});
+
+    vi.spyOn(Logger, 'newLine').mockImplementation(() => {});
+    const usage = new Error("error: unknown option '--nope'");
+
+    (usage as Error & {code: string}).code = 'commander.unknownOption';
+
+    await expect(handleParseError(usage)).rejects.toMatchObject({code: 1});
+    expect(String(error.mock.calls[0]?.[0])).toBe("error: unknown option '--nope'");
+    expect(String(error.mock.calls.flat().join('\n'))).not.toContain('report it as a bug');
+  });
+
+  it('prints a command failure without asking for a bug report', async () => {
+    installExitMock();
+    const error = vi.spyOn(Logger, 'error').mockImplementation(() => {});
+
+    vi.spyOn(Logger, 'newLine').mockImplementation(() => {});
+
+    await expect(handleParseError(new CLIError('Command failed: pnpm add'))).rejects.toMatchObject({
+      code: 1
+    });
+    expect(String(error.mock.calls[0]?.[0])).toBe('Command failed: pnpm add');
   });
 });
