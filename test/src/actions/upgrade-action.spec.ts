@@ -65,14 +65,26 @@ describe('upgradeAction', () => {
     return packagePath;
   }
 
-  it('returns when no HeroUI packages are installed', async () => {
+  it('fails when no HeroUI packages are installed', async () => {
+    installExitMock();
     const error = vi.spyOn(Logger, 'prefix').mockImplementation(() => {});
 
     await expect(
       upgradeAction({packagePath: writePackage({dependencies: {}})})
-    ).resolves.toBeUndefined();
+    ).rejects.toMatchObject({code: 1});
     expect(error).toHaveBeenCalled();
     expect(exec).not.toHaveBeenCalled();
+  });
+
+  it('prints a JSON error when no HeroUI packages are installed', async () => {
+    installExitMock();
+    store.json = true;
+    const read = captureStdout();
+
+    await expect(
+      upgradeAction({packagePath: writePackage({dependencies: {}})})
+    ).rejects.toMatchObject({code: 1});
+    expect(JSON.parse(read())).toMatchObject({command: 'upgrade', ok: false});
   });
 
   it('exits when every package is current', async () => {

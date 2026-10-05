@@ -5,7 +5,7 @@ import chalk from 'chalk';
 
 import {detect} from '@helpers/detect';
 import {exec} from '@helpers/exec';
-import {exitWithJson, isJsonMode, printJson} from '@helpers/json-output';
+import {exitWithJson, isJsonMode} from '@helpers/json-output';
 import {Logger} from '@helpers/logger';
 import {outputBox} from '@helpers/output-info';
 import {getPackageInfo} from '@helpers/package';
@@ -32,15 +32,9 @@ export async function upgradeAction(options: CommandOptions) {
   if (!installed.length) {
     const message = `No HeroUI packages found. Run \`heroui install\` to install ${HEROUI_PACKAGES_LABEL}.`;
 
-    if (isJsonMode()) {
-      printJson({command: 'upgrade', error: message, ok: false});
-
-      return;
-    }
-
+    exitWithJson({command: 'upgrade', error: message, ok: false}, 1);
     Logger.prefix('error', message);
-
-    return;
+    process.exit(1);
   }
 
   // Collect results positionally rather than pushing from concurrent callbacks,
