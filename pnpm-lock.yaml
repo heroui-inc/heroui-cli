@@ -228,9 +228,6 @@ importers:
       tar:
         specifier: 7.5.22
         version: 7.5.22
-      tinyglobby:
-        specifier: 0.2.17
-        version: 0.2.17
     devDependencies:
       '@commitlint/cli':
         specifier: 19.8.1
@@ -259,9 +256,6 @@ importers:
       bumpp:
         specifier: 10.4.1
         version: 10.4.1
-      clean-package:
-        specifier: 2.2.0
-        version: 2.2.0
       commitlint-plugin-function-rules:
         specifier: 4.3.2
         version: 4.3.2(@commitlint/lint@20.3.1)
@@ -1900,10 +1894,6 @@ packages:
   citty@0.1.6:
     resolution: {integrity: sha512-tskPPKEs8D2KPafUypv2gxwJP8h/OaJmC82QQGGDQcHvXX43xF2VDACcJVmZ0EuSxkpO9Kc4MlrA3q0+FG58AQ==}
 
-  clean-package@2.2.0:
-    resolution: {integrity: sha512-vLv8kRqvh4smPDpqAYFPLEijTppAd/cfCz4yBcUGoVl/JKu6ZWKhlo+G/cAmwlSa29RudfBeuyiNEzas8bTwEQ==}
-    hasBin: true
-
   clean-regexp@1.0.0:
     resolution: {integrity: sha512-GfisEZEJvzKrmGWkvfhgzcz/BllN1USeqD2V6tg14OAOgaCD2Z/PUEuxnAZ/nPvmaHRG7a8y77p1T/IRQ4D1Hw==}
     engines: {node: '>=4'}
@@ -2128,10 +2118,6 @@ packages:
   dot-prop@5.3.0:
     resolution: {integrity: sha512-QM8q3zDe58hqUqjraQOmzZ1LIH9SWQJTlEKCH4kJ2oQvLZk7RbQXvtDM2XEq3fwkV9CCvvH4LA0AV+ogFsBM2Q==}
     engines: {node: '>=8'}
-
-  dot-prop@6.0.1:
-    resolution: {integrity: sha512-tE7ztYzXHIeyvc7N+hR3oi7FIbf/NIjVP9hmAt3yMXzrQ072/fpjGLx2GxNxGxUl5V73MEqYzioOMoVhGMJ5cA==}
-    engines: {node: '>=10'}
 
   dotenv@17.2.3:
     resolution: {integrity: sha512-JVUnt+DUIzu87TABbhPmNfVdBDt18BLOWjMUFJMSi/Qqg7NTYtabbvSNJGOJ7afbRuv9D/lngizHtP7QyLQ+9w==}
@@ -5625,10 +5611,6 @@ snapshots:
     dependencies:
       consola: 3.4.2
 
-  clean-package@2.2.0:
-    dependencies:
-      dot-prop: 6.0.1
-
   clean-regexp@1.0.0:
     dependencies:
       escape-string-regexp: 1.0.5
@@ -5856,10 +5838,6 @@ snapshots:
       esutils: 2.0.3
 
   dot-prop@5.3.0:
-    dependencies:
-      is-obj: 2.0.0
-
-  dot-prop@6.0.1:
     dependencies:
       is-obj: 2.0.0
 
