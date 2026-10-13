@@ -1,3 +1,16 @@
+# [3.1.0](https://github.com/heroui-inc/heroui-cli/compare/v3.0.5...v3.1.0) (2026-10-13)
+
+### Bug Fixes
+
+- **cli:** make scripted commands fail honestly ([#221](https://github.com/heroui-inc/heroui-cli/issues/221)) ([ab3da0d](https://github.com/heroui-inc/heroui-cli/commit/ab3da0d0a6332b5db2c6a4bb1540ec3525dc03bb))
+- **doctor:** agree the issue summary with the count ([#218](https://github.com/heroui-inc/heroui-cli/issues/218)) ([5c9fdf0](https://github.com/heroui-inc/heroui-cli/commit/5c9fdf0e6dce6d294d7b6a0231c6b0e60ffbe73a))
+
+### Features
+
+- **cli:** add a global --json flag ([#213](https://github.com/heroui-inc/heroui-cli/issues/213)) ([e5da139](https://github.com/heroui-inc/heroui-cli/commit/e5da13961bb254fd589e87f543ce8682287ec671))
+- **cli:** add doc command for component documentation ([#210](https://github.com/heroui-inc/heroui-cli/issues/210)) ([af6c38e](https://github.com/heroui-inc/heroui-cli/commit/af6c38eeefd7e06fc874c7f3b0ca05ef6c3235ad))
+- **cli:** add info command for component API reference ([#209](https://github.com/heroui-inc/heroui-cli/issues/209)) ([57ef20b](https://github.com/heroui-inc/heroui-cli/commit/57ef20bf9b73eb19acd7f97f9d250936344aed3a))
+
 ## [3.0.5](https://github.com/heroui-inc/heroui-cli/compare/v3.0.4...v3.0.5) (2026-09-26)
 
 ### Bug Fixes
