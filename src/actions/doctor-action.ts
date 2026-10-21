@@ -1,6 +1,7 @@
 import type {DoctorCommandOptions} from '@helpers/type';
 
 import chalk from 'chalk';
+import {satisfies} from 'compare-versions';
 
 import {exitWithJson} from '@helpers/json-output';
 import {Logger, type PrefixLogType} from '@helpers/logger';
@@ -8,8 +9,10 @@ import {getPackageInfo} from '@helpers/package';
 import {collectPeerDependencies} from '@helpers/peer-deps';
 import {getVersionAndMode, strip, transformPeerVersion} from '@helpers/utils';
 import {resolver} from 'src/constants/path';
-import {DOCS_INSTALLED, HEROUI_PACKAGES} from 'src/constants/required';
+import {DOCS_INSTALLED, HEROUI_PACKAGES, TAILWINDCSS} from 'src/constants/required';
 import {compareVersions} from 'src/scripts/helpers';
+
+import pkg from '../../package.json';
 
 export interface ProblemRecord {
   name: string;
@@ -36,12 +39,55 @@ export async function doctorAction(options: DoctorCommandOptions) {
   }
 
   const issues: {
+    currentVersion?: string;
     dependencies?: string[];
     level: Extract<PrefixLogType, 'error' | 'warn'>;
     name: string;
     packages?: string[];
+    requiredVersion?: string;
   }[] = [];
   const problemRecord: ProblemRecord[] = [];
+  const nodeVersion = process.versions.node;
+  const requiredNodeVersion = pkg.engines.node;
+
+  if (!satisfies(nodeVersion, requiredNodeVersion)) {
+    issues.push({
+      currentVersion: nodeVersion,
+      level: 'error',
+      name: 'unsupportedNodeVersion',
+      requiredVersion: requiredNodeVersion
+    });
+    problemRecord.push({
+      level: 'error',
+      name: 'unsupportedNodeVersion',
+      outputFn: () => {
+        Logger.log(
+          `Node.js v${nodeVersion} detected, but HeroUI CLI requires Node.js ${requiredNodeVersion}.`
+        );
+        Logger.newLine();
+        Logger.log('Upgrade Node.js: https://nodejs.org/');
+      }
+    });
+  }
+
+  if (!allDependenciesKeys.has(TAILWINDCSS)) {
+    issues.push({
+      level: 'error',
+      name: 'missingTailwindCSS',
+      packages: [TAILWINDCSS]
+    });
+    problemRecord.push({
+      level: 'error',
+      name: 'missingTailwindCSS',
+      outputFn: () => {
+        Logger.log('Tailwind CSS is not installed.');
+        Logger.log('HeroUI v3 requires Tailwind CSS v4.');
+        Logger.newLine();
+        Logger.log(`Install it with: npm install ${TAILWINDCSS}@^4`);
+        Logger.log(`See: ${chalk.underline(DOCS_INSTALLED)}`);
+      }
+    });
+  }
 
   const missing = HEROUI_PACKAGES.filter((pkg) => !allDependenciesKeys.has(pkg));
 
@@ -70,7 +116,9 @@ export async function doctorAction(options: DoctorCommandOptions) {
 
   for (const [peerPkg, peerVersion] of peerDeps) {
     if (!allDependenciesKeys.has(peerPkg)) {
-      missingPeerDeps.push(`${peerPkg} (${peerVersion})`);
+      if (peerPkg !== TAILWINDCSS) {
+        missingPeerDeps.push(`${peerPkg} (${peerVersion})`);
+      }
       continue;
     }
 
