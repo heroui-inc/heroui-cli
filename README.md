@@ -346,7 +346,9 @@ heroui doctor [options]
 #### Features
 
 > 1. Check whether `@heroui/react` and `@heroui/styles` are installed
-> 2. Check whether `required peer dependencies` are installed and matched minimal requirements in the project
+> 2. Check peer dependencies resolved from the installed HeroUI packages against their full version ranges; missing optional peers are skipped
+> 3. Check whether Node.js meets the CLI's minimum version requirement
+> 4. Check whether Tailwind CSS is installed, with Tailwind CSS v4 installation guidance when missing
 
 #### Doctor Options
 

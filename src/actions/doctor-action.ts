@@ -1,15 +1,20 @@
 import type {DoctorCommandOptions} from '@helpers/type';
 
-import chalk from 'chalk';
+import {statSync} from 'node:fs';
+import {resolve} from 'node:path';
 
+import chalk from 'chalk';
+import {satisfies} from 'compare-versions';
+
+import {getInstalledPackage} from '@helpers/installed-package';
 import {exitWithJson} from '@helpers/json-output';
 import {Logger, type PrefixLogType} from '@helpers/logger';
 import {getPackageInfo} from '@helpers/package';
-import {collectPeerDependencies} from '@helpers/peer-deps';
-import {getVersionAndMode, strip, transformPeerVersion} from '@helpers/utils';
+import {strip} from '@helpers/utils';
 import {resolver} from 'src/constants/path';
-import {DOCS_INSTALLED, HEROUI_PACKAGES} from 'src/constants/required';
-import {compareVersions} from 'src/scripts/helpers';
+import {DOCS_INSTALLED, HEROUI_PACKAGES, TAILWINDCSS} from 'src/constants/required';
+
+import pkg from '../../package.json';
 
 export interface ProblemRecord {
   name: string;
@@ -20,9 +25,15 @@ export interface ProblemRecord {
 export async function doctorAction(options: DoctorCommandOptions) {
   const {packagePath = resolver('package.json')} = options;
 
-  const {allDependencies, allDependenciesKeys} = getPackageInfo(packagePath);
+  getPackageInfo(packagePath);
+  const projectPackagePath = statSync(packagePath).isDirectory()
+    ? resolve(packagePath, 'package.json')
+    : resolve(packagePath);
+  const installed = HEROUI_PACKAGES.flatMap((name) => {
+    const installedPackage = getInstalledPackage(name, projectPackagePath);
 
-  const installed = HEROUI_PACKAGES.filter((pkg) => allDependenciesKeys.has(pkg));
+    return installedPackage ? [{name, ...installedPackage}] : [];
+  });
 
   if (!installed.length) {
     const message = `❌ No ${chalk.underline(
@@ -36,14 +47,61 @@ export async function doctorAction(options: DoctorCommandOptions) {
   }
 
   const issues: {
+    currentVersion?: string;
     dependencies?: string[];
     level: Extract<PrefixLogType, 'error' | 'warn'>;
     name: string;
     packages?: string[];
+    requiredVersion?: string;
   }[] = [];
   const problemRecord: ProblemRecord[] = [];
+  const nodeVersion = process.versions.node;
+  const requiredNodeVersion = pkg.engines.node;
 
-  const missing = HEROUI_PACKAGES.filter((pkg) => !allDependenciesKeys.has(pkg));
+  if (!satisfies(nodeVersion, requiredNodeVersion)) {
+    issues.push({
+      currentVersion: nodeVersion,
+      level: 'error',
+      name: 'unsupportedNodeVersion',
+      requiredVersion: requiredNodeVersion
+    });
+    problemRecord.push({
+      level: 'error',
+      name: 'unsupportedNodeVersion',
+      outputFn: () => {
+        Logger.log(
+          `Node.js v${nodeVersion} detected, but HeroUI CLI requires Node.js ${requiredNodeVersion}.`
+        );
+        Logger.newLine();
+        Logger.log('Upgrade Node.js: https://nodejs.org/');
+      }
+    });
+  }
+
+  const tailwindInstalled =
+    Boolean(getInstalledPackage(TAILWINDCSS, projectPackagePath)) ||
+    installed.some((consumer) => getInstalledPackage(TAILWINDCSS, consumer.packagePath));
+
+  if (!tailwindInstalled) {
+    issues.push({
+      level: 'error',
+      name: 'missingTailwindCSS',
+      packages: [TAILWINDCSS]
+    });
+    problemRecord.push({
+      level: 'error',
+      name: 'missingTailwindCSS',
+      outputFn: () => {
+        Logger.log('Tailwind CSS is not installed.');
+        Logger.log('HeroUI v3 requires Tailwind CSS v4.');
+        Logger.newLine();
+        Logger.log(`Install it with: npm install ${TAILWINDCSS}@^4`);
+        Logger.log(`See: ${chalk.underline(DOCS_INSTALLED)}`);
+      }
+    });
+  }
+
+  const missing = HEROUI_PACKAGES.filter((pkg) => !installed.some(({name}) => name === pkg));
 
   if (missing.length) {
     issues.push({
@@ -66,19 +124,29 @@ export async function doctorAction(options: DoctorCommandOptions) {
   }
 
   const missingPeerDeps: string[] = [];
-  const peerDeps = await collectPeerDependencies(installed, HEROUI_PACKAGES);
+  const incompatiblePeerDeps: string[] = [];
 
-  for (const [peerPkg, peerVersion] of peerDeps) {
-    if (!allDependenciesKeys.has(peerPkg)) {
-      missingPeerDeps.push(`${peerPkg} (${peerVersion})`);
-      continue;
-    }
+  for (const consumer of installed) {
+    for (const [peerPkg, peerRange] of Object.entries(consumer.manifest.peerDependencies ?? {})) {
+      const peer = getInstalledPackage(peerPkg, consumer.packagePath);
+      const requirement = `${peerRange}, required by: ${consumer.name}`;
 
-    const {currentVersion} = getVersionAndMode(allDependencies, peerPkg);
-    const minVersion = transformPeerVersion(peerVersion);
+      if (!peer) {
+        if (
+          !consumer.manifest.peerDependenciesMeta?.[peerPkg]?.optional &&
+          !(peerPkg === TAILWINDCSS && !tailwindInstalled) &&
+          !missing.some((name) => name === peerPkg)
+        ) {
+          missingPeerDeps.push(`${peerPkg} (${requirement})`);
+        }
+        continue;
+      }
 
-    if (compareVersions(currentVersion, minVersion) < 0) {
-      missingPeerDeps.push(`${peerPkg} (${peerVersion}, current: ${currentVersion})`);
+      if (!satisfies(peer.manifest.version, peerRange)) {
+        incompatiblePeerDeps.push(
+          `${peerPkg} (${requirement}, installed: ${peer.manifest.version})`
+        );
+      }
     }
   }
 
@@ -92,10 +160,30 @@ export async function doctorAction(options: DoctorCommandOptions) {
       level: 'error',
       name: 'missingDependencies',
       outputFn: () => {
-        Logger.log('You have not installed the required dependencies');
-        Logger.newLine();
-        Logger.log('The required dependencies are:');
+        Logger.log(
+          'Required peer dependencies could not be resolved from the installed HeroUI packages:'
+        );
         missingPeerDeps.forEach((dependency) => {
+          Logger.log(`- ${dependency}`);
+        });
+        Logger.newLine();
+        Logger.log(`See more info here: ${chalk.underline(DOCS_INSTALLED)}`);
+      }
+    });
+  }
+
+  if (incompatiblePeerDeps.length) {
+    issues.push({
+      dependencies: incompatiblePeerDeps,
+      level: 'error',
+      name: 'incompatibleDependencies'
+    });
+    problemRecord.push({
+      level: 'error',
+      name: 'incompatibleDependencies',
+      outputFn: () => {
+        Logger.log('Installed peer dependencies do not satisfy the required version ranges:');
+        incompatiblePeerDeps.forEach((dependency) => {
           Logger.log(`- ${dependency}`);
         });
         Logger.newLine();
