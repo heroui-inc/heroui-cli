@@ -1,3 +1,9 @@
+## [3.1.1](https://github.com/heroui-inc/heroui-cli/compare/v3.1.0...v3.1.1) (2026-10-21)
+
+### Bug Fixes
+
+- **doctor:** validate installed peers and setup requirements ([#225](https://github.com/heroui-inc/heroui-cli/issues/225)) ([5164ff4](https://github.com/heroui-inc/heroui-cli/commit/5164ff4a623ddb43d8493ce7119b9ee4e0afb456))
+
 # [3.1.0](https://github.com/heroui-inc/heroui-cli/compare/v3.0.5...v3.1.0) (2026-10-13)
 
 ### Bug Fixes
