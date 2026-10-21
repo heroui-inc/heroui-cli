@@ -1,4 +1,4 @@
-import {mkdtempSync, rmSync, writeFileSync} from 'node:fs';
+import {mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
 
@@ -20,6 +20,7 @@ vi.mock('src/scripts/cache/cache', () => ({
 
 describe('doctorAction', () => {
   let workspace = '';
+  let peerDependencies: Record<string, string> = {};
 
   beforeEach(() => {
     Object.defineProperty(process.versions, 'node', {value: '22.22.0'});
@@ -30,19 +31,44 @@ describe('doctorAction', () => {
     store.json = false;
     vi.clearAllMocks();
     vi.restoreAllMocks();
-    getCacheExecData.mockResolvedValue('{}');
+    peerDependencies = {};
     if (workspace) {
       rmSync(workspace, {force: true, recursive: true});
     }
   });
 
-  function writePackage(pkg: unknown) {
+  function writePackage(pkg: {
+    dependencies?: Record<string, string>;
+    devDependencies?: Record<string, string>;
+  }) {
+    if (workspace) rmSync(workspace, {force: true, recursive: true});
     workspace = mkdtempSync(path.join(tmpdir(), 'heroui-doctor-'));
     const packagePath = path.join(workspace, 'package.json');
 
     writeFileSync(packagePath, JSON.stringify(pkg), 'utf-8');
+    for (const [name, version] of Object.entries({...pkg.devDependencies, ...pkg.dependencies})) {
+      installPackage(name, {
+        peerDependencies: name === '@heroui/react' ? peerDependencies : {},
+        version: version.startsWith('^') || version.startsWith('~') ? version.slice(1) : version
+      });
+    }
 
     return packagePath;
+  }
+
+  function installPackage(name: string, manifest: Record<string, unknown>, root = workspace) {
+    const directory = path.join(root, 'node_modules', name);
+
+    mkdirSync(directory, {recursive: true});
+    writeFileSync(
+      path.join(directory, 'package.json'),
+      JSON.stringify({
+        exports: './index.js',
+        name,
+        ...manifest
+      })
+    );
+    writeFileSync(path.join(directory, 'index.js'), '');
   }
 
   it('fails when no HeroUI packages are installed', async () => {
@@ -149,7 +175,7 @@ describe('doctorAction', () => {
     Object.defineProperty(process.versions, 'node', {value: '20.19.0'});
     installExitMock();
     store.json = true;
-    getCacheExecData.mockResolvedValue(JSON.stringify({react: '>=19.0.0', tailwindcss: '>=4.0.0'}));
+    peerDependencies = {react: '>=19.0.0', tailwindcss: '>=4.0.0'};
     const read = captureStdout();
 
     await expect(
@@ -170,7 +196,7 @@ describe('doctorAction', () => {
         },
         {level: 'error', name: 'missingTailwindCSS', packages: ['tailwindcss']},
         {
-          dependencies: ['react (>=19.0.0)'],
+          dependencies: ['react (>=19.0.0, required by: @heroui/react)'],
           level: 'error',
           name: 'missingDependencies'
         }
@@ -182,7 +208,7 @@ describe('doctorAction', () => {
   it('preserves peer version validation for installed Tailwind', async () => {
     installExitMock();
     store.json = true;
-    getCacheExecData.mockResolvedValue(JSON.stringify({tailwindcss: '>=4.0.0'}));
+    peerDependencies = {tailwindcss: '>=4.0.0'};
     const read = captureStdout();
 
     await expect(
@@ -194,16 +220,172 @@ describe('doctorAction', () => {
     ).rejects.toMatchObject({code: 1});
     expect(JSON.parse(read()).issues).toEqual([
       {
-        dependencies: ['tailwindcss (>=4.0.0, current: 3.0.0)'],
+        dependencies: ['tailwindcss (>=4.0.0, required by: @heroui/react, installed: 3.0.0)'],
         level: 'error',
-        name: 'missingDependencies'
+        name: 'incompatibleDependencies'
       }
     ]);
   });
 
+  it('accepts automatically installed peers absent from package.json without registry requests', async () => {
+    peerDependencies = {react: '^19.0.0'};
+    const packagePath = writePackage({
+      dependencies: {'@heroui/react': '3.0.0', '@heroui/styles': '3.0.0', tailwindcss: '^4.0.0'}
+    });
+
+    installPackage('react', {version: '19.2.0'});
+    await expect(doctorAction({packagePath})).resolves.toBeUndefined();
+    expect(getCacheExecData).not.toHaveBeenCalled();
+  });
+
+  it('ignores absent optional peers', async () => {
+    const packagePath = writePackage({
+      dependencies: {'@heroui/react': '3.0.0', '@heroui/styles': '3.0.0', tailwindcss: '^4.0.0'}
+    });
+
+    installPackage('@heroui/react', {
+      peerDependencies: {react: '^19.0.0'},
+      peerDependenciesMeta: {react: {optional: true}},
+      version: '3.0.0'
+    });
+    await expect(doctorAction({packagePath})).resolves.toBeUndefined();
+  });
+
+  it.each(['18.3.0', '20.0.0'])(
+    'reports installed optional peer %s outside the full range as incompatible',
+    async (version) => {
+      const packagePath = writePackage({
+        dependencies: {'@heroui/react': '3.0.0', '@heroui/styles': '3.0.0', tailwindcss: '^4.0.0'}
+      });
+
+      installPackage('@heroui/react', {
+        peerDependencies: {react: '>=19.0.0 <20.0.0'},
+        peerDependenciesMeta: {react: {optional: true}},
+        version: '3.0.0'
+      });
+      installPackage('react', {version});
+      installExitMock();
+      const log = vi.spyOn(Logger, 'log').mockImplementation(() => {});
+
+      await expect(doctorAction({packagePath})).rejects.toMatchObject({code: 1});
+      expect(log).toHaveBeenCalledWith(
+        'Installed peer dependencies do not satisfy the required version ranges:'
+      );
+      expect(log).not.toHaveBeenCalledWith('You have not installed the required dependencies');
+      expect(log.mock.calls.flat().join('\n')).toContain(`installed: ${version}`);
+    }
+  );
+
+  it('accepts an installed version matching the second branch of a peer range', async () => {
+    peerDependencies = {react: '^18.0.0 || ^19.0.0'};
+    const packagePath = writePackage({
+      dependencies: {
+        '@heroui/react': '3.0.0',
+        '@heroui/styles': '3.0.0',
+        react: '^18.0.0',
+        tailwindcss: '^4.0.0'
+      }
+    });
+
+    installPackage('react', {version: '19.2.0'});
+    await expect(doctorAction({packagePath})).resolves.toBeUndefined();
+  });
+
+  it('reports a declared but uninstalled peer as missing', async () => {
+    peerDependencies = {react: '^19.0.0'};
+    const packagePath = writePackage({
+      dependencies: {
+        '@heroui/react': '3.0.0',
+        '@heroui/styles': '3.0.0',
+        react: '^19.0.0',
+        tailwindcss: '^4.0.0'
+      }
+    });
+
+    rmSync(path.join(workspace, 'node_modules/react'), {recursive: true});
+    installExitMock();
+    const log = vi.spyOn(Logger, 'log').mockImplementation(() => {});
+
+    await expect(doctorAction({packagePath})).rejects.toMatchObject({code: 1});
+    expect(log).toHaveBeenCalledWith(
+      'Required peer dependencies could not be resolved from the installed HeroUI packages:'
+    );
+  });
+
+  it('checks every installed consumer when their peer ranges differ', async () => {
+    peerDependencies = {react: '^19.0.0'};
+    const packagePath = writePackage({
+      dependencies: {
+        '@heroui/react': '3.0.0',
+        '@heroui/styles': '3.0.0',
+        react: '19.2.0',
+        tailwindcss: '^4.0.0'
+      }
+    });
+
+    installPackage('@heroui/styles', {peerDependencies: {react: '^18.0.0'}, version: '3.0.0'});
+    installExitMock();
+    store.json = true;
+    const read = captureStdout();
+
+    await expect(doctorAction({packagePath})).rejects.toMatchObject({code: 1});
+    expect(JSON.parse(read()).issues).toEqual([
+      {
+        dependencies: ['react (^18.0.0, required by: @heroui/styles, installed: 19.2.0)'],
+        level: 'error',
+        name: 'incompatibleDependencies'
+      }
+    ]);
+  });
+
+  it('resolves peers from the real location of a symlinked HeroUI package', async () => {
+    const packagePath = writePackage({
+      dependencies: {'@heroui/react': '3.0.0', '@heroui/styles': '3.0.0', react: '18.0.0'}
+    });
+    const virtualRoot = path.join(workspace, 'node_modules/.pnpm/heroui');
+
+    installPackage(
+      '@heroui/react',
+      {peerDependencies: {react: '^19.0.0', tailwindcss: '^4.0.0'}, version: '3.0.0'},
+      virtualRoot
+    );
+    installPackage('react', {version: '19.2.0'}, virtualRoot);
+    installPackage('tailwindcss', {version: '4.0.0'}, virtualRoot);
+    rmSync(path.join(workspace, 'node_modules/@heroui/react'), {recursive: true});
+    symlinkSync(
+      path.join(virtualRoot, 'node_modules/@heroui/react'),
+      path.join(workspace, 'node_modules/@heroui/react')
+    );
+    await expect(doctorAction({packagePath})).resolves.toBeUndefined();
+  });
+
+  it('resolves hoisted packages relative to a supplied project directory', async () => {
+    peerDependencies = {react: '^19.0.0'};
+    writePackage({
+      dependencies: {'@heroui/react': '3.0.0', '@heroui/styles': '3.0.0', tailwindcss: '^4.0.0'}
+    });
+    installPackage('react', {version: '19.2.0'});
+    const project = path.join(workspace, 'apps/web');
+
+    mkdirSync(project, {recursive: true});
+    writeFileSync(
+      path.join(project, 'package.json'),
+      JSON.stringify({dependencies: {'@heroui/react': '3.0.0'}})
+    );
+    await expect(doctorAction({packagePath: project})).resolves.toBeUndefined();
+  });
+
+  it('does not treat declared HeroUI packages as installed', async () => {
+    const packagePath = writePackage({dependencies: {'@heroui/react': '3.0.0'}});
+
+    rmSync(path.join(workspace, 'node_modules'), {recursive: true});
+    installExitMock();
+    await expect(doctorAction({packagePath})).rejects.toMatchObject({code: 1});
+  });
+
   it('uses singular grammar when one issue is found', async () => {
     installExitMock();
-    getCacheExecData.mockResolvedValue(JSON.stringify({react: '>=19.0.0'}));
+    peerDependencies = {react: '>=19.0.0'};
     const error = vi.spyOn(Logger, 'error').mockImplementation(() => {});
 
     await expect(
@@ -218,7 +400,7 @@ describe('doctorAction', () => {
 
   it('fails when a package or peer dependency is missing or too old', async () => {
     installExitMock();
-    getCacheExecData.mockResolvedValue(JSON.stringify({react: '>=19.0.0'}));
+    peerDependencies = {react: '>=19.0.0'};
     const error = vi.spyOn(Logger, 'error').mockImplementation(() => {});
 
     await expect(
@@ -230,7 +412,7 @@ describe('doctorAction', () => {
     ).rejects.toMatchObject({code: 1});
     expect(error.mock.calls.flat().join('\n')).toContain('issues that require attention');
 
-    getCacheExecData.mockResolvedValue(JSON.stringify({react: '>=19.0.0'}));
+    peerDependencies = {react: '>=19.0.0'};
     await expect(
       doctorAction({
         packagePath: writePackage({
