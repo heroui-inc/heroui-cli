@@ -17,6 +17,7 @@ import pkg from '../package.json';
 const commandList: CommandName[] = [
   'install',
   'agents-md',
+  'design-md',
   'env',
   'init',
   'list',

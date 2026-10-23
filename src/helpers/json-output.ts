@@ -9,6 +9,7 @@ export const JSON_OPTION_DESCRIPTION = 'Output the result as JSON';
 
 const commandNames: readonly CommandName[] = [
   'agents-md',
+  'design-md',
   'doc',
   'doctor',
   'env',

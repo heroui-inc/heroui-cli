@@ -1,4 +1,5 @@
 import {CLIError} from '@helpers/errors';
+import {commandFromArgv} from '@helpers/json-output';
 import {Logger} from '@helpers/logger';
 import {store} from 'src/constants/store';
 import {
@@ -59,6 +60,18 @@ describe('cli program handlers', () => {
       runDefaultAction({helpInformation: () => 'help'}, {args: ['zzzzzzzz']})
     ).rejects.toMatchObject({code: 1});
     expect(String(error.mock.calls[0]?.[0])).not.toContain('Did you mean');
+  });
+
+  it('recognizes design-md and suggests it for a typo', async () => {
+    installExitMock();
+    process.argv = ['node', 'heroui', 'design-md'];
+    const error = vi.spyOn(Logger, 'error').mockImplementation(() => {});
+
+    expect(commandFromArgv()).toBe('design-md');
+    await expect(
+      runDefaultAction({helpInformation: () => 'help'}, {args: ['design-m']})
+    ).rejects.toMatchObject({code: 1});
+    expect(error).toHaveBeenCalledWith(expect.stringContaining('design-md'));
   });
 
   it('prints colored help when no command was given', async () => {
