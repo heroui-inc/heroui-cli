@@ -475,6 +475,13 @@ export async function docsAction(options: DocsOptions) {
 }
 
 export async function designMdAction(options: DesignMdOptions) {
+  const startTime = Date.now();
+  const analytics = getAnalytics();
+
+  if (analytics && !isJsonMode()) {
+    showAnalyticsNotice();
+  }
+
   try {
     const cwd = process.cwd();
     const interactive = !isJsonMode() && !!process.stdin.isTTY && !!process.stdout.isTTY;
@@ -526,6 +533,16 @@ export async function designMdAction(options: DesignMdOptions) {
     const content = await downloadDesignMd(sourceUrl);
 
     writeDesignMd(outputFile, content);
+    analytics?.track({
+      event: 'DESIGN_MD_SUCCESS',
+      properties: {
+        duration: Date.now() - startTime,
+        outputFileCount: 1,
+        outputFiles: [output],
+        selection
+      }
+    });
+    await shutdown();
     exitWithJson({command: 'design-md', ok: true, outputFile, selection, sourceUrl}, 0);
     Logger.success(
       `Saved HeroUI ${selection === 'react' ? 'React' : 'Native'} design guidance to ${outputFile}`
@@ -536,6 +553,13 @@ export async function designMdAction(options: DesignMdOptions) {
     Logger.log(`Follow [DESIGN.md](<${reference}>) for all visual and interaction decisions.`);
   } catch (error) {
     rethrowIfExit(error);
+    analytics?.trackError({
+      error,
+      errorEvent: 'DESIGN_MD_ERROR',
+      fallbackMessage: 'Failed to run design-md',
+      properties: {duration: Date.now() - startTime}
+    });
+    await shutdown();
     fail('design-md', error);
   }
 

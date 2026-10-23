@@ -166,15 +166,15 @@ export async function handleParseError(error: Error): Promise<void> {
     process.exit(1);
   }
 
-  const isAgentsMd = process.argv.includes('agents-md');
+  const docsCommand = process.argv.find((arg) => arg === 'agents-md' || arg === 'design-md');
 
-  if (isAgentsMd) {
+  if (docsCommand) {
     const analytics = getAnalytics();
 
     analytics?.trackError({
       error,
-      errorEvent: 'AGENTS_MD_ERROR',
-      fallbackMessage: 'Unexpected error in agents-md',
+      errorEvent: docsCommand === 'design-md' ? 'DESIGN_MD_ERROR' : 'AGENTS_MD_ERROR',
+      fallbackMessage: `Unexpected error in ${docsCommand}`,
       properties: {}
     });
     await shutdown();

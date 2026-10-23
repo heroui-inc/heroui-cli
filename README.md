@@ -94,7 +94,7 @@ Registry lookups are cached for 30 minutes in a per-user cache directory:
 
 ## Analytics
 
-The `agents-md` command collects anonymous usage data.
+The `agents-md` and `design-md` commands collect anonymous usage data.
 
 **What we collect:** The selected docs (`react`, `native`, or `migration`), the output paths passed to the command, how many files were written, how long the command took, and whether it succeeded. A failure also includes the error message. Project contents are not collected.
 

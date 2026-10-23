@@ -5,6 +5,9 @@ import path from 'node:path';
 import {Logger} from '@helpers/logger';
 import {Command} from 'commander';
 import {designMdAction} from 'src/actions/docs-action';
+import {getAnalytics, shutdown} from 'src/analytics';
+import {Analytics} from 'src/analytics/analytics';
+import {showAnalyticsNotice} from 'src/analytics/notice';
 import {registerCommands} from 'src/commands';
 import {store} from 'src/constants/store';
 import {getConfirm, getSelect} from 'src/prompts';
@@ -18,11 +21,19 @@ vi.mock('src/prompts', () => ({
   getSelect: vi.fn()
 }));
 
+vi.mock('src/analytics', () => ({
+  getAnalytics: vi.fn(),
+  shutdown: vi.fn()
+}));
+
+vi.mock('src/analytics/notice', () => ({showAnalyticsNotice: vi.fn()}));
+
 const markdown = '\uFEFF# HeroUI design\r\n\r\nUse semantic tokens. 🎨\r\n';
 
 describe('designMdAction', () => {
   let workspace: string;
   const fetchMock = vi.fn<typeof fetch>();
+  const analytics = new Analytics({dryRun: true, host: '', key: ''});
   const originalArgv = process.argv;
   const stdinTty = Object.getOwnPropertyDescriptor(process.stdin, 'isTTY');
   const stdoutTty = Object.getOwnPropertyDescriptor(process.stdout, 'isTTY');
@@ -33,6 +44,9 @@ describe('designMdAction', () => {
     Object.defineProperty(process.stdin, 'isTTY', {configurable: true, value: true});
     Object.defineProperty(process.stdout, 'isTTY', {configurable: true, value: true});
     installExitMock();
+    vi.mocked(getAnalytics).mockReturnValue(analytics);
+    vi.spyOn(analytics, 'track');
+    vi.spyOn(analytics, 'trackError');
     vi.spyOn(Logger, 'log').mockImplementation(() => {});
     vi.spyOn(Logger, 'success').mockImplementation(() => {});
     vi.spyOn(Logger, 'prefix').mockImplementation(() => {});
@@ -75,6 +89,18 @@ describe('designMdAction', () => {
       expect(fs.readdirSync(workspace)).toEqual(['DESIGN.md']);
       expect(getSelect).not.toHaveBeenCalled();
       expect(Logger.log).toHaveBeenCalledWith(expect.stringContaining('Follow [DESIGN.md]'));
+      expect(showAnalyticsNotice).toHaveBeenCalledOnce();
+      expect(analytics.track).toHaveBeenCalledExactlyOnceWith({
+        event: 'DESIGN_MD_SUCCESS',
+        properties: {
+          duration: expect.any(Number),
+          outputFileCount: 1,
+          outputFiles: ['DESIGN.md'],
+          selection
+        }
+      });
+      expect(analytics.trackError).not.toHaveBeenCalled();
+      expect(shutdown).toHaveBeenCalledOnce();
     }
   );
 
@@ -137,6 +163,8 @@ describe('designMdAction', () => {
     await expect(designMdAction({})).rejects.toMatchObject({code: 0});
     expect(fetchMock).not.toHaveBeenCalled();
     expect(fs.readdirSync(workspace)).toEqual([]);
+    expect(analytics.track).not.toHaveBeenCalled();
+    expect(analytics.trackError).not.toHaveBeenCalled();
   });
 
   it('propagates prompt cancellation without reporting an error', async () => {
@@ -158,6 +186,13 @@ describe('designMdAction', () => {
       expect(fs.readFileSync(outputFile)).toEqual(Buffer.from(markdown));
       expect(fs.readdirSync(path.dirname(outputFile))).toEqual(['mobile.md']);
       expect(Logger.log).toHaveBeenCalledWith(expect.stringContaining('<docs/mobile.md>'));
+      expect(analytics.track).toHaveBeenCalledWith(
+        expect.objectContaining({
+          properties: expect.objectContaining({
+            outputFiles: [absolute ? outputFile : 'docs/mobile.md']
+          })
+        })
+      );
     }
   );
 
@@ -207,6 +242,9 @@ describe('designMdAction', () => {
     expect(getSelect).not.toHaveBeenCalled();
     expect(Logger.log).not.toHaveBeenCalled();
     expect(Logger.success).not.toHaveBeenCalled();
+    expect(showAnalyticsNotice).not.toHaveBeenCalled();
+    expect(analytics.track).toHaveBeenCalledTimes(2);
+    expect(shutdown).toHaveBeenCalledTimes(2);
   });
 
   it.each([
@@ -234,6 +272,14 @@ describe('designMdAction', () => {
     expect(fs.readdirSync(workspace)).toEqual(['DESIGN.md']);
     expect(JSON.parse(read())).toMatchObject({command: 'design-md', ok: false});
     expect(JSON.parse(read()).error).toContain('https://heroui.com/react/DESIGN.md');
+    expect(analytics.trackError).toHaveBeenCalledExactlyOnceWith({
+      error: expect.any(Error),
+      errorEvent: 'DESIGN_MD_ERROR',
+      fallbackMessage: 'Failed to run design-md',
+      properties: {duration: expect.any(Number)}
+    });
+    expect(analytics.track).not.toHaveBeenCalled();
+    expect(shutdown).toHaveBeenCalledOnce();
     expect(Logger.log).not.toHaveBeenCalled();
     expect(Logger.prefix).not.toHaveBeenCalled();
   });
@@ -263,6 +309,16 @@ describe('designMdAction', () => {
   it('rejects an empty output path', async () => {
     await expect(designMdAction({output: ' ', react: true})).rejects.toMatchObject({code: 1});
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it('downloads without tracking or a notice when analytics is unavailable', async () => {
+    vi.mocked(getAnalytics).mockReturnValue(null);
+
+    await expect(designMdAction({react: true})).rejects.toMatchObject({code: 0});
+    expect(fs.readFileSync(destination())).toEqual(Buffer.from(markdown));
+    expect(analytics.track).not.toHaveBeenCalled();
+    expect(analytics.trackError).not.toHaveBeenCalled();
+    expect(showAnalyticsNotice).not.toHaveBeenCalled();
   });
 
   it('parses command options and returns the JSON result', async () => {

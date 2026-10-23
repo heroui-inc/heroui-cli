@@ -3,6 +3,7 @@ import {PostHog} from 'posthog-node';
 import {getErrorMessage} from './utils';
 
 export type AgentsMdEvent = 'AGENTS_MD_SUCCESS' | 'AGENTS_MD_ERROR';
+export type DesignMdEvent = 'DESIGN_MD_SUCCESS' | 'DESIGN_MD_ERROR';
 
 export interface AgentsMdProperties {
   selection?: 'react' | 'native' | 'migration';
@@ -28,7 +29,13 @@ export class Analytics {
     }
   }
 
-  track({event, properties = {}}: {event: AgentsMdEvent; properties?: AgentsMdProperties}) {
+  track({
+    event,
+    properties = {}
+  }: {
+    event: AgentsMdEvent | DesignMdEvent;
+    properties?: AgentsMdProperties;
+  }) {
     this.posthog?.capture({
       distinctId: DISTINCT_ID,
       event,
@@ -43,7 +50,7 @@ export class Analytics {
     properties = {}
   }: {
     error: unknown;
-    errorEvent: 'AGENTS_MD_ERROR';
+    errorEvent: 'AGENTS_MD_ERROR' | 'DESIGN_MD_ERROR';
     fallbackMessage?: string;
     properties?: AgentsMdProperties;
   }) {
