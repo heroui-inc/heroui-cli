@@ -1,6 +1,7 @@
 import {Command} from 'commander';
 import {registerCommands} from 'src/commands';
 import {registerAgentsMdCommand} from 'src/commands/agents-md';
+import {registerDesignMdCommand} from 'src/commands/design-md';
 import {registerDocCommand} from 'src/commands/doc';
 import {registerDoctorCommand} from 'src/commands/doctor';
 import {registerEnvCommand} from 'src/commands/env';
@@ -34,7 +35,8 @@ describe('command registration', () => {
       'doc',
       'env',
       'doctor',
-      'agents-md'
+      'agents-md',
+      'design-md'
     ]);
     expect(flags('init', program)?.join(' ')).toContain('--template');
     expect(flags('init', program)?.join(' ')).toContain('--package');
@@ -56,6 +58,13 @@ describe('command registration', () => {
     expect(flags('agents-md', program)?.join(' ')).toContain('--react');
     expect(flags('agents-md', program)?.join(' ')).toContain('--output');
     expect(flags('agents-md', program)?.join(' ')).toContain('--ssh');
+    expect(flags('design-md', program)).toEqual([
+      '--react',
+      '--native',
+      '--output <file>',
+      '--json'
+    ]);
+    expect(program.helpInformation()).toContain('design-md');
   });
 
   it('can register each command on its own program', () => {
@@ -69,7 +78,8 @@ describe('command registration', () => {
       registerDocCommand,
       registerEnvCommand,
       registerDoctorCommand,
-      registerAgentsMdCommand
+      registerAgentsMdCommand,
+      registerDesignMdCommand
     ];
 
     for (const registerCommand of register) {

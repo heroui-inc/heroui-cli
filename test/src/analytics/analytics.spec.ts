@@ -77,6 +77,26 @@ describe('analytics', () => {
     expect(posthog.shutdown).toHaveBeenCalled();
   });
 
+  it('captures design-md success and errors using the existing anonymous identity', async () => {
+    const analytics = new Analytics({host: 'https://example.com', key: 'phc_test'});
+
+    analytics.track({event: 'DESIGN_MD_SUCCESS', properties: {selection: 'native'}});
+    analytics.trackError({error: new Error('offline'), errorEvent: 'DESIGN_MD_ERROR'});
+    await analytics.shutdown();
+
+    expect(posthog.capture).toHaveBeenNthCalledWith(1, {
+      distinctId: 'cli-anonymous',
+      event: 'DESIGN_MD_SUCCESS',
+      properties: {app: 'cli', selection: 'native'}
+    });
+    expect(posthog.capture).toHaveBeenNthCalledWith(2, {
+      distinctId: 'cli-anonymous',
+      event: 'DESIGN_MD_ERROR',
+      properties: {app: 'cli', errorMessage: 'offline', isError: true}
+    });
+    expect(posthog.shutdown).toHaveBeenCalledOnce();
+  });
+
   it('returns null when analytics is disabled or no key was compiled in', async () => {
     expect(getAnalytics()).toBeNull();
     await shutdown();
@@ -101,6 +121,7 @@ describe('analytics', () => {
     expect(hasSeenNotice()).toBe(true);
     showAnalyticsNotice();
     expect(log).toHaveBeenCalledTimes(1);
+    expect(log).toHaveBeenCalledWith(expect.stringContaining('agents-md and design-md'));
     markNoticeSeen();
     expect(hasSeenNotice()).toBe(true);
   });

@@ -1,5 +1,6 @@
 import type {DocSelection} from '@helpers/agents-docs/heroui-agents-md';
-import type {DocsOptions} from '@helpers/type';
+import type {DesignPlatform} from '@helpers/design-md';
+import type {DesignMdOptions, DocsOptions} from '@helpers/type';
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -17,8 +18,9 @@ import {
   injectIntoClaudeMd,
   pullDocs
 } from '@helpers/agents-docs/heroui-agents-md';
+import {designMdUrl, downloadDesignMd, writeDesignMd} from '@helpers/design-md';
 import {ValidationError} from '@helpers/errors';
-import {exitWithJson, isJsonMode, rethrowIfExit} from '@helpers/json-output';
+import {exitWithJson, fail, isJsonMode, rethrowIfExit} from '@helpers/json-output';
 import {Logger} from '@helpers/logger';
 import {getAnalytics, shutdown} from 'src/analytics';
 import {showAnalyticsNotice} from 'src/analytics/notice';
@@ -472,9 +474,105 @@ export async function docsAction(options: DocsOptions) {
   }
 }
 
-function cancelDocs(): never {
-  exitWithJson({cancelled: true, command: 'agents-md', ok: true}, 0);
-  Logger.warn('\nCancelled.');
+export async function designMdAction(options: DesignMdOptions) {
+  const startTime = Date.now();
+  const analytics = getAnalytics();
+
+  if (analytics && !isJsonMode()) {
+    showAnalyticsNotice();
+  }
+
+  try {
+    const cwd = process.cwd();
+    const interactive = !isJsonMode() && !!process.stdin.isTTY && !!process.stdout.isTTY;
+    let selection: DesignPlatform;
+
+    if (options.react && options.native) {
+      throw new ValidationError('Use only one platform option: --react or --native.');
+    }
+
+    if (options.react || options.native) {
+      selection = options.native ? 'native' : 'react';
+    } else {
+      const {hasNative, hasReact} = detectInstalledPackages(cwd);
+
+      if (hasReact !== hasNative) {
+        selection = hasNative ? 'native' : 'react';
+      } else {
+        if (!interactive) {
+          throw new ValidationError(
+            'Pass --react or --native when the platform cannot be detected without prompting.'
+          );
+        }
+
+        const selected = await getSelect('Select design guidance to download', [
+          {title: 'HeroUI React', value: 'react'},
+          {title: 'HeroUI Native', value: 'native'}
+        ]);
+
+        if (selected === undefined) {
+          cancelDocs('design-md');
+        }
+        selection = selected as DesignPlatform;
+      }
+    }
+
+    const output = options.output ?? 'DESIGN.md';
+
+    if (!output.trim()) {
+      throw new ValidationError('Pass a non-empty file path to --output.');
+    }
+
+    const outputFile = path.resolve(cwd, output);
+
+    if (fs.existsSync(outputFile) && !fs.statSync(outputFile).isFile()) {
+      throw new ValidationError(`Destination is not a file: ${outputFile}`);
+    }
+
+    const sourceUrl = designMdUrl(selection);
+    const content = await downloadDesignMd(sourceUrl);
+
+    writeDesignMd(outputFile, content);
+    analytics?.track({
+      event: 'DESIGN_MD_SUCCESS',
+      properties: {
+        duration: Date.now() - startTime,
+        outputFileCount: 1,
+        outputFiles: [output],
+        selection
+      }
+    });
+    await shutdown();
+    exitWithJson({command: 'design-md', ok: true, outputFile, selection, sourceUrl}, 0);
+    Logger.success(
+      `Saved HeroUI ${selection === 'react' ? 'React' : 'Native'} design guidance to ${outputFile}`
+    );
+    Logger.log('Add a reference in AGENTS.md, CLAUDE.md, or your editor rules:');
+    const reference = path.relative(cwd, outputFile).split(path.sep).join('/');
+
+    Logger.log(`Follow [DESIGN.md](<${reference}>) for all visual and interaction decisions.`);
+  } catch (error) {
+    rethrowIfExit(error);
+    analytics?.trackError({
+      error,
+      errorEvent: 'DESIGN_MD_ERROR',
+      fallbackMessage: 'Failed to run design-md',
+      properties: {duration: Date.now() - startTime}
+    });
+    await shutdown();
+    fail('design-md', error);
+  }
+
+  process.exit(0);
+}
+
+function cancelDocs(command: 'agents-md' | 'design-md' = 'agents-md'): never {
+  exitWithJson({cancelled: true, command, ok: true}, 0);
+  if (command === 'design-md') {
+    Logger.log('Cancelled.');
+  } else {
+    Logger.warn('\nCancelled.');
+  }
   process.exit(0);
 }
 

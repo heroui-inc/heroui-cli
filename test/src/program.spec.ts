@@ -1,5 +1,8 @@
 import {CLIError} from '@helpers/errors';
+import {commandFromArgv} from '@helpers/json-output';
 import {Logger} from '@helpers/logger';
+import {getAnalytics, shutdown} from 'src/analytics';
+import {Analytics} from 'src/analytics/analytics';
 import {store} from 'src/constants/store';
 import {
   handleParseError,
@@ -14,6 +17,11 @@ import {ExitError, installExitMock} from 'test/helpers/exit';
 
 const getLatestVersion = vi.hoisted(() => vi.fn(async () => '9.0.0'));
 const initCache = vi.hoisted(() => vi.fn());
+
+vi.mock('src/analytics', () => ({
+  getAnalytics: vi.fn(() => null),
+  shutdown: vi.fn()
+}));
 
 vi.mock('src/scripts/helpers', () => ({
   compareVersions: (left = '', right = '') => {
@@ -59,6 +67,18 @@ describe('cli program handlers', () => {
       runDefaultAction({helpInformation: () => 'help'}, {args: ['zzzzzzzz']})
     ).rejects.toMatchObject({code: 1});
     expect(String(error.mock.calls[0]?.[0])).not.toContain('Did you mean');
+  });
+
+  it('recognizes design-md and suggests it for a typo', async () => {
+    installExitMock();
+    process.argv = ['node', 'heroui', 'design-md'];
+    const error = vi.spyOn(Logger, 'error').mockImplementation(() => {});
+
+    expect(commandFromArgv()).toBe('design-md');
+    await expect(
+      runDefaultAction({helpInformation: () => 'help'}, {args: ['design-m']})
+    ).rejects.toMatchObject({code: 1});
+    expect(error).toHaveBeenCalledWith(expect.stringContaining('design-md'));
   });
 
   it('prints colored help when no command was given', async () => {
@@ -168,6 +188,26 @@ describe('cli program handlers', () => {
     await expect(handleParseError(usage)).rejects.toMatchObject({code: 1});
     expect(String(error.mock.calls[0]?.[0])).toBe("error: unknown option '--nope'");
     expect(String(error.mock.calls.flat().join('\n'))).not.toContain('report it as a bug');
+  });
+
+  it('tracks unexpected design-md errors before exiting', async () => {
+    installExitMock();
+    process.argv = ['node', 'heroui', 'design-md'];
+    store.json = true;
+    vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
+    const analytics = new Analytics({dryRun: true, host: '', key: ''});
+    const trackError = vi.spyOn(analytics, 'trackError');
+    const error = new Error('unexpected');
+
+    vi.mocked(getAnalytics).mockReturnValueOnce(analytics);
+    await expect(handleParseError(error)).rejects.toMatchObject({code: 1});
+    expect(trackError).toHaveBeenCalledExactlyOnceWith({
+      error,
+      errorEvent: 'DESIGN_MD_ERROR',
+      fallbackMessage: 'Unexpected error in design-md',
+      properties: {}
+    });
+    expect(shutdown).toHaveBeenCalledOnce();
   });
 
   it('prints a command failure without asking for a bug report', async () => {
