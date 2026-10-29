@@ -37,6 +37,12 @@ export interface DocsOptions extends CommandOptions {
   ssh?: boolean;
 }
 
+export interface DesignMdOptions {
+  react?: boolean;
+  native?: boolean;
+  output?: string;
+}
+
 export type AppendKeyValue<T extends SAFE_ANY, K extends keyof any, V extends SAFE_ANY> = {
   [P in keyof T | K]?: P extends keyof T ? T[P] : P extends K ? V : never;
 };
@@ -51,6 +57,7 @@ export type CommandName =
   | 'uninstall'
   | 'install'
   | 'doctor'
+  | 'design-md'
   | 'agents-md';
 
 /**

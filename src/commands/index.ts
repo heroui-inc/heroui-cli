@@ -3,6 +3,7 @@ import type {Command} from 'commander';
 import {JSON_OPTION_DESCRIPTION} from '@helpers/json-output';
 
 import {registerAgentsMdCommand} from './agents-md';
+import {registerDesignMdCommand} from './design-md';
 import {registerDocCommand} from './doc';
 import {registerDoctorCommand} from './doctor';
 import {registerEnvCommand} from './env';
@@ -24,6 +25,7 @@ export function registerCommands(cmd: Command) {
   registerEnvCommand(cmd);
   registerDoctorCommand(cmd);
   registerAgentsMdCommand(cmd);
+  registerDesignMdCommand(cmd);
 
   for (const command of cmd.commands) {
     command.option('--json', JSON_OPTION_DESCRIPTION, false);

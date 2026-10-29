@@ -57,6 +57,7 @@ Commands:
   env                            Displays debugging information for the local environment
   doctor [options]               Checks for issues in the project
   agents-md [options]            Downloads HeroUI documentation for AI coding agents
+  design-md [options]            Downloads HeroUI design guidance for AI coding agents
   help [command]                 Display help for command
 ```
 
@@ -73,6 +74,12 @@ heroui agents-md --react --output AGENTS.md --json
 
 `agents-md --json` also needs `--react`, `--native`, or `--migration` when the project has both `@heroui/react` and `heroui-native`, or neither of them.
 
+`design-md --json` needs `--react` or `--native` when platform detection is ambiguous. Existing destination files are replaced without confirmation:
+
+```bash
+heroui design-md --react --json
+```
+
 ## Cache
 
 Registry lookups are cached for 30 minutes in a per-user cache directory:
@@ -87,7 +94,7 @@ Registry lookups are cached for 30 minutes in a per-user cache directory:
 
 ## Analytics
 
-The `agents-md` command collects anonymous usage data.
+The `agents-md` and `design-md` commands collect anonymous usage data.
 
 **What we collect:** The selected docs (`react`, `native`, or `migration`), the output paths passed to the command, how many files were written, how long the command took, and whether it succeeded. A failure also includes the error message. Project contents are not collected.
 
@@ -424,6 +431,49 @@ Environment Info:
     react-aria-components: 1.21.1
     tailwindcss: 4.1.11
 ```
+
+### Design-md
+
+Download the latest HeroUI React or Native design guidance for coding agents. The command saves the published Markdown unchanged, without requiring Git or installed HeroUI packages when a platform is explicitly selected.
+
+```bash
+heroui design-md [options]
+```
+
+#### Design-md Options
+
+- `--react` Download React design guidance (one platform at a time).
+- `--native` Download Native design guidance.
+- `--output <file>` Destination path, defaulting to `DESIGN.md` in the current directory. Relative and absolute paths are supported; missing parent directories are created.
+- `--json` Print one JSON result without prompts or human-readable logs.
+
+Without platform flags, the command uses the same package and workspace detection as `agents-md`. Only `@heroui/react` selects React; only `heroui-native` selects Native. When both or neither are detected, it prompts interactively. JSON and non-interactive runs require an explicit platform in that case.
+
+Each run replaces the entire destination file without confirmation, including in JSON and non-interactive mode. Local design customizations will be lost on a successful download. Cancelling platform selection or a failed download leaves the existing file unchanged.
+
+```bash
+# Detect the platform and save DESIGN.md
+heroui design-md
+
+# Explicitly download React guidance
+heroui design-md --react
+
+# Save Native guidance to a custom path
+heroui design-md --native --output docs/DESIGN.md
+
+# Refresh React guidance from a coding agent or script
+heroui design-md --react --json
+```
+
+Downloads come directly from [React DESIGN.md](https://heroui.com/react/DESIGN.md) or [Native DESIGN.md](https://heroui.com/native/DESIGN.md), with a fresh request each time. These endpoints must be published before this command can download successfully.
+
+The command only writes the destination file. It prints a suggested reference but does not edit `AGENTS.md`, `CLAUDE.md`, editor rules, or `.gitignore`. Add a reference to your agent instructions, adjusting the path when needed:
+
+```md
+Follow [DESIGN.md](./DESIGN.md) for all visual and interaction decisions.
+```
+
+JSON success includes `command`, `ok`, `selection`, the absolute `outputFile`, and `sourceUrl`. Failures return `command`, `ok: false`, and `error` with exit code 1.
 
 ### Agents-md
 

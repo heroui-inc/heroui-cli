@@ -45,4 +45,4 @@ export async function shutdown(): Promise<void> {
 }
 
 export {Analytics} from './analytics';
-export type {AgentsMdEvent, AgentsMdProperties} from './analytics';
+export type {AgentsMdEvent, AgentsMdProperties, DesignMdEvent} from './analytics';
