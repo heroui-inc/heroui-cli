@@ -1,3 +1,9 @@
+# [3.2.0](https://github.com/heroui-inc/heroui-cli/compare/v3.1.1...v3.2.0) (2026-10-29)
+
+### Features
+
+- **cli:** add design-md command for coding agents ([#226](https://github.com/heroui-inc/heroui-cli/issues/226)) ([3c39ec3](https://github.com/heroui-inc/heroui-cli/commit/3c39ec3764576f50d1b4d8f44aba10da051cf739))
+
 ## [3.1.1](https://github.com/heroui-inc/heroui-cli/compare/v3.1.0...v3.1.1) (2026-10-21)
 
 ### Bug Fixes
